@@ -7,7 +7,6 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-
     "db:generate": "dotenv -e .env.local -- npx prisma generate",
     "db:migrate": "dotenv -e .env.local -- npx prisma migrate dev"
   },
@@ -17,6 +16,7 @@
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",
     "@prisma/client": "^5.22.0",
+    "@radix-ui/react-checkbox": "^1.1.2",
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@tanstack/react-table": "^8.20.5",
@@ -24,6 +24,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "dotenv": "^16.4.5",
+    "jszip": "^3.10.1",
     "lucide-react": "^0.454.0",
     "next": "14.2.13",
     "react": "^18",
