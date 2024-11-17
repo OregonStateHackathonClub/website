@@ -1,12 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
 
-type SessionToken = {
-  id: number
-  googleId: string
-  email: string
-  name: string
-}
-
 export async function middleware(request: NextRequest): Promise<NextResponse> {
 	if (request.method === "GET") {
 		return NextResponse.next(
