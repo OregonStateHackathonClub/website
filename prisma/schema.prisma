@@ -7,13 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
   id          Int          @id @default(autoincrement())
   googleId    String       @unique
   email String @unique
   name        String
   application Application?
-  sesions     Session[]
+  sessions     Session[]
+  role Role @default(USER)
 }
 
 model Session {
