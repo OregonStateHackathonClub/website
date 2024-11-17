@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "db:generate": "dotenv -e .env.local -- npx prisma generate",
-    "db:migrate": "dotenv -e .env.local -- npx prisma migrate dev"
+    "db:push": "dotenv -e .env.local -- npx prisma db push",
+    "db:migrate": "dotenv -e .env.local -- npx prisma migrate dev",
+    "db:studio": "dotenv -e .env.local -- npx prisma studio"
   },
   "dependencies": {
     "@google-cloud/storage": "^7.14.0",

@@ -9,8 +9,7 @@ const Apply = async() => {
   const { user } = await getCurrentSession()
 
   if (!user) return <AuthPage />
-
-  console.log(user)
+  
   const existingApplication = await prisma.application.findUnique({
     where: { userId: user.id }
   })

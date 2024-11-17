@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/prisma"
+import { getCurrentSession } from "@/lib/auth/session"
+
 import { Application, columns } from "./columns"
 import { DataTable } from "./data-table"
 
@@ -25,10 +27,18 @@ const getApplicants = async(): Promise<Application[]> => {
   })
 }
 
-const Dashboard = async() => {
+const Admin = async() => {
+  const { user } = await getCurrentSession()
+
+  if (!user || user.role !== "ADMIN") {
+    return (
+      <div className="flex items-center justify-center">
+        <div>You are not authorized to view this resource.</div>
+      </div>
+    )
+  }
 
   const applications = await getApplicants()
-  
 
   return (
     <div className="flex h-screen w-screen items-center justify-center">
@@ -39,4 +49,4 @@ const Dashboard = async() => {
   )
 }
 
-export default Dashboard
+export default Admin
