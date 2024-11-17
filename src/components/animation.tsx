@@ -96,7 +96,6 @@ export const GridAnimation = () => {
       // ctx.fillText("|___\\___\\__,_|\\_/\\___|_|   |_| |_\\__,_\\__|_\\_/__/", 66, 324)
 
       if (updates < 20) {
-        console.log(1)
         const framesBetweenUpdates = Math.ceil(1 + (updates / 95) * 10);
         if (frame - lastUpdateFrame >= framesBetweenUpdates) {
           for (let i = 0, n = lines.length; i < n; i++) {
