@@ -42,29 +42,3 @@ This is the official website for BeaverHacks, a yearly hackathon hosted by the H
   ```bash
   npm run dev
   ```
-
-## Contributing
-Please adhere to the following guidelines before making a pull request.
-
-Project structure
-```
-src/
-├── app/            # Next.js app router
-├── components/     # Reusable components
-├── lib/            # Utility functions and shared logic
-└── middleware.ts   # Middleware
-```
-
-Write meaningful commit messages
-```bash
-# Good
-git commit -m "feat: add application status tracking"
-git commit -m "fix: resolve admin dashboard loading issue"
-```
-
-Follow our coding standards
-- Use TypeScript for type safety
-- Follow ESLint rules
-- Use Prettier for formatting
-
-Thanks for contributing! 🎉
