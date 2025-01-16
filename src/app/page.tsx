@@ -76,9 +76,9 @@ const Home = () => {
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="item-4" className="border-none">
-            <AccordionTrigger className="hover:no-underline text-lg">What if I don't have a team?</AccordionTrigger>
+            <AccordionTrigger className="hover:no-underline text-lg">What if I don&apos;t have a team?</AccordionTrigger>
             <AccordionContent>
-              Meet potential teammates during team formation at the start of the event. We'll help match you with others based on skills and interests.
+              Meet potential teammates during team formation at the start of the event. We&apos;ll help match you with others based on skills and interests.
             </AccordionContent>
           </AccordionItem>
         </Accordion>  
