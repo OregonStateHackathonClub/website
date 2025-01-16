@@ -16,7 +16,7 @@ export const AuthPage = () => {
       <Card>
         <CardHeader>
           <CardTitle>Welcome to BeaverHacks</CardTitle>
-          <CardDescription>Please sign in with Google to apply</CardDescription>
+          <CardDescription>Please sign in with Google</CardDescription>
         </CardHeader>
         <CardContent>
           <Link href="/api/login">
