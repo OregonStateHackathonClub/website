@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -9,9 +10,27 @@ interface ButtonProps {
 }
 
 export const Navbar = ({ aboutRef, sponsorsRef, faqRef }: ButtonProps) => {
+  const [isScrolled, setIsScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 8) {
+        setIsScrolled(true)
+      } else {
+        setIsScrolled(false)
+      }
+    }
+
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  })
+
   return (
-    <div className="fixed top-4 left-4 w-[calc(100vw-32px)] flex items-center justify-between p-4 border rounded bg-background">
-      <Image src="/images/RightJellyBean.png" width={48} height={48} alt="logo"/>
+    <nav className={`z-50 fixed w-screen flex items-center justify-between p-4 border-b transition-colors bg-background duration-300 ${ isScrolled && "bg-background/95 backdrop-blur-sm"}`}>
+      <div className="flex items-center gap-8">
+        <Image src="/images/RightJellyBean.png" width={48} height={48} alt="logo"/>
+        <h1 className="text-xl">Hackathon Club at Oregon State University</h1>
+      </div>
       <div className="flex gap-4">
         <Button 
           variant="outline" 
@@ -27,6 +46,6 @@ export const Navbar = ({ aboutRef, sponsorsRef, faqRef }: ButtonProps) => {
         >FAQ</Button>
         <Link href="/apply"><Button variant="outline">Apply</Button></Link>
       </div>
-    </div>
+    </nav>
   )
 }
