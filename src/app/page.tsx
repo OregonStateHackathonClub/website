@@ -1,8 +1,9 @@
 "use client"
 
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { motion } from "framer-motion";
 
 import { ChevronButton } from "@/components/chevron";
 import { Navbar } from "@/components/navbar";
@@ -22,13 +23,75 @@ const Home = () => {
   const sponsors = useRef(null)
   const faq = useRef(null)
 
+  // Logic for the parallax image movements
+  const [mousePos, setMousePos] = useState({x: 0, y: 0});
+
+  useEffect(() => {
+    const handleMouseMove = (event) => {
+      if (!about.current) return;
+
+      const { clientX, clientY } = event;
+      const { innerWidth, innerHeight } = window;
+
+      // Normalize mouse position (-1 to 1)
+      const x = (clientX / innerWidth) * 2 - 1;
+      const y = (clientY / innerHeight) * 2 - 1;
+
+      setMousePos({ x, y });
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+
+
   return (
     <>
       <Navbar aboutRef={about} sponsorsRef={sponsors} faqRef={faq}/>
       <div className="w-screen h-screen flex items-center justify-center">
         <ChevronButton targetRef={about}/>
       </div>
-      <div ref={about} className="w-screen h-screen flex flex-col items-center justify-center">
+      <div ref={about} className="w-screen h-screen relative flex flex-col items-center justify-center">
+        <motion.img 
+          className="absolute hover:scale-110 hover:outline hover:outline-orange-500 transition duration-300"
+          src="/testPhotos/lap1.jpg"
+          width={175}
+          height={175}
+          alt="Laptop 1"
+          style={{ top: '10%', left: '20%' }}
+          animate={{
+            x: mousePos.x * 50,
+            y: mousePos.y * 50,
+          }}
+          transition={{ type: "spring", stiffness: 100 }}
+        />
+        <motion.img
+          className="absolute hover:scale-110 hover:outline hover:outline-orange-500 transition duration-300"
+          src="/testPhotos/lap2.jpg"
+          width={175}
+          height={175}
+          alt="Laptop 2"
+          style={{ top: '30%', right: '15%' }}
+          animate={{
+            x: mousePos.x * -50,
+            y: mousePos.y * -50,
+          }}
+          transition={{ type: "spring", stiffness: 100 }}
+        />
+        <motion.img
+          className="absolute hover:scale-110 hover:outline hover:outline-orange-500 transition duration-300"
+          src="/testPhotos/lap3.jpg"
+          width={175}
+          height={175}
+          alt="Laptop 2"
+          style={{ bottom: '20%', left: '50%' }}
+          animate={{
+            x: mousePos.x * 25,
+            y: mousePos.y * -25,
+          }}
+          transition={{ type: "spring", stiffness: 100 }}
+        />
         <span>Oregon State&apos;s Biggest Hackathon</span>
         <Countdown targetDate={new Date(1743807600 * 1000)} />
       </div>
