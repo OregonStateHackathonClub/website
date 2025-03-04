@@ -53,97 +53,103 @@ const Home = () => {
         <ChevronButton targetRef={about}/>
       </div>
       <div ref={about} className="w-screen h-screen relative flex flex-col items-center justify-center">
-        <motion.img 
-          className="absolute hover:scale-110 hover:outline hover:outline-orange-500 transition duration-300"
-          src="/parallaxPhotos/img1.jpg"
-          width={200}
-          height={200}
-          alt="Officer Owen presenting"
-          style={{ top: '10%', left: '20%' }}
-          animate={{
-            x: mousePos.x * 25,
-            y: mousePos.y * 25,
-          }}
-          transition={{ type: "spring", stiffness: 100 }}
-        />
-        <motion.img
-          className="absolute hover:scale-110 hover:outline hover:outline-orange-500 transition duration-300"
-          src="/parallaxPhotos/img2.png"
-          width={200}
-          height={200}
-          alt="Havel teaching"
-          style={{ top: '30%', right: '15%' }}
-          animate={{
-            x: mousePos.x * -50,
-            y: mousePos.y * -50,
-          }}
-          transition={{ type: "spring", stiffness: 100 }}
-        />
-        <motion.img
-          className="absolute hover:scale-110 hover:outline hover:outline-orange-500 transition duration-300"
-          src="/parallaxPhotos/img3.jpg"
-          width={250}
-          height={250}
-          alt="UO Hackathon Podcast"
-          style={{ bottom: '20%', left: '50%' }}
-          animate={{
-            x: mousePos.x * 25,
-            y: mousePos.y * -25,
-          }}
-          transition={{ type: "spring", stiffness: 100 }}
-        />
-        <motion.img 
-          className="absolute hover:scale-110 hover:outline hover:outline-orange-500 transition duration-300"
-          src="/parallaxPhotos/img4.jpg"
-          width={200}
-          height={200}
-          alt="Tom presentation"
-          style={{ bottom: '20%', left: '10%' }}
-          animate={{
-            x: mousePos.x * 100,
-            y: mousePos.y * 100,
-          }}
-          transition={{ type: "spring", stiffness: 100 }}
-        />
-        <motion.img 
-          className="absolute hover:scale-110 hover:outline hover:outline-orange-500 transition duration-300"
-          src="/parallaxPhotos/img5.jpg"
-          width={200}
-          height={200}
-          alt="Programming"
-          style={{ top: '10%', left: '50%' }}
-          animate={{
-            x: mousePos.x * 75,
-            y: mousePos.y * -75,
-          }}
-          transition={{ type: "spring", stiffness: 100 }}
-        />
-        <motion.img 
-          className="absolute hover:scale-110 hover:outline hover:outline-orange-500 transition duration-300"
-          src="/parallaxPhotos/img6.jpg"
-          width={200}
-          height={200}
-          alt="Officers"
-          style={{ bottom: '10%', right: '10%' }}
-          animate={{
-            x: mousePos.x * -50,
-            y: mousePos.y * 50,
-          }}
-          transition={{ type: "spring", stiffness: 100 }}
-        />
-        <motion.img 
-          className="absolute hover:scale-110 hover:outline hover:outline-orange-500 transition duration-300"
-          src="/parallaxPhotos/img7.jpg"
-          width={200}
-          height={200}
-          alt="Dudes programming"
-          style={{ bottom: '10%', left: '30%' }}
-          animate={{
-            x: mousePos.x * 50,
-            y: mousePos.y * 50,
-          }}
-          transition={{ type: "spring", stiffness: 100 }}
-        />
+
+        <div className="hidden md:block lg:block xl:block">
+
+          <motion.img 
+            className="absolute hover:scale-110 hover:outline hover:outline-orange-500 transition duration-300"
+            src="/parallaxPhotos/img1.jpg"
+            width={200}
+            height={200}
+            alt="Officer Owen presenting"
+            style={{ top: '10%', left: '20%' }}
+            animate={{
+              x: mousePos.x * 25,
+              y: mousePos.y * 25,
+            }}
+            transition={{ type: "spring", stiffness: 100 }}
+          />
+          <motion.img
+            className="absolute hover:scale-110 hover:outline hover:outline-orange-500 transition duration-300"
+            src="/parallaxPhotos/img2.png"
+            width={200}
+            height={200}
+            alt="Havel teaching"
+            style={{ top: '30%', right: '15%' }}
+            animate={{
+              x: mousePos.x * -50,
+              y: mousePos.y * -50,
+            }}
+            transition={{ type: "spring", stiffness: 100 }}
+          />
+          <motion.img
+            className="absolute hover:scale-110 hover:outline hover:outline-orange-500 transition duration-300"
+            src="/parallaxPhotos/img3.jpg"
+            width={250}
+            height={250}
+            alt="UO Hackathon Podcast"
+            style={{ bottom: '20%', left: '50%' }}
+            animate={{
+              x: mousePos.x * 25,
+              y: mousePos.y * -25,
+            }}
+            transition={{ type: "spring", stiffness: 100 }}
+          />
+          <motion.img 
+            className="absolute hover:scale-110 hover:outline hover:outline-orange-500 transition duration-300"
+            src="/parallaxPhotos/img4.jpg"
+            width={200}
+            height={200}
+            alt="Tom presentation"
+            style={{ bottom: '20%', left: '10%' }}
+            animate={{
+              x: mousePos.x * 100,
+              y: mousePos.y * 100,
+            }}
+            transition={{ type: "spring", stiffness: 100 }}
+          />
+          <motion.img 
+            className="absolute hover:scale-110 hover:outline hover:outline-orange-500 transition duration-300"
+            src="/parallaxPhotos/img5.jpg"
+            width={200}
+            height={200}
+            alt="Programming"
+            style={{ top: '10%', left: '50%' }}
+            animate={{
+              x: mousePos.x * 75,
+              y: mousePos.y * -75,
+            }}
+            transition={{ type: "spring", stiffness: 100 }}
+          />
+          <motion.img 
+            className="absolute hover:scale-110 hover:outline hover:outline-orange-500 transition duration-300"
+            src="/parallaxPhotos/img6.jpg"
+            width={200}
+            height={200}
+            alt="Officers"
+            style={{ bottom: '10%', right: '10%' }}
+            animate={{
+              x: mousePos.x * -50,
+              y: mousePos.y * 50,
+            }}
+            transition={{ type: "spring", stiffness: 100 }}
+          />
+          <motion.img 
+            className="absolute hover:scale-110 hover:outline hover:outline-orange-500 transition duration-300"
+            src="/parallaxPhotos/img7.jpg"
+            width={200}
+            height={200}
+            alt="Dudes programming"
+            style={{ bottom: '10%', left: '30%' }}
+            animate={{
+              x: mousePos.x * 50,
+              y: mousePos.y * 50,
+            }}
+            transition={{ type: "spring", stiffness: 100 }}
+          />
+
+        </div>
+
         <span>Oregon State&apos;s Biggest Hackathon</span>
         <Countdown targetDate={new Date(1743807600 * 1000)} />
       </div>
