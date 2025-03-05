@@ -29,13 +29,28 @@ model Session {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+enum ApplicationStatus {
+  APPLIED
+  CHECKED_IN
+}
+
+enum ShirtSize {
+  XS
+  S
+  M
+  L
+  XL
+  XXL
+}
+
 model Application {
   id         Int     @id @default(autoincrement())
   createdAt DateTime @default(now())
   userId     Int     @unique
   university String
   graduationYear Int
+  shirtSize ShirtSize
   resumePath String
-  status     String  @default("PENDING")
+  status     ApplicationStatus  @default(APPLIED)
   user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
