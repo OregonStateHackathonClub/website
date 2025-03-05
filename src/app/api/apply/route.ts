@@ -1,5 +1,6 @@
 import { cookies } from "next/headers"
 import { validateSessionToken } from "@/lib/auth/session"
+import { sendEmail } from "@/lib/email"
 import { prisma } from "@/lib/prisma"
 import { uploadFile } from "@/lib/storage"
 import { ShirtSize } from "@prisma/client";
@@ -39,6 +40,29 @@ export async function POST(request: Request): Promise<Response> {
       resumePath: path,
     }
   })
+
+  try {
+    await sendEmail({
+      to: user.email, 
+      subject: "BeaverHacks Registration Confirmation",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #F97316; margin-top: 20px;">BeaverHacks Registration Confirmed!</h2>
+          
+          <p>Hello ${user.name},</p>
+          
+          <p>Thank you for registering for BeaverHacks! Your application has been successfully submitted.</p>
+          
+          <!-- Rest of your email template -->
+          
+          <p style="margin-top: 30px;">See you at the hackathon!</p>
+          <p>The BeaverHacks Team</p>
+        </div>
+      `
+    });
+  } catch (error) {
+    console.error("Failed to send confirmation email:", error);
+  }
 
   return Response.json(application)
 }
