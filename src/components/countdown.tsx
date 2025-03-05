@@ -45,40 +45,39 @@ export const Countdown = ({ targetDate }: { targetDate: Date }) => {
   if (!timeLeft) return null
 
   return (
-    <div className="flex flex-col items-center gap-6">
+    <div className="flex flex-col items-center gap-4 w-full">
       <h2 className="text-xl font-medium text-orange-500 uppercase tracking-widest">Countdown to Launch</h2>
-      <div className="flex gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 md:gap-6 w-full">
         {/* Days */}
         <div className="flex flex-col items-center">
-          <div className="w-20 h-20 bg-black/20 backdrop-blur-sm rounded-lg flex items-center justify-center border border-white/10 shadow-lg">
-            <span className="font-bold text-4xl">{String(timeLeft.days).padStart(2, '0')}</span>
+          <div className="w-full aspect-square backdrop-blur-sm rounded-lg flex items-center justify-center border shadow-lg max-w-[5rem]">
+            <span className="font-bold text-2xl sm:text-3xl md:text-4xl">{String(timeLeft.days).padStart(2, '0')}</span>
           </div>
-          <span className="text-sm uppercase mt-2 font-medium tracking-wider opacity-80">Days</span>
+          <span className="text-xs sm:text-sm uppercase mt-2 font-medium tracking-wider opacity-80">Days</span>
         </div>
         
         {/* Hours */}
         <div className="flex flex-col items-center">
-          <div className="w-20 h-20 bg-black/20 backdrop-blur-sm rounded-lg flex items-center justify-center border border-white/10 shadow-lg">
-            <span className="font-bold text-4xl">{String(timeLeft.hours).padStart(2, '0')}</span>
+          <div className="w-full aspect-square backdrop-blur-sm rounded-lg flex items-center justify-center border shadow-lg max-w-[5rem]">
+            <span className="font-bold text-2xl sm:text-3xl md:text-4xl">{String(timeLeft.hours).padStart(2, '0')}</span>
           </div>
-          <span className="text-sm uppercase mt-2 font-medium tracking-wider opacity-80">Hours</span>
+          <span className="text-xs sm:text-sm uppercase mt-2 font-medium tracking-wider opacity-80">Hours</span>
         </div>
         
         {/* Minutes */}
         <div className="flex flex-col items-center">
-          <div className="w-20 h-20 bg-black/20 backdrop-blur-sm rounded-lg flex items-center justify-center border border-white/10 shadow-lg">
-            <span className="font-bold text-4xl">{String(timeLeft.minutes).padStart(2, '0')}</span>
+          <div className="w-full aspect-square backdrop-blur-sm rounded-lg flex items-center justify-center border shadow-lg max-w-[5rem]">
+            <span className="font-bold text-2xl sm:text-3xl md:text-4xl">{String(timeLeft.minutes).padStart(2, '0')}</span>
           </div>
-          <span className="text-sm uppercase mt-2 font-medium tracking-wider opacity-80">Minutes</span>
+          <span className="text-xs sm:text-sm uppercase mt-2 font-medium tracking-wider opacity-80">Minutes</span>
         </div>
         
         {/* Seconds */}
         <div className="flex flex-col items-center">
-          <div className="w-20 h-20 bg-black/20 backdrop-blur-sm rounded-lg flex items-center justify-center border border-white/10 shadow-lg relative overflow-hidden group">
-            <div className="absolute inset-0 bg-orange-500/10 transform scale-0 group-hover:scale-100 transition-transform duration-500 rounded-lg"></div>
-            <span className="font-bold text-4xl relative z-10">{String(timeLeft.seconds).padStart(2, '0')}</span>
+          <div className="w-full aspect-square backdrop-blur-sm rounded-lg flex items-center justify-center border shadow-lg max-w-[5rem]">
+            <span className="font-bold text-2xl sm:text-3xl md:text-4xl">{String(timeLeft.seconds).padStart(2, '0')}</span>
           </div>
-          <span className="text-sm uppercase mt-2 font-medium tracking-wider opacity-80">Seconds</span>
+          <span className="text-xs sm:text-sm uppercase mt-2 font-medium tracking-wider opacity-80">Seconds</span>
         </div>
       </div>
     </div>

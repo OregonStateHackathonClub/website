@@ -31,39 +31,42 @@ export const Navbar = ({ aboutRef, sponsorsRef, faqRef }: NavbarProps) => {
         ? "border-white/10 bg-black/30 backdrop-blur-sm text-white" 
         : "border-border bg-background"
     }`}>
-      <div className="flex items-center gap-6">
-        <Image src="/images/beaver.png" width={52} height={52} alt="logo"/>
+      <div className="flex items-center gap-3 sm:gap-6">
+        <Image src="/images/beaver.png" width={40} height={40} className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" alt="logo"/>
         <div className="flex flex-col">
-          <h1 className={`text-2xl font-bold tracking-wide`}>
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold tracking-wide truncate">
             BEAVERHACKS
           </h1>
-          <p className={`text-xs uppercase tracking-wider text-muted-foreground`}>
+          <p className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground hidden sm:block">
             Oregon State University
           </p>
         </div>
       </div>
-      <div className="flex gap-4">
+
+      <div className="flex gap-2 md:gap-4">
         <Button 
           variant="outline" 
-          className={isOnVideoSection ? "text-white hover:bg-white/10" : ""}
+          className={`${isOnVideoSection ? "text-white hover:bg-white/10" : ""} hidden md:inline-flex`}
           onClick={() => {aboutRef.current?.scrollIntoView({ behavior: "smooth" })}}
         >About</Button>
         <Button 
           variant="outline" 
-          className={isOnVideoSection ? "text-white hover:bg-white/10" : ""}
+          className={`${isOnVideoSection ? "text-white hover:bg-white/10" : ""} hidden md:inline-flex`}
           onClick={() => {sponsorsRef.current?.scrollIntoView({ behavior: "smooth" })}}
         >Sponsors</Button>        
         <Button 
           variant="outline" 
-          className={isOnVideoSection ? "text-white hover:bg-white/10" : ""}
+          className={`${isOnVideoSection ? "text-white hover:bg-white/10" : ""} hidden md:inline-flex`}
           onClick={() => {faqRef.current?.scrollIntoView({ behavior: "smooth" })}}
         >FAQ</Button>
+        
         <Link href="/apply">
           <Button 
-            variant={isOnVideoSection ? "default" : "default"}
+            variant="default"
+            size="sm"
             className={isOnVideoSection 
-              ? "bg-orange-500 hover:bg-orange-600 text-white border-none" 
-              : "bg-orange-500 hover:bg-orange-600 text-white"
+              ? "bg-orange-500 hover:bg-orange-600 text-white border-none text-xs sm:text-sm md:text-base font-semibold" 
+              : "bg-orange-500 hover:bg-orange-600 text-white text-xs sm:text-sm md:text-base font-semibold"
             }
           >Register</Button>
         </Link>
