@@ -1,10 +1,10 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { FileUp } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -24,6 +24,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 
 const MAX_FILE_SIZE = 1024 * 1024 * 5; // 5MB
 const ACCEPTED_FILE_TYPES = ["application/pdf", "image/jpeg", "image/png"];
@@ -37,7 +44,7 @@ const formSchema = z.object({
   graduationYear: z
     .string()
     .min(1, { message: "Graduation year cannot be empty" }),
-  shirtSize: z.enum(["XS", "S", "M", "L", "XL", "XXL"], {
+  shirtSize: z.enum(["XS", "S", "M", "L", "XL", "XXL", "XXXL"], {
     required_error: "Please select a t-shirt size.",
   }),
   resume: z
@@ -73,7 +80,6 @@ export const ApplicationForm = ({
   })
 
   const onSubmit = async(values: z.infer<typeof formSchema>) => {
-
     const formData = new FormData()
     formData.append("university", values.university)
     formData.append("graduationYear", values.graduationYear)
@@ -93,125 +99,186 @@ export const ApplicationForm = ({
     }
   }
 
+  const currentYear = new Date().getFullYear();
+  const yearsArray = Array.from({length: 10}, (_, i) => (currentYear + i).toString());
+
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-      <FormField 
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input disabled={true} {...field}/>
-              </FormControl>
-              <FormDescription>
-                Your name
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField 
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input disabled={true} {...field}/>
-              </FormControl>
-              <FormDescription>
-                Your email
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="university"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>University</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormDescription>
-                Enter the university you attend
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="graduationYear"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Graduation Year</FormLabel>
-              <FormControl>
-                <Input type="number" className="[&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" {...field} />
-              </FormControl>
-              <FormDescription>
-                Enter your graduation year
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="shirtSize"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>T-Shirt Size</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your t-shirt size" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="XS">Extra Small (XS)</SelectItem>
-                  <SelectItem value="S">Small (S)</SelectItem>
-                  <SelectItem value="M">Medium (M)</SelectItem>
-                  <SelectItem value="L">Large (L)</SelectItem>
-                  <SelectItem value="XL">Extra Large (XL)</SelectItem>
-                  <SelectItem value="XXL">Double XL (XXL)</SelectItem>
-                  <SelectItem value="XXXL">Triple XL (XXXL)</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormDescription>
-                Please select your preferred t-shirt size for the event.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField 
-          control={form.control}
-          name="resume"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Resume</FormLabel>
-              <FormControl>
-                <Input  
-                  type="file" 
-                  onChange={e => {
-                    field.onChange(e.target?.files ? e.target.files[0] : null);
-                  }}
-                />
-              </FormControl>
-              <FormDescription>
-                Upload your resume (.pdf, .jpeg, or .png)
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit" variant="outline" className="w-full">Submit</Button>
-      </form>
-    </Form>
+    <div className="flex justify-center py-8 px-4">
+      <Card className="w-full max-w-xl shadow-lg">
+        <CardHeader className="space-y-1 bg-muted/50 rounded-t-lg">
+          <CardTitle className="text-2xl font-bold text-center">BeaverHacks Registration</CardTitle>
+          <CardDescription className="text-center">
+            Complete your hackathon registration below
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="space-y-4">
+                {/* Personal Information Section */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium">Personal Information</h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField 
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Name</FormLabel>
+                          <FormControl>
+                            <Input disabled={true} {...field}/>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField 
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input disabled={true} {...field}/>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+                
+                {/* Education Section */}
+                <div className="space-y-4 pt-2">
+                  <h3 className="text-lg font-medium">Education</h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="university"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>University</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Oregon State University" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="graduationYear"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Graduation Year</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select year" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {yearsArray.map(year => (
+                                <SelectItem key={year} value={year}>{year}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+                
+                {/* Event Details Section */}
+                <div className="space-y-4 pt-2">
+                  <h3 className="text-lg font-medium">Event Details</h3>
+                  
+                  <FormField
+                    control={form.control}
+                    name="shirtSize"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>T-Shirt Size</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select your t-shirt size" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="XS">Extra Small (XS)</SelectItem>
+                            <SelectItem value="S">Small (S)</SelectItem>
+                            <SelectItem value="M">Medium (M)</SelectItem>
+                            <SelectItem value="L">Large (L)</SelectItem>
+                            <SelectItem value="XL">Extra Large (XL)</SelectItem>
+                            <SelectItem value="XXL">Double XL (XXL)</SelectItem>
+                            <SelectItem value="XXXL">Triple XL (XXXL)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField 
+                    control={form.control}
+                    name="resume"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Resume</FormLabel>
+                        <FormControl>
+                          <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg px-3 py-8 text-center hover:border-muted-foreground/50 transition-colors">
+                            <input
+                              type="file"
+                              id="file-upload"
+                              className="hidden"
+                              onChange={e => {
+                                field.onChange(e.target?.files ? e.target.files[0] : null);
+                              }}
+                            />
+                            <label htmlFor="file-upload" className="cursor-pointer">
+                              <div className="flex flex-col items-center gap-2">
+                                <FileUp className="h-8 w-8 text-muted-foreground/70" />
+                                {!field.value ? (
+                                  <span className="text-sm text-muted-foreground">
+                                    Click to upload your resume (PDF, JPEG, PNG)
+                                  </span>
+                                ) : (
+                                  <span className="text-sm font-medium">
+                                    {field.value.name}
+                                  </span>
+                                )}
+                                <span className="text-xs text-muted-foreground/70">
+                                  Maximum file size: 5MB
+                                </span>
+                              </div>
+                            </label>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end px-0 pt-4">
+                <Button 
+                  type="submit" 
+                  className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                >
+                  Complete Registration
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
   )
 }
