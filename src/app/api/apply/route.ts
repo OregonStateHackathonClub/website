@@ -2,6 +2,7 @@ import { cookies } from "next/headers"
 import { validateSessionToken } from "@/lib/auth/session"
 import { prisma } from "@/lib/prisma"
 import { uploadFile } from "@/lib/storage"
+import { ShirtSize } from "@prisma/client";
 
 export async function POST(request: Request): Promise<Response> {
   const cookieStore = cookies()
@@ -34,6 +35,7 @@ export async function POST(request: Request): Promise<Response> {
       userId: user.id,
       university: formData.get("university") as string,
       graduationYear: parseInt(formData.get("graduationYear") as string),
+      shirtSize: formData.get("shirtSize") as ShirtSize,
       resumePath: path,
     }
   })
