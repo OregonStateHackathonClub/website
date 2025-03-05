@@ -30,7 +30,8 @@ This is the official website for BeaverHacks, a yearly hackathon hosted by the H
 <br />
 
 > [!WARNING]
-> Do not share these credentials with anyone else. Additionally, you will not be able to run the application without them.
+> You will not be able to run the application without the env variables.
+> Do not share these credentials with anyone else. 
 <br />
 
 7. Start a local instance of PostgreSQL using Docker
