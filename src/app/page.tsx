@@ -47,7 +47,7 @@ const Home = () => {
       <div ref={about} className="w-screen min-h-screen flex flex-col items-center justify-center py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl px-4">
           <div className="backdrop-blur-sm p-6 rounded-xl border flex flex-col items-center">
-            <h3 className="text-xl font-semibold mb-4 flex gap-2">
+            <h3 className="text-xl font-semibold mb-3 flex gap-2">
               <Clock />
               Time Remaining
             </h3>
@@ -55,7 +55,7 @@ const Home = () => {
           </div>
           
           <div className="backdrop-blur-sm p-6 rounded-xl border">
-            <h3 className="text-xl font-semibold mb-3 flex items-center gap-2">
+            <h3 className="text-xl font-semibold mb-3 flex gap-2">
               <MapPin />
               Location
             </h3>
