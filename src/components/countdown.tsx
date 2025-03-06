@@ -46,7 +46,7 @@ export const Countdown = ({ targetDate }: { targetDate: Date }) => {
 
   return (
     <div className="flex flex-col items-center gap-4 w-full">
-      <h2 className="text-xl font-medium text-orange-500">COUNTDOWN TO HACKING</h2>
+      <h2 className="text-xl font-medium text-orange-500 uppercase">Countdown to Hacking</h2>
       <div className="flex flex-nowrap gap-3 sm:gap-3 md:gap-6 w-full justify-center">
         <div className="flex flex-col items-center">
           <div className="w-14 sm:w-16 md:w-20 aspect-square backdrop-blur-sm rounded-lg flex items-center justify-center border shadow-lg">

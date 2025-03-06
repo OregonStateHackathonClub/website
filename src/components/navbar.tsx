@@ -34,10 +34,10 @@ export const Navbar = ({ aboutRef, sponsorsRef, faqRef }: NavbarProps) => {
       <div className="flex items-center gap-3 sm:gap-6">
         <Image src="/images/beaver.png" width={40} height={40} className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" alt="logo"/>
         <div className="flex flex-col">
-          <h1 className="text-lg sm:text-xl md:text-2xl font-bold tracking-wide truncate">
-            BEAVERHACKS
+          <h1 className="text-lg uppercase font-bold sm:text-xl md:text-2xl">
+            BeaverHacks
           </h1>
-          <p className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground hidden sm:block">
+          <p className="text-xs uppercase text-muted-foreground hidden sm:block">
             Oregon State University
           </p>
         </div>
@@ -46,28 +46,24 @@ export const Navbar = ({ aboutRef, sponsorsRef, faqRef }: NavbarProps) => {
       <div className="flex gap-2 md:gap-4">
         <Button 
           variant="outline" 
-          className={`${isOnVideoSection ? "text-white hover:bg-white/10" : ""} hidden md:inline-flex`}
+          className="hidden md:block"
           onClick={() => {aboutRef.current?.scrollIntoView({ behavior: "smooth" })}}
         >About</Button>
         <Button 
           variant="outline" 
-          className={`${isOnVideoSection ? "text-white hover:bg-white/10" : ""} hidden md:inline-flex`}
+          className="hidden md:block"
           onClick={() => {sponsorsRef.current?.scrollIntoView({ behavior: "smooth" })}}
         >Sponsors</Button>        
         <Button 
           variant="outline" 
-          className={`${isOnVideoSection ? "text-white hover:bg-white/10" : ""} hidden md:inline-flex`}
+          className="hidden md:block"
           onClick={() => {faqRef.current?.scrollIntoView({ behavior: "smooth" })}}
         >FAQ</Button>
         
         <Link href="/apply">
           <Button 
             variant="default"
-            size="sm"
-            className={isOnVideoSection 
-              ? "bg-orange-500 hover:bg-orange-600 text-white border-none text-xs sm:text-sm md:text-base font-semibold" 
-              : "bg-orange-500 hover:bg-orange-600 text-white text-xs sm:text-sm md:text-base font-semibold"
-            }
+            className="bg-orange-500 hover:bg-orange-600 text-white text-xs sm:text-sm md:text-base"
           >Register</Button>
         </Link>
       </div>

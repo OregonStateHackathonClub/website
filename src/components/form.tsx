@@ -114,10 +114,8 @@ export const ApplicationForm = ({
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="space-y-4">
-                {/* Personal Information Section */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium">Personal Information</h3>
-                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField 
                       control={form.control}
@@ -149,10 +147,8 @@ export const ApplicationForm = ({
                   </div>
                 </div>
                 
-                {/* Education Section */}
                 <div className="space-y-4 pt-2">
                   <h3 className="text-lg font-medium">Education</h3>
-                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
@@ -193,10 +189,8 @@ export const ApplicationForm = ({
                   </div>
                 </div>
                 
-                {/* Event Details Section */}
                 <div className="space-y-4 pt-2">
                   <h3 className="text-lg font-medium">Event Details</h3>
-                  
                   <FormField
                     control={form.control}
                     name="shirtSize"
