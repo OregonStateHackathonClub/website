@@ -63,7 +63,7 @@ export const Navbar = ({ aboutRef, sponsorsRef, faqRef }: NavbarProps) => {
         <Link href="/apply">
           <Button 
             variant="default"
-            className="bg-orange-500 hover:bg-orange-600 text-white text-xs sm:text-sm md:text-base"
+            className="bg-orange-500 hover:bg-orange-600 text-white"
           >Register</Button>
         </Link>
       </div>
