@@ -264,6 +264,7 @@ export const ApplicationForm = ({
                 <Button 
                   type="submit" 
                   className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                  disabled={!form.formState.isValid || form.formState.isSubmitting}
                 >
                   Complete Registration
                 </Button>
