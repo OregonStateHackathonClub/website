@@ -30,18 +30,21 @@ export const Navbar = ({ aboutRef, sponsorsRef, faqRef }: NavbarProps) => {
       isOnVideoSection 
         ? "border-white/10 bg-black/30 backdrop-blur-sm text-white" 
         : "border-border bg-background"
-    }`}>
-      <div className="flex items-center gap-3 sm:gap-6">
-        <Image src="/images/beaver.png" width={40} height={40} className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" alt="logo"/>
-        <div className="flex flex-col">
-          <h1 className="text-lg uppercase font-bold sm:text-xl md:text-2xl">
-            BeaverHacks
-          </h1>
-          <p className="text-xs uppercase text-muted-foreground hidden sm:block">
-            Oregon State University
-          </p>
+      }`}
+    >
+      <Link href="/" className="flex items-center gap-4">
+        <div className="flex items-center gap-4">
+          <Image src="/images/beaver.png" width={40} height={40} className="w-10 h-10 sm:w-12 sm:h-12" alt="logo"/>
+          <div className="flex flex-col">
+            <h1 className="text-lg uppercase font-bold sm:text-xl">
+              BeaverHacks
+            </h1>
+            <p className="text-xs uppercase text-muted-foreground hidden sm:block">
+              Oregon State University
+            </p>
+          </div>
         </div>
-      </div>
+      </Link>
 
       <div className="flex gap-2 md:gap-4">
         <Button 
