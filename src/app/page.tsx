@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -19,19 +19,41 @@ const Home = () => {
   const about = useRef<HTMLDivElement>(null)
   const sponsors = useRef<HTMLDivElement>(null)
   const faq = useRef<HTMLDivElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const handleResize = () => {
+      const currentIsMobile = window.innerWidth < 768
+    
+      if (currentIsMobile !== isMobile) {
+        setIsMobile(currentIsMobile)
+        
+        if (videoRef.current) {
+          videoRef.current.load()
+        }
+      }
+    }
+    
+    handleResize()
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [isMobile])
 
   return (
     <>
       <Navbar aboutRef={about} sponsorsRef={sponsors} faqRef={faq}/>
       <div className="relative w-screen h-screen">
         <video
-          className="absolute w-full h-full object-cover"
+          ref={videoRef}
+          className={`absolute w-full h-full object-cover`}
           autoPlay
           loop
           muted
           playsInline
         >
-          <source src="/promo_vid.mp4" type="video/mp4" />
+          <source src={isMobile ? "/promo_vid_tall.mp4" : "/promo_vid_wide.mp4"}  type="video/mp4" />
         </video>
         <div 
           className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-3 text-white cursor-pointer z-40 opacity-70 hover:opacity-100 transition-opacity duration-300"
@@ -130,7 +152,7 @@ const Home = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 justify-items-center items-center gap-8 md:gap-16">
             <Link 
               className="transition-transform duration-300 hover:scale-105" 
-              href="https://google.com/" 
+              href="https://developers.google.com/" 
               target="_blank"
             >
               <Image 
@@ -143,7 +165,7 @@ const Home = () => {
             </Link>
             <Link 
               className="transition-transform duration-300 hover:scale-105" 
-              href="https://groq.com/" 
+              href="https://groq.com/how-to-win-hackathons-with-groq/" 
               target="_blank"
             >
               <Image 
