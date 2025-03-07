@@ -18,7 +18,7 @@ const Apply = async() => {
   
   return (
     <div className="flex justify-center items-center h-screen">
-      <div className="h-[90vh] overflow-y-auto scrollbar-hide">
+      <div className="h-[90vh]">
         <ApplicationForm name={user.name} email={user.email}/>
       </div>
     </div>
