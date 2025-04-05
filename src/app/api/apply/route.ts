@@ -1,11 +1,19 @@
-import { cookies } from "next/headers"
-import { validateSessionToken } from "@/lib/auth/session"
-import { sendEmail } from "@/lib/email"
-import { prisma } from "@/lib/prisma"
-import { uploadFile } from "@/lib/storage"
+import { cookies } from "next/headers";
+import { validateSessionToken } from "@/lib/auth/session";
+import { sendEmail } from "@/lib/email";
+import { prisma } from "@/lib/prisma";
+import { uploadFile } from "@/lib/storage";
 import { ShirtSize } from "@prisma/client";
 
 export async function POST(request: Request): Promise<Response> {
+  const applicationsOpen = false;
+  
+  if (!applicationsOpen) {
+    return new Response('Applications are closed', { 
+      status: 400 
+    });
+  }
+
   const cookieStore = cookies()
   const sessionToken = cookieStore.get('session')?.value
 

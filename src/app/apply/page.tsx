@@ -1,11 +1,19 @@
-import { redirect } from "next/navigation"
+import { redirect } from "next/navigation";
 
-import { prisma } from "@/lib/prisma"
-import { getCurrentSession } from "@/lib/auth/session"
-import { ApplicationForm } from "@/components/form"
-import { AuthPage } from "@/components/auth"
+import { prisma } from "@/lib/prisma";
+import { getCurrentSession } from "@/lib/auth/session";
+import { ApplicationForm } from "@/components/form";
+import { AuthPage } from "@/components/auth";
 
 const Apply = async() => {
+  const applicationsOpen = false;
+
+  if (!applicationsOpen) return (
+    <div className="flex w-screen h-screen items-center justify-center">
+      <div>Applications are closed</div>
+    </div>
+  )
+
   const { user } = await getCurrentSession()
 
   if (!user) return <AuthPage />
