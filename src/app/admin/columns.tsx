@@ -3,15 +3,20 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ArrowUpDown, File } from "lucide-react"
+import { ArrowUpDown, File, CheckCircle, XCircle } from "lucide-react"
+import { ApplicationStatus } from "@prisma/client"
+import { useState } from "react"
 
 export type Application = {
+  id: number
   createdAt: Date
   university: string
   graduationYear: number
   resumePath: string
+  status: ApplicationStatus
   user: {
-    name: string, email: string
+    name: string, 
+    email: string
   }
 }
 
@@ -24,6 +29,61 @@ const handleDownload = async(path: string) => {
   link.download = path
   link.click()
   window.URL.revokeObjectURL(url);
+}
+
+const CheckInButton = ({ application }: { application: Application }) => {
+  const [status, setStatus] = useState<ApplicationStatus>(application.status)
+  const [isLoading, setIsLoading] = useState(false)
+
+  const checkIn = async () => {
+    if (status === ApplicationStatus.CHECKED_IN) return
+    
+    setIsLoading(true)
+    try {
+      const res = await fetch('/api/check-in', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          applicationId: application.id,
+          status: ApplicationStatus.CHECKED_IN
+        }),
+      })
+      
+      if (res.ok) {
+        setStatus(ApplicationStatus.CHECKED_IN)
+      } else {
+        console.error('Failed to check in applicant')
+      }
+    } catch (error) {
+      console.error('Error checking in applicant:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <Button 
+      variant={status === ApplicationStatus.CHECKED_IN ? "default" : "outline"}
+      size="sm"
+      onClick={checkIn}
+      disabled={isLoading || status === ApplicationStatus.CHECKED_IN}
+      className={status === ApplicationStatus.CHECKED_IN ? "bg-green-600 cursor-default" : ""}
+    >
+      {status === ApplicationStatus.CHECKED_IN ? (
+        <>
+          <CheckCircle className="mr-1 h-4 w-4" />
+          Checked In
+        </>
+      ) : (
+        <>
+          <CheckCircle className="mr-1 h-4 w-4" />
+          Check In
+        </>
+      )}
+    </Button>
+  )
 }
 
 export const columns: ColumnDef<Application>[] = [
@@ -77,10 +137,41 @@ export const columns: ColumnDef<Application>[] = [
     header: "Graduation",
   },
   {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }) => {
+      const status = row.getValue("status") as ApplicationStatus
+      return (
+        <div className="flex items-center">
+          {status === ApplicationStatus.CHECKED_IN ? (
+            <span className="flex items-center gap-1 text-xs font-medium px-2 py-1 bg-green-600/20 text-green-500 rounded-full">
+              <CheckCircle className="h-3 w-3" /> Checked In
+            </span>
+          ) : (
+            <span className="flex items-center gap-1 text-xs font-medium px-2 py-1 bg-orange-600/20 text-orange-500 rounded-full">
+              <XCircle className="h-3 w-3" /> Not Checked In
+            </span>
+          )}
+        </div>
+      )
+    },
+    filterFn: (row, id, value) => {
+      return value === row.getValue(id)
+    },
+    enableSorting: true
+  },
+  {
     accessorKey: "resumePath",
     header: "Resume",
     cell: ({ cell }) => {
       return <Button variant="ghost" size="icon" onClick={() => handleDownload(cell.getValue() as string)}><File /></Button>
+    }
+  },
+  {
+    id: "checkIn",
+    header: "Check In",
+    cell: ({ row }) => {
+      return <CheckInButton application={row.original} />
     }
   },
 ]

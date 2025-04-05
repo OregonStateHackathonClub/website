@@ -6,6 +6,16 @@ import { ApplicationForm } from "@/components/form";
 import { AuthPage } from "@/components/auth";
 
 const Apply = async() => {
+  const { user } = await getCurrentSession()
+
+  if (!user) return <AuthPage />
+
+  const existingApplication = await prisma.application.findUnique({
+    where: { userId: user.id }
+  })
+
+  if (existingApplication) redirect("/profile")
+
   const applicationsOpen = false;
 
   if (!applicationsOpen) return (
@@ -13,16 +23,6 @@ const Apply = async() => {
       <div>Applications are closed</div>
     </div>
   )
-
-  const { user } = await getCurrentSession()
-
-  if (!user) return <AuthPage />
-  
-  const existingApplication = await prisma.application.findUnique({
-    where: { userId: user.id }
-  })
-
-  if (existingApplication) redirect("/profile")
   
   return (
     <div className="flex justify-center items-center h-screen">
