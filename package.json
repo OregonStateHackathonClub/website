@@ -35,7 +35,7 @@
     "dotenv": "^16.4.5",
     "jszip": "^3.10.1",
     "lucide-react": "^0.454.0",
-    "next": "14.2.13",
+    "next": "^14.2.31",
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.53.2",
