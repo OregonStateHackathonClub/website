@@ -7,50 +7,68 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  USER
-  ADMIN
-}
-
 model User {
-  id          Int          @id @default(autoincrement())
-  googleId    String       @unique
-  email String @unique
-  name        String
-  application Application?
-  sessions     Session[]
-  role Role @default(USER)
+  id            String    @id
+  createdAt     DateTime
+  updatedAt     DateTime
+  
+  name          String
+  email         String @unique
+  emailVerified Boolean
+  image         String?
+
+  sessions      Session[]
+  accounts      Account[]
+
+  @@map("users")
 }
 
 model Session {
   id        String   @id
-  userId    Int
+  createdAt DateTime
+  updatedAt DateTime
+  
   expiresAt DateTime
+  token     String @unique
+  ipAddress String?
+  userAgent String?
+  
+  userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
 }
 
-enum ApplicationStatus {
-  APPLIED
-  CHECKED_IN
+model Account {
+  id                    String    @id
+  createdAt             DateTime
+  updatedAt             DateTime
+  
+  accountId             String
+  providerId            String
+  
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("accounts")
 }
 
-enum ShirtSize {
-  XS
-  S
-  M
-  L
-  XL
-  XXL
-}
+model Verification {
+  id         String    @id
+  createdAt  DateTime?
+  updatedAt  DateTime?
 
-model Application {
-  id         Int     @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  userId     Int     @unique
-  university String
-  graduationYear Int
-  shirtSize ShirtSize
-  resumePath String
-  status     ApplicationStatus  @default(APPLIED)
-  user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  identifier String
+  value      String
+  expiresAt  DateTime
+
+  @@map("verifications")
 }

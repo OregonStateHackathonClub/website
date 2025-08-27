@@ -93,7 +93,7 @@ const Home = () => {
               Schedule
             </h3>
             <ul className="space-y-2">
-            <li className="flex justify-between">
+              <li className="flex justify-between">
                 <span>Hacker Check-in</span>
                 <span className="text-muted-foreground">Apr 5, 11:00 AM</span>
               </li>
@@ -146,6 +146,7 @@ const Home = () => {
           </div>
         </div>
       </div>
+
       <div ref={sponsors} className="w-screen min-h-screen flex flex-col gap-12 items-center justify-center py-20">
         <h2 className="text-4xl font-bold mb-6">Sponsors</h2>
         <div className="w-full px-4 flex flex-col items-center gap-10">

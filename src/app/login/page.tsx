@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -5,12 +6,24 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button"
+import { FcGoogle } from "react-icons/fc";
 import React, { useState } from "react";
-import Link from "next/link";
+import LoginForm from "@/components/ui/login-form";
+import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import Image from "next/image"
-import SignUp from "./ui/signup-form";
 
-export const AuthPage = () => {
+export default async function Login() {
+
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+
+  if (session) {
+    redirect("/profile")
+  }
 
   return (
     <>
@@ -27,23 +40,13 @@ export const AuthPage = () => {
           </div>
         </Link>
       </nav>
-
       <div className="flex items-center justify-center w-screen h-screen max-w-[75%] mx-auto">
         <Card>
           <CardHeader>
-            <CardTitle>Welcome to <span className="bg-gradient-to-r from-red-500 to-orange-500 inline-block text-transparent bg-clip-text">BeaverHacks</span></CardTitle>
-            <CardDescription>
-              Create an account to register for the upcoming hackathon using credentials below
-            </CardDescription>
+            <CardTitle>Welcome back to <span className="bg-gradient-to-r from-red-500 to-orange-500 inline-block text-transparent bg-clip-text">BeaverHacks</span></CardTitle>
+            <CardDescription>Please log into your account using personal credentials.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <CardDescription>
-              <SignUp />
-            </CardDescription>
-          </CardContent>
-        </Card>
-
-        {/* <CardContent>
+          {/* <CardContent>
           <Link href="/api/login">
             <div className="flex justify-center">
               <Button variant="outline">
@@ -52,10 +55,14 @@ export const AuthPage = () => {
               </Button>
             </div>
           </Link>  
-      </CardContent> */}
-
+        </CardContent> */}
+          <CardContent>
+            <CardDescription>
+              <LoginForm />
+            </CardDescription>
+          </CardContent>
+        </Card>
       </div>
     </>
   );
-
 }
