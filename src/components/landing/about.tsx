@@ -5,83 +5,122 @@ import Image from "next/image";
 
 function AboutPage() {
     return(
-    <div className="w-screen min-h-screen flex flex-col items-center justify-center">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl px-4">
-          <div className="backdrop-blur-sm p-6 rounded-xl border flex flex-col items-center">
-            <h3 className="text-xl font-semibold mb-3 flex gap-2">
-              <Clock />
-              Time Remaining
+    <div className="w-screen min-h-screen text-white flex flex-col items-center justify-center p-8">
+        {/* Header Section */}
+        <div className="text-center mb-12 max-w-4xl">
+          <div className="mb-8">
+            <div className="inline-block bg-white text-black px-6 py-2 rounded-full mb-8">
+              <span className="font-bold">About</span>
+            </div>
+            <h1 className="text-4xl font-bold mb-6">What is BeaverHacks?</h1>
+          </div>
+
+          <div className="text-lg md:text-xl text-gray-300 leading-relaxed">
+            <p>BeaverHacks is Oregon State University's premier hackathon, fostering innovation and collaboration. Join us for an exciting weekend of coding, creativity, and community building where students from all backgrounds come together to build amazing projects.</p>
+          </div>
+        </div>
+
+        {/* Content Grid */}
+        <div className="grid grid-rows-[auto_auto_auto_auto_auto] grid-cols-10 gap-6 w-full max-w-6xl">
+          {/* Event Countdown */}
+          <div className="row-span-2 col-span-4 bg-[#171717] border-[#262626] border p-6 rounded-[32px]">
+            <h3 className="text-xl font-semibold mb-4 flex items-center gap-2 text-white mb-8 justify-center">
+              <Clock className="w-5 h-5"/>
+              Event Countdown
             </h3>
             <Countdown targetDate={new Date(1743883200 * 1000)} />
           </div>
           
-          <div className="backdrop-blur-sm p-6 rounded-xl border">
-            <h3 className="text-xl font-semibold mb-3 flex gap-2">
-              <MapPin />
+          {/* Location */}
+          <div className="row-span-3 col-span-6 bg-[#171717] border-[#262626] border backdrop-blur-sm p-6 rounded-[32px]">
+            <h3 className="text-xl font-semibold mb-4 flex items-center justify-center gap-2 text-white">
+              <MapPin className="w-5 h-5" />
               Location
             </h3>
-            <p className="text-lg font-medium">Kelley Engineering Center</p>
-            <p className="text-muted-foreground">Oregon State University</p>
-            <p className="text-muted-foreground">110 SW Park Terrace</p>
-            <p className="text-muted-foreground">Corvallis, OR 97331</p>
+            <div className="mb-4">
+              <p className="text-lg font-medium text-white">Kelley Engineering Center</p>
+              <p className="text-gray-400">Oregon State University</p>
+              <p className="text-gray-400">110 SW Park Terrace</p>
+              <p className="text-gray-400">Corvallis, OR 97331</p>
+            </div>
+
+            <div className="bg-gray-700 rounded-lg h-32 flex items-center justify-center">
+              <span className="text-gray-400">Map placeholder</span>
+            </div>
           </div>
           
-          <div className="backdrop-blur-sm p-6 rounded-xl border">
-            <h3 className="text-xl font-semibold mb-3 flex gap-2">
-              <Calendar />
+          {/* Schedule */}
+          <div className="row-span-3 col-span-4 bg-[#171717] border-[#262626] border p-6 rounded-[32px]">
+            <h3 className="text-xl font-semibold justify-center mb-4 flex items-center gap-2 text-white">
+              <Calendar className="w-5 h-5" />
               Schedule
             </h3>
-            <ul className="space-y-2">
-            <li className="flex justify-between">
-                <span>Hacker Check-in</span>
-                <span className="text-muted-foreground">Apr 5, 11:00 AM</span>
+            <ul className="space-y-3">
+              <li className="flex justify-between items-center">
+                <span className="text-white">Hacker Check-In</span>
+                <span className="text-gray-400 font-mono text-sm">Apr 5, 11:00 AM</span>
               </li>
-              <li className="flex justify-between">
-                <span>Opening Ceremony</span>
-                <span className="text-muted-foreground">Apr 5, 12:00 PM</span>
+              <li className="flex justify-between items-center">
+                <span className="text-white">Opening Ceremony</span>
+                <span className="text-gray-400 font-mono text-sm">Apr 5, 12:00 PM</span>
               </li>
-              <li className="flex justify-between">
-                <span>Hacking Begins</span>
-                <span className="text-muted-foreground">Apr 5, 1:00 PM</span>
+              <li className="flex justify-between items-center">
+                <span className="text-white">Hacking Begins</span>
+                <span className="text-gray-400 font-mono text-sm">Apr 5, 1:00 PM</span>
               </li>
-              <li className="flex justify-between">
-                <span>Hacking Ends</span>
-                <span className="text-muted-foreground">Apr 6, 1:00 PM</span>
+              <li className="flex justify-between items-center">
+                <span className="text-white">Hacking Ends</span>
+                <span className="text-gray-400 font-mono text-sm">Apr 6, 1:00 PM</span>
               </li>
-              <li className="flex justify-between">
-                <span>Judging</span>
-                <span className="text-muted-foreground">Apr 6, 2:00 PM</span>
+              <li className="flex justify-between items-center">
+                <span className="text-white">Judging</span>
+                <span className="text-gray-400 font-mono text-sm">Apr 6, 2:00 PM</span>
               </li>
-              <li className="flex justify-between">
-                <span>Closing Ceremony</span>
-                <span className="text-muted-foreground">Apr 6, 3:00 PM</span>
+              <li className="flex justify-between items-center">
+                <span className="text-white">Closing Ceremony</span>
+                <span className="text-gray-400 font-mono text-sm">Apr 6, 3:00 PM</span>
               </li>
             </ul>
           </div>
           
-          {/* Discord */}
-          <div className="backdrop-blur-sm p-6 rounded-xl border">
-            <h3 className="text-xl font-semibold mb-3 flex gap-2">
-              <Users />
-              Join Our Discord
+          {/* Updates/Discord */}
+          <div className="row-span-2 col-span-3 bg-[#171717] border-[#262626] border p-6 rounded-[32px]">
+            <h3 className="text-xl font-semibold mb-4 justify-center flex items-center gap-2 text-white">
+              <Users className="w-5 h-5" />
+              Updates
             </h3>
-            <p className="mb-4">Connect with fellow hackers, get support, and stay updated about the event.</p>
-            
-            <a 
-              href="https://discord.gg/zkuDhSgznE" 
-              target="_blank" 
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md transition-colors"
-            >
-              <Image
-                src="/images/discord.svg"
-                width={20}
-                height={20}
-                alt="Discord logo"
-                className="w-5 h-5"
-              />
-              <span>Join Discord Server</span>
-            </a>
+            <p className="text-center mb-4 text-gray-300">Join the BeaverHacks Discord to hear all the latest news!</p>
+            <div className="flex justify-center">
+              <a 
+                href="https://discord.gg/zkuDhSgznE" 
+                target="_blank" 
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-6 rounded-[32px] transition-colors font-medium"
+              >
+                <Image
+                  src="/images/discord.svg"
+                  width={20}
+                  height={20}
+                  alt="Discord logo"
+                  className="w-5 h-5"
+                />
+                <span>Discord</span>
+              </a>
+            </div>
+
+          </div>
+
+          {/* Workshops */}
+          <div className="row-span-2 col-span-3 bg-[#171717] border-[#262626] border p-6 rounded-[32px] items-center">
+            <h3 className="text-xl font-semibold mb-4 flex items-center gap-2 text-white justify-center">
+              Workshops
+            </h3>
+            <p className="text-center mb-4 text-gray-300">OSU students are eligible to sign-up for supplementary workshops!</p>
+            <div className="flex justify-center">
+              <button className="bg-orange-500 hover:bg-orange-600 text-white py-3 px-6 rounded-[32px] transition-colors font-medium">
+                Register
+            </button>
+            </div>
           </div>
         </div>
       </div>
