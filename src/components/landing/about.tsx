@@ -12,7 +12,7 @@ function AboutPage() {
             <div className="inline-block bg-white text-black px-6 py-2 rounded-full mb-8">
               <span className="font-bold">About</span>
             </div>
-            <h1 className="text-4xl font-bold mb-6">What is BeaverHacks?</h1>
+            <h1 className="text-5xl font-bold mb-6">What is BeaverHacks?</h1>
           </div>
 
           <div className="text-lg md:text-xl text-gray-300 leading-relaxed">

@@ -1,25 +1,33 @@
 import Link from "next/link";
 import Image from "next/image";
+import LogoLink from "../logolink";
 
 function SponsorsPage(){
     return(
     <div className="w-screen min-h-screen flex flex-col gap-12 items-center justify-center">
-        <h2 className="text-4xl font-bold mb-6">Sponsors</h2>
+        <div className="text-center mb-4 max-w-4xl">
+          <div className="mb-8">
+            <div className="inline-block bg-white text-black px-6 py-2 rounded-full mb-8">
+              <span className="font-bold">Sponsors</span>
+            </div>
+            <h1 className="text-5xl font-bold mb-6">Thank You to Our Sponsors</h1>
+          </div>
+
+          <div className="text-lg md:text-xl text-gray-300 leading-relaxed">
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. </p>
+          </div>
+        </div>        
         <div className="w-full px-4 flex flex-col items-center gap-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 justify-items-center items-center gap-8 md:gap-16">
-              <Link 
-                className="transition-transform duration-300 hover:scale-105" 
-                href="https://developer.nvidia.com/join-nvidia-developer-program" 
-                target="_blank"
-              >
-              <Image 
+          <div className="grid grid-cols-4 justify-items-center items-center gap-16 bg-[#171717] border-[#262626] border p-6 rounded-[32px]">
+              <LogoLink
+                href="https://developer.nvidia.com/join-nvidia-developer-program"
                 src="/images/nvidia.png"
+                alt="NVIDIA logo"
                 width={200}
                 height={100}
-                alt="NVIDIA logo"
-                className="object-contain w-48 sm:w-56 md:w-64"
+                className="object-contain w-40 sm:w-52 md:w-60"
               />
-            </Link>
+
             <Link 
               className="transition-transform duration-300 hover:scale-105" 
               href="https://developers.google.com/" 
