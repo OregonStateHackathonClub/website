@@ -3,10 +3,10 @@
 import { Navbar } from "@/components/navbar";
 import { useRef, useState, useEffect } from "react";
 
-import AboutPage from "@/components/landing/about";
-import SponsorPage from "@/components/landing/sponsors";
-import FaqPage from "@/components/landing/faq";
-import Footer from "@/components/landing/footer";
+import AboutPage from "@/components/landing/desktop/about";
+import SponsorPage from "@/components/landing/desktop/sponsors";
+import FaqPage from "@/components/landing/desktop/faq";
+import Footer from "@/components/landing/desktop/footer";
 
 const Home = () => {
   const about = useRef<HTMLDivElement>(null)
@@ -56,10 +56,10 @@ const Home = () => {
           <p className="font-medium text-center text-white text-[24px] w-[35%] mb-5">Oregon’s Largest Hackathon presented by the Oregon State University Hackathon Club</p>
           <div className="flex justify-center">
             <a 
-              href="https://discord.gg/zkuDhSgznE" 
+              href="" 
               target="_blank" 
               rel="noreferrer"
-              className="inline-flex items-center gap-2 text-white py-3 px-6 rounded-[32px] bg-[#141414] font-medium border border-[#262626]"
+              className="inline-flex items-center gap-2 text-white py-3 px-6 rounded-[32px] bg-[#FF680B] font-medium border border-[#262626]"
             >
               <span>Register Here!</span>
             </a>

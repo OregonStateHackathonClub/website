@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import LogoLink from "../logolink";
+import LogoLink from "@/components/logolink";
 
 function SponsorsPage(){
     return(
