@@ -107,7 +107,6 @@ function AboutPage() {
                 <span>Discord</span>
               </a>
             </div>
-
           </div>
 
           {/* Workshops */}

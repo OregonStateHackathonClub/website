@@ -82,7 +82,7 @@ const Home = () => {
       </div>
 
       {/*about page*/}
-      <div ref={about} className = "py-16">
+      <div ref={about} className = "">
         <div className="hidden md:block">
           <AboutPage/>
         </div>
@@ -94,19 +94,45 @@ const Home = () => {
 
       {/*why join page*/}
       <div>
-        <WhyJoin/>
+        <div className="hidden md:block">
+          <WhyJoin/>
+        </div>
+        <div className="block md:hidden">
+      {/*why join mobile page*/}
+        </div>
       </div>
 
       {/*sponsors page*/}
-      <div ref={sponsors} className = "py-20">
-        <SponsorPage/>
+      <div ref={sponsors} className = "">
+        {/*temp hidden until know more sponsors - Daniel*/}
+        <div className="hidden md:hidden">
+          <SponsorPage/>
+        </div>
+        <div className="block md:hidden">
+
+        </div>
       </div>
 
       {/*FAQ page*/}
       <div ref={faq}>
-        <FaqPage/>
+        <div className="hidden md:block">
+          <FaqPage/>
+        </div>
+        <div className="block md:hidden">
+        {/*mobile FAQ page*/}         
+        </div>
+
       </div>
-      <Footer/>
+
+      {/*Footer*/}
+      <div>
+        <div className="hidden md:block">
+          <Footer/>
+        </div>
+        <div className="block md:hidden">
+        {/*mobile footer*/}         
+        </div>
+      </div>
     </>
   );
 }
