@@ -6,10 +6,11 @@ import { useRef, useState, useEffect } from "react";
 import AboutPage from "@/components/landing/desktop/about";
 import SponsorPage from "@/components/landing/desktop/sponsors";
 import FaqPage from "@/components/landing/desktop/faq";
+import WhyJoin from "@/components/landing/desktop/whyjoin";
 import Footer from "@/components/landing/desktop/footer";
 
 import MobileAboutPage from "@/components/landing/mobile/mobileabout";
-import WhyJoin from "@/components/landing/desktop/whyjoin";
+import MobileWhyJoinPage from "@/components/landing/mobile/mobilewhyjoin";
 
 const Home = () => {
   const about = useRef<HTMLDivElement>(null)
@@ -87,7 +88,7 @@ const Home = () => {
           <AboutPage/>
         </div>
 
-        <div className="block md:hidden">
+        <div className="block md:hidden mb-[32px]">
           <MobileAboutPage/> 
         </div>
       </div>
@@ -97,8 +98,8 @@ const Home = () => {
         <div className="hidden md:block">
           <WhyJoin/>
         </div>
-        <div className="block md:hidden">
-      {/*why join mobile page*/}
+        <div className="block md:hidden mb-[32px]">
+          <MobileWhyJoinPage/>
         </div>
       </div>
 
