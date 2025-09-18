@@ -5,7 +5,7 @@ import Image from "next/image";
 
 function MobileAboutPage(){
     return(
-        <div className="w-screen min-h-screen text-white flex flex-col items-center justify-center px-[16px]">
+        <div className="w-screen text-white flex flex-col items-center justify-center px-[16px]">
             <div className="text-center mb-12">
                 <div className="mb-[8px]">
                     <div className="inline-block bg-white text-black px-6 py-2 rounded-[21px] mb-[4px]">

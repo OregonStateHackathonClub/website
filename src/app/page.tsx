@@ -11,6 +11,7 @@ import Footer from "@/components/landing/desktop/footer";
 
 import MobileAboutPage from "@/components/landing/mobile/mobileabout";
 import MobileWhyJoinPage from "@/components/landing/mobile/mobilewhyjoin";
+import MobileFAQ from "@/components/landing/mobile/mobilefaq";
 
 const Home = () => {
   const about = useRef<HTMLDivElement>(null)
@@ -120,7 +121,7 @@ const Home = () => {
           <FaqPage/>
         </div>
         <div className="block md:hidden">
-        {/*mobile FAQ page*/}         
+          <MobileFAQ/>     
         </div>
 
       </div>
