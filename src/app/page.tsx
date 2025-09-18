@@ -8,11 +8,15 @@ import SponsorPage from "@/components/landing/desktop/sponsors";
 import FaqPage from "@/components/landing/desktop/faq";
 import Footer from "@/components/landing/desktop/footer";
 
+import MobileAboutPage from "@/components/landing/mobile/mobileabout";
+import WhyJoin from "@/components/landing/desktop/whyjoin";
+
 const Home = () => {
   const about = useRef<HTMLDivElement>(null)
   const sponsors = useRef<HTMLDivElement>(null)
   const faq = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const whyjoin = useRef<HTMLVideoElement>(null)
 
   const [isMobile, setIsMobile] = useState(false)
 
@@ -79,7 +83,18 @@ const Home = () => {
 
       {/*about page*/}
       <div ref={about} className = "py-16">
-        <AboutPage/>
+        <div className="hidden md:block">
+          <AboutPage/>
+        </div>
+
+        <div className="block md:hidden">
+          <MobileAboutPage/> 
+        </div>
+      </div>
+
+      {/*why join page*/}
+      <div>
+        <WhyJoin/>
       </div>
 
       {/*sponsors page*/}
@@ -91,7 +106,7 @@ const Home = () => {
       <div ref={faq}>
         <FaqPage/>
       </div>
-      <Footer></Footer>
+      <Footer/>
     </>
   );
 }

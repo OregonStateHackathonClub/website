@@ -15,7 +15,7 @@ function AboutPage() {
             <h1 className="text-5xl font-bold mb-6">What is BeaverHacks?</h1>
           </div>
 
-          <div className="text-lg md:text-xl text-gray-300 leading-relaxed">
+          <div className="text-xl text-gray-300 leading-relaxed">
             <p>BeaverHacks is Oregon State University's premier hackathon, fostering innovation and collaboration. Join us for an exciting weekend of coding, creativity, and community building where students from all backgrounds come together to build amazing projects.</p>
           </div>
         </div>
