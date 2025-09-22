@@ -78,7 +78,7 @@ export const Navbar = ({ aboutRef, sponsorsRef, faqRef }: NavbarProps) => {
             />
           </Link>
           <Link 
-            href="https://discord.gg/zkuDhSgznE" 
+            href="https://discord.gg/vuepffJxub" 
             target="_blank" 
             rel="noreferrer"
             className="text-muted-foreground hover:text-foreground transition-colors"
