@@ -1,0 +1,146 @@
+import Link from "next/link";
+import Image from "next/image";
+import LogoLink from "@/components/logolink";
+
+function SponsorsPage(){
+    return(
+    <div className="w-screen min-h-screen flex flex-col gap-8 md:gap-12 items-center justify-center px-4 md:px-8">
+        <div className="text-center mb-4 max-w-4xl">
+          <div className="mb-4 md:mb-8">
+            <div className="inline-block bg-white text-black px-6 py-2 rounded-full mb-4 md:mb-8">
+              <span className="font-bold text-sm md:text-base">Sponsors</span>
+            </div>
+            <h1 className="text-3xl md:text-5xl font-bold mb-4 md:mb-6">Thank You to Our Sponsors</h1>
+          </div>
+
+          <div className="text-lg md:text-xl text-gray-300 leading-relaxed">
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+          </div>
+        </div>
+
+        <div className="w-full flex flex-col items-center gap-6 md:gap-10">
+          {/* Main Sponsors */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 justify-items-center items-center gap-8 md:gap-16 bg-[#171717] border-[#262626] border p-4 md:p-6 rounded-[32px] w-full max-w-6xl">
+              <LogoLink
+                href="https://developer.nvidia.com/join-nvidia-developer-program"
+                src="/images/nvidia.png"
+                alt="NVIDIA logo"
+                width={200}
+                height={100}
+                className="object-contain w-32 sm:w-40 md:w-52"
+              />
+
+            <Link
+              className="transition-transform duration-300 hover:scale-105"
+              href="https://developers.google.com/"
+              target="_blank"
+            >
+              <Image
+                src="/images/google.png"
+                width={200}
+                height={100}
+                alt="Google logo"
+                className="object-contain w-28 sm:w-36 md:w-52"
+              />
+            </Link>
+
+            <Link
+              className="transition-transform duration-300 hover:scale-105"
+              href="https://groq.com/how-to-win-hackathons-with-groq/"
+              target="_blank"
+            >
+              <Image
+                src="/images/groq.png"
+                width={200}
+                height={100}
+                alt="Groq logo"
+                className="object-contain w-28 sm:w-36 md:w-52"
+              />
+            </Link>
+
+            <Link
+              className="transition-transform duration-300 hover:scale-105"
+              href="https://sui.io/"
+              target="_blank"
+            >
+              <Image
+                src="/images/sui.png"
+                width={200}
+                height={200}
+                alt="Sui logo"
+                className="object-contain w-20 sm:w-24 md:w-40"
+              />
+            </Link>
+          </div>
+
+          {/* Community Partners */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 md:gap-16 justify-items-center">
+            <Link
+              className="transition-transform duration-300 hover:scale-105"
+              href="https://acm.oregonstate.edu/"
+              target="_blank"
+            >
+              <Image
+                src="/images/acmlogo.svg"
+                width={80}
+                height={80}
+                alt="ACM logo"
+                className="object-contain w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20"
+              />
+            </Link>
+            <Link
+              className="transition-transform duration-300 hover:scale-105"
+              href="https://osuapp.club/"
+              target="_blank"
+            >
+              <Image
+                src="/images/appdev.png"
+                width={80}
+                height={80}
+                alt="App Development Club logo"
+                className="object-contain w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20"
+              />
+            </Link>
+            <Link
+              className="transition-transform duration-300 hover:scale-105"
+              href="https://gdgc-osu.com/"
+              target="_blank"
+            >
+              <Image
+                src="/images/gdgc.png"
+                width={80}
+                height={80}
+                alt="Google Developer Group on Campus logo"
+                className="object-contain w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20"
+              />
+            </Link>
+            <Link
+              className="transition-transform duration-300 hover:scale-105"
+              href="https://org.osu.edu/womenincyber/"
+              target="_blank"
+            >
+              <Image
+                src="/images/wicys.png"
+                width={80}
+                height={80}
+                alt="Woman in Cyber Security logo"
+                className="object-contain w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20"
+              />
+            </Link>
+          </div>
+
+          <p className="text-sm sm:text-base md:text-lg text-center mt-4 md:mt-8 text-muted-foreground px-4">
+            Interested in becoming a sponsor? Contact us at{" "}
+            <a
+              href="mailto:sponsor@beaverhacks.org"
+              className="underline hover:text-gray-300 transition-colors"
+            >
+              sponsor@beaverhacks.org
+            </a>
+          </p>
+        </div>
+      </div>
+    )
+}
+
+export default SponsorsPage;

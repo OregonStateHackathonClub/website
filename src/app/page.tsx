@@ -3,38 +3,33 @@
 import { Navbar } from "@/components/navbar";
 import { useRef, useState, useEffect } from "react";
 
-import AboutPage from "@/components/landing/desktop/about";
-import SponsorPage from "@/components/landing/desktop/sponsors";
-import FaqPage from "@/components/landing/desktop/faq";
-import WhyJoin from "@/components/landing/desktop/whyjoin";
-import Footer from "@/components/landing/desktop/footer";
-
-import MobileAboutPage from "@/components/landing/mobile/mobileabout";
-import MobileWhyJoinPage from "@/components/landing/mobile/mobilewhyjoin";
-import MobileFAQ from "@/components/landing/mobile/mobilefaq";
+import AboutPage from "@/components/landing/about";
+import SponsorPage from "@/components/landing/sponsors";
+import FaqPage from "@/components/landing/faq";
+import WhyJoin from "@/components/landing/whyjoin";
+import Footer from "@/components/landing/footer";
 
 const Home = () => {
   const about = useRef<HTMLDivElement>(null)
   const sponsors = useRef<HTMLDivElement>(null)
   const faq = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
-  const whyjoin = useRef<HTMLVideoElement>(null)
 
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
     const handleResize = () => {
       const currentIsMobile = window.innerWidth < 768
-    
+
       if (currentIsMobile !== isMobile) {
         setIsMobile(currentIsMobile)
-        
+
         if (videoRef.current) {
           videoRef.current.load()
         }
       }
     }
-    
+
     handleResize()
     window.addEventListener("resize", handleResize)
     return () => window.removeEventListener("resize", handleResize)
@@ -84,56 +79,28 @@ const Home = () => {
       </div>
 
       {/*about page*/}
-      <div ref={about} className = "">
-        <div className="hidden md:block">
-          <AboutPage/>
-        </div>
-
-        <div className="block md:hidden mb-[32px]">
-          <MobileAboutPage/> 
-        </div>
+      <div ref={about} className="mb-8">
+        <AboutPage/>
       </div>
 
       {/*why join page*/}
-      <div>
-        <div className="hidden md:block">
-          <WhyJoin/>
-        </div>
-        <div className="block md:hidden mb-[32px]">
-          <MobileWhyJoinPage/>
-        </div>
+      <div className="mb-8">
+        <WhyJoin/>
       </div>
 
       {/*sponsors page*/}
-      <div ref={sponsors} className = "">
-        {/*temp hidden until know more sponsors - Daniel*/}
-        <div className="hidden md:hidden">
-          <SponsorPage/>
-        </div>
-        <div className="block md:hidden">
-
-        </div>
+      <div ref={sponsors} className="mb-8">
+        <SponsorPage/>
       </div>
 
       {/*FAQ page*/}
-      <div ref={faq}>
-        <div className="hidden md:block">
-          <FaqPage/>
-        </div>
-        <div className="block md:hidden">
-          <MobileFAQ/>     
-        </div>
-
+      <div ref={faq} className="mb-8">
+        <FaqPage/>
       </div>
 
       {/*Footer*/}
       <div>
-        <div className="hidden md:block">
-          <Footer/>
-        </div>
-        <div className="block md:hidden">
-        {/*mobile footer*/}         
-        </div>
+        <Footer/>
       </div>
     </>
   );
