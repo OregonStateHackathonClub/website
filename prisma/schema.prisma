@@ -7,18 +7,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id            String    @id
-  createdAt     DateTime
-  updatedAt     DateTime
-  
-  name          String
-  email         String @unique
-  emailVerified Boolean
-  image         String?
+model Post {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  sessions      Session[]
-  accounts      Account[]
+  title   String
+  content String
+
+  @@map("posts")
+}
+
+model User {
+  id        String   @id
+  createdAt DateTime
+  updatedAt DateTime
+
+  name               String?
+  email              String  @unique
+  applicationStarted Boolean @default(false)
+  emailVerified      Boolean
+  image              String?
+
+  sessions     Session[]
+  accounts     Account[]
+  applications Application[]
 
   @@map("users")
 }
@@ -27,26 +40,25 @@ model Session {
   id        String   @id
   createdAt DateTime
   updatedAt DateTime
-  
+
   expiresAt DateTime
-  token     String @unique
+  token     String   @unique
   ipAddress String?
   userAgent String?
-  
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("sessions")
 }
 
 model Account {
-  id                    String    @id
-  createdAt             DateTime
-  updatedAt             DateTime
-  
+  id        String   @id
+  createdAt DateTime
+  updatedAt DateTime
+
   accountId             String
   providerId            String
-  
   accessToken           String?
   refreshToken          String?
   idToken               String?
@@ -55,20 +67,39 @@ model Account {
   scope                 String?
   password              String?
 
-  userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("accounts")
 }
 
-model Verification {
-  id         String    @id
-  createdAt  DateTime?
-  updatedAt  DateTime?
+model Application {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  identifier String
-  value      String
-  expiresAt  DateTime
+  name                 String
+  email                String  @unique
+  school               String
+  graduationYear       String
+  resumeFile            String
+  applicationSubmitted Boolean
 
-  @@map("verifications")
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("applications")
 }
+
+// this can be used later if we want to add email account verification
+// model Verification {
+//   id        String    @id
+//   createdAt DateTime?
+//   updatedAt DateTime?
+
+//   identifier String
+//   value      String
+//   expiresAt  DateTime
+
+//   @@map("verifications")
+// }

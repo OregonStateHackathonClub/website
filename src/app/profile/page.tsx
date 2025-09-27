@@ -54,7 +54,7 @@ export default async function Profile() {
       </nav>
 
       <div className="flex justify-center items-center flex-col w-screen h-screen">
-        <ProfilePage name={session.user.name} />
+        <ProfilePage name={session.user.name} email={session.user.email} />
         {/* BeaverHacks Logo */}
         {/* <div>
           <Image 

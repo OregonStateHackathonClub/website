@@ -42,7 +42,7 @@ export default function SignUp() {
                     toast.error(ctx.error.message)
                 },
                 onSuccess: () => {
-                    toast.message("User registered!")
+                    toast.success("Account created!")
                     router.push("profile")
                 }
             }

@@ -10,7 +10,7 @@ import Link from "next/link";
 import Image from "next/image"
 import SignUp from "./ui/signup-form";
 
-export const AuthPage = () => {
+export const CreateAccount = () => {
 
   return (
     <>
@@ -28,7 +28,7 @@ export const AuthPage = () => {
         </Link>
       </nav>
 
-      <div className="flex items-center justify-center w-screen h-screen max-w-[75%] mx-auto">
+      <div className="flex items-center justify-center w-screen h-screen max-w-[75%] md:max-w-[25%] mx-auto">
         <Card>
           <CardHeader>
             <CardTitle>Welcome to <span className="bg-gradient-to-r from-red-500 to-orange-500 inline-block text-transparent bg-clip-text">BeaverHacks</span></CardTitle>

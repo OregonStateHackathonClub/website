@@ -37,9 +37,10 @@ export default function LoginForm() {
                 },
                 onError: (ctx) => {
                     toast.error(ctx.error.message);
+                    console.log(ctx.error)
                 },
                 onSuccess: () => {
-                    toast.message("Signed in successfully!")
+                    toast.success("Signed in successfully!")
                     router.push("/profile")
                 }
             }
@@ -115,7 +116,7 @@ export default function LoginForm() {
             <div className="mt-5">
                 <p>Don't have an account? <button onClick={(e) => {
                         e.preventDefault();
-                        router.push("/apply")
+                        router.push("/create-account")
                     }} className="text-blue-500 hover:text-purple-500 transition-all duration-200">Create one here.</button></p>
             </div>
         </form> 

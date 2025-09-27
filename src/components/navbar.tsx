@@ -112,7 +112,7 @@ export const Navbar = ({ aboutRef, sponsorsRef, faqRef }: NavbarProps) => {
           onClick={() => {faqRef.current?.scrollIntoView({ behavior: "smooth" })}}
         >FAQ</Button>
         
-        <Link href="/apply">
+        <Link href="/create-account">
           <Button 
             variant="default"
             className="bg-orange-500 hover:bg-orange-600 text-white"
