@@ -8,12 +8,11 @@
     "db:generate": "dotenv -e ../../.env.local -- prisma generate",
     "db:push": "dotenv -e ../../.env.local -- prisma db push",
     "db:migrate": "dotenv -e ../../.env.local -- prisma migrate dev",
-    "db:studio": "dotenv -e ../../.env.local -- prisma studio"
+    "db:studio": "dotenv -e ../../.env.local -- prisma studio",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
-    "@prisma/client": "^6.15.0"
-  },
-  "devDependencies": {
+    "@prisma/client": "^6.15.0",
     "prisma": "^6.15.0"
   }
 }
