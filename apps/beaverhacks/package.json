@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
+    "@prisma/client": "^6.18.0",
     "@repo/auth": "workspace:*",
     "@repo/database": "workspace:*",
     "@repo/storage": "workspace:*",

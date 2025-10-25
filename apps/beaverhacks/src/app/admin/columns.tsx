@@ -1,75 +1,77 @@
-"use client"
+"use client";
 
-import { ColumnDef } from "@tanstack/react-table"
-import { Button } from "@repo/ui/components/button"
-import { Checkbox } from "@repo/ui/components/checkbox"
-import { ArrowUpDown, File, CheckCircle, XCircle } from "lucide-react"
-import { ApplicationStatus } from "@repo/database"
-import { useState } from "react"
+import { ColumnDef } from "@tanstack/react-table";
+import { Button } from "@repo/ui/components/button";
+import { Checkbox } from "@repo/ui/components/checkbox";
+import { ArrowUpDown, File, CheckCircle, XCircle } from "lucide-react";
+import { ApplicationStatus, Prisma } from "@repo/database";
+import { useState } from "react";
 
-export type Application = {
-  id: number
-  createdAt: Date
-  university: string
-  graduationYear: number
-  resumePath: string
-  status: ApplicationStatus
-  user: {
-    name: string, 
-    email: string
-  }
-}
+export type Application = Prisma.ApplicationGetPayload<{
+  include: {
+    user: {
+      select: {
+        name: true;
+        email: true;
+      };
+    };
+  };
+}>;
 
-const handleDownload = async(path: string) => {
-  const res = await fetch(`/api/download/${path}`, { method: "GET" })
-  const blob = await res.blob()
+const handleDownload = async (path: string) => {
+  const res = await fetch(`/api/download/${path}`, { method: "GET" });
+  const blob = await res.blob();
   const url = window.URL.createObjectURL(blob);
-  const link = document.createElement("a")
-  link.href = url
-  link.download = path
-  link.click()
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = path;
+  link.click();
   window.URL.revokeObjectURL(url);
-}
+};
 
 const CheckInButton = ({ application }: { application: Application }) => {
-  const [status, setStatus] = useState<ApplicationStatus>(application.status)
-  const [isLoading, setIsLoading] = useState(false)
+  const [status, setStatus] = useState<ApplicationStatus>(application.status);
+  const [isLoading, setIsLoading] = useState(false);
 
   const checkIn = async () => {
-    if (status === ApplicationStatus.CHECKED_IN) return
-    
-    setIsLoading(true)
+    if (status === ApplicationStatus.CHECKED_IN) return;
+
+    setIsLoading(true);
     try {
-      const res = await fetch('/api/check-in', {
-        method: 'POST',
+      const res = await fetch("/api/check-in", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           applicationId: application.id,
-          status: ApplicationStatus.CHECKED_IN
+          status: ApplicationStatus.CHECKED_IN,
         }),
-      })
-      
+      });
+
       if (res.ok) {
-        setStatus(ApplicationStatus.CHECKED_IN)
+        setStatus(ApplicationStatus.CHECKED_IN);
       } else {
-        console.error('Failed to check in applicant')
+        console.error("Failed to check in applicant");
       }
     } catch (error) {
-      console.error('Error checking in applicant:', error)
+      console.error("Error checking in applicant:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
-    <Button 
+    <Button
       variant={status === ApplicationStatus.CHECKED_IN ? "default" : "outline"}
       size="sm"
       onClick={checkIn}
       disabled={isLoading || status === ApplicationStatus.CHECKED_IN}
-      className={status === ApplicationStatus.CHECKED_IN ? "bg-green-600 cursor-default" : ""}
+      className={
+        status === ApplicationStatus.CHECKED_IN
+          ? "bg-green-600 cursor-default"
+          : ""
+      }
     >
       {status === ApplicationStatus.CHECKED_IN ? (
         <>
@@ -83,8 +85,8 @@ const CheckInButton = ({ application }: { application: Application }) => {
         </>
       )}
     </Button>
-  )
-}
+  );
+};
 
 export const columns: ColumnDef<Application>[] = [
   {
@@ -120,13 +122,13 @@ export const columns: ColumnDef<Application>[] = [
       return (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc" )}
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Email
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
-    }
+      );
+    },
   },
   {
     accessorKey: "university",
@@ -140,7 +142,7 @@ export const columns: ColumnDef<Application>[] = [
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-      const status = row.getValue("status") as ApplicationStatus
+      const status = row.getValue("status") as ApplicationStatus;
       return (
         <div className="flex items-center">
           {status === ApplicationStatus.CHECKED_IN ? (
@@ -153,25 +155,33 @@ export const columns: ColumnDef<Application>[] = [
             </span>
           )}
         </div>
-      )
+      );
     },
     filterFn: (row, id, value) => {
-      return value === row.getValue(id)
+      return value === row.getValue(id);
     },
-    enableSorting: true
+    enableSorting: true,
   },
   {
     accessorKey: "resumePath",
     header: "Resume",
     cell: ({ cell }) => {
-      return <Button variant="ghost" size="icon" onClick={() => handleDownload(cell.getValue() as string)}><File /></Button>
-    }
+      return (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => handleDownload(cell.getValue() as string)}
+        >
+          <File />
+        </Button>
+      );
+    },
   },
   {
     id: "checkIn",
     header: "Check In",
     cell: ({ row }) => {
-      return <CheckInButton application={row.original} />
-    }
+      return <CheckInButton application={row.original} />;
+    },
   },
-]
+];

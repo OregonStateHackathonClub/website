@@ -1,12 +1,10 @@
-"use client"
+"use client";
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
 
 import { cn } from "@repo/ui/lib/utils";
-import { Button } from "@repo/ui/components/button";
 import { Ascii } from "@/components/ascii";
-import { Loading } from "@/components/loading";
 
 const Test = () => {
   const [selected, setSelected] = useState<number | null>(null);
@@ -15,11 +13,13 @@ const Test = () => {
     const handleScroll = () => {
       const scrollPercent =
         ((document.documentElement.scrollTop || document.body.scrollTop) /
-          ((document.documentElement.scrollHeight || document.body.scrollHeight) -
-            document.documentElement.clientHeight)) * 100;
+          ((document.documentElement.scrollHeight ||
+            document.body.scrollHeight) -
+            document.documentElement.clientHeight)) *
+        100;
 
       if (scrollPercent < 40) {
-        setSelected(null)
+        setSelected(null);
       } else if (scrollPercent < 45) {
         setSelected(0);
       } else if (scrollPercent < 50) {
@@ -51,7 +51,7 @@ const Test = () => {
             <h2>Logistics</h2>
             <h2>Sponsors</h2>
           </div>
-          
+
           <svg
             width="160"
             height="50"
@@ -65,9 +65,15 @@ const Test = () => {
             <g
               className="transition-all duration-100"
               style={{ transform: "translateY(0)" }}
-              onMouseDown={(e) => e.currentTarget.style.transform = "translateY(4px)"}
-              onMouseUp={(e) => e.currentTarget.style.transform = "translateY(0)"}
-              onMouseLeave={(e) => e.currentTarget.style.transform = "translateY(0)"}
+              onMouseDown={(e) =>
+                (e.currentTarget.style.transform = "translateY(4px)")
+              }
+              onMouseUp={(e) =>
+                (e.currentTarget.style.transform = "translateY(0)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.transform = "translateY(0)")
+              }
             >
               <path
                 d="M6 0Q0 0 0 6M0 6V30q0 6 6 6h98q6 0 10-4l10-10q4-4 4-10V6q0-6-6-6H6"
@@ -110,7 +116,7 @@ const Test = () => {
           <div className="col-span-2">
             <ul className="flex gap-10 flex-col text-3xl text-white/20">
               <li className={cn(selected === 0 ? "text-white/80" : "hidden")}>
-                <Image 
+                <Image
                   className="rounded-lg"
                   src="/map.png"
                   width={512}
@@ -118,13 +124,16 @@ const Test = () => {
                   alt="map"
                 />
               </li>
-              <li className={cn(selected === 1 ? "text-white/80" : "hidden")}>Sponsors</li>
-              <li className={cn(selected === 2 ? "text-white/80" : "hidden")}>FAQ</li>
+              <li className={cn(selected === 1 ? "text-white/80" : "hidden")}>
+                Sponsors
+              </li>
+              <li className={cn(selected === 2 ? "text-white/80" : "hidden")}>
+                FAQ
+              </li>
             </ul>
           </div>
         </div>
       </div>
-        
 
       <div className="w-screen h-screen flex flex-col items-center justify-center">
         <h1 className="text-5xl text-white mb-10">SPONSORS</h1>
@@ -142,11 +151,13 @@ const Test = () => {
               "Sponsor 3",
               "Sponsor 4",
               "Sponsor 5",
-              "Sponsor 6"
+              "Sponsor 6",
             ].map((sponsor, index) => (
               <div key={index} className="shrink-0">
                 <div className="bg-white/10 rounded-lg p-6 min-w-[200px] flex items-center justify-center">
-                  <span className="text-white text-lg font-medium">{sponsor}</span>
+                  <span className="text-white text-lg font-medium">
+                    {sponsor}
+                  </span>
                 </div>
               </div>
             ))}
@@ -157,7 +168,7 @@ const Test = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default Test;

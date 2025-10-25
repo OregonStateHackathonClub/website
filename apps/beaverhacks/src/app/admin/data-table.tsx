@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import JSZip from "jszip"
-import * as React from "react"
+import JSZip from "jszip";
+import * as React from "react";
 
 import {
   ColumnDef,
@@ -13,7 +13,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from "@tanstack/react-table"
+} from "@tanstack/react-table";
 
 import {
   Table,
@@ -22,44 +22,48 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@repo/ui/components/table"
+} from "@repo/ui/components/table";
 
-import { Button } from "@repo/ui/components/button"
-import { Input } from "@repo/ui/components/input"
-import { Download } from "lucide-react"
-import { Application } from "./columns"
+import { Button } from "@repo/ui/components/button";
+import { Input } from "@repo/ui/components/input";
+import { Download } from "lucide-react";
+import { Application } from "./columns";
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
-}
+type DataTableProps<TData, TValue> = {
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
+};
 
 export function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  const [rowSelection, setRowSelection] = React.useState({})
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    [],
+  );
+  const [rowSelection, setRowSelection] = React.useState({});
 
-  const handleSelectedDownload = async() => {
-    const zip = new JSZip()
+  const handleSelectedDownload = async () => {
+    const zip = new JSZip();
 
     for (const key of Object.keys(rowSelection)) {
-      const application = data[parseInt(key)] as Application
-      const res = await fetch(`/api/download/${application.resumePath}`, { method: "GET" })
-      const blob = await res.blob()
+      const application = data[parseInt(key)] as Application;
+      const res = await fetch(`/api/download/${application.resumePath}`, {
+        method: "GET",
+      });
+      const blob = await res.blob();
 
       zip.file(application.resumePath, blob);
     }
-    const zipBlob = await zip.generateAsync({ type: "blob" })
-    const url = window.URL.createObjectURL(zipBlob)
-    const link = document.createElement("a")
-    link.href = url
-    link.download = "resumes.zip"
-    link.click()
-    window.URL.revokeObjectURL(url)
-  }
+    const zipBlob = await zip.generateAsync({ type: "blob" });
+    const url = window.URL.createObjectURL(zipBlob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "resumes.zip";
+    link.click();
+    window.URL.revokeObjectURL(url);
+  };
 
   const table = useReactTable({
     data,
@@ -76,7 +80,7 @@ export function DataTable<TData, TValue>({
       columnFilters,
       rowSelection,
     },
-  })
+  });
 
   return (
     <>
@@ -91,7 +95,7 @@ export function DataTable<TData, TValue>({
         />
         <Button variant="secondary" onClick={handleSelectedDownload}>
           Download
-          <Download />  
+          <Download />
         </Button>
       </div>
       <div className="rounded-md border">
@@ -106,10 +110,10 @@ export function DataTable<TData, TValue>({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
-                  )
+                  );
                 })}
               </TableRow>
             ))}
@@ -123,14 +127,20 @@ export function DataTable<TData, TValue>({
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
                   No results.
                 </TableCell>
               </TableRow>
@@ -144,24 +154,24 @@ export function DataTable<TData, TValue>({
           {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
         <div className="flex items-center justify-end space-x-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Previous
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Next
-        </Button>
-      </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Next
+          </Button>
+        </div>
       </div>
     </>
-  )
+  );
 }

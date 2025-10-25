@@ -11,7 +11,7 @@ type EmailOptions = {
 
 export async function sendEmail({ to, subject, html, from }: EmailOptions) {
   const sender = from || "info@beaverhacks.org";
-  
+
   try {
     const { data, error } = await resend.emails.send({
       from: sender,
@@ -19,12 +19,12 @@ export async function sendEmail({ to, subject, html, from }: EmailOptions) {
       subject,
       html,
     });
-    
+
     if (error) {
       console.error("Email sending failed:", error);
       throw error;
     }
-    
+
     return data;
   } catch (error) {
     console.error("Email service error:", error);

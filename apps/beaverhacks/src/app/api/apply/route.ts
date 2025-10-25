@@ -9,8 +9,8 @@ export async function POST(request: Request): Promise<Response> {
   const applicationsOpen = false;
 
   if (!applicationsOpen) {
-    return new Response('Applications are closed', {
-      status: 400
+    return new Response("Applications are closed", {
+      status: 400,
     });
   }
 
@@ -19,24 +19,24 @@ export async function POST(request: Request): Promise<Response> {
   });
 
   if (!session?.user) {
-    return new Response('Unauthorized', { status: 401 })
+    return new Response("Unauthorized", { status: 401 });
   }
 
   const user = session.user;
 
   const existingApplication = await prisma.application.findUnique({
-    where: { userId: user.id }
-  })
+    where: { userId: user.id },
+  });
 
   if (existingApplication) {
-    return new Response('You have already submitted an application', { 
-      status: 400 
-    })
+    return new Response("You have already submitted an application", {
+      status: 400,
+    });
   }
 
-  const formData = await request.formData()
+  const formData = await request.formData();
 
-  const path = await uploadFile(formData.get("resume") as File)
+  const path = await uploadFile(formData.get("resume") as File);
 
   const application = await prisma.application.create({
     data: {
@@ -45,12 +45,12 @@ export async function POST(request: Request): Promise<Response> {
       graduationYear: parseInt(formData.get("graduationYear") as string),
       shirtSize: formData.get("shirtSize") as ShirtSize,
       resumePath: path,
-    }
-  })
+    },
+  });
 
   try {
     await sendEmail({
-      to: user.email, 
+      to: user.email,
       subject: "BeaverHacks Registration Confirmation",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -65,11 +65,11 @@ export async function POST(request: Request): Promise<Response> {
           <p style="margin-top: 30px;">See you at the hackathon!</p>
           <p>The BeaverHacks Team</p>
         </div>
-      `
+      `,
     });
   } catch (error) {
     console.error("Failed to send confirmation email:", error);
   }
 
-  return Response.json(application)
+  return Response.json(application);
 }

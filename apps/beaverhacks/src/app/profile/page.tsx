@@ -1,42 +1,48 @@
-import { redirect } from "next/navigation"
-import Link from "next/link"
-import Image from "next/image"
-import { headers } from "next/headers"
+import { redirect } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import { headers } from "next/headers";
 
-import { auth } from "@repo/auth"
-import { prisma } from "@repo/database"
+import { auth } from "@repo/auth";
+import { prisma } from "@repo/database";
 
-import { AuthPage } from "@/components/auth"
-import { Button } from "@repo/ui/components/button"
+import { AuthPage } from "@/components/auth";
+import { Button } from "@repo/ui/components/button";
 
 async function logout() {
-  "use server"
+  "use server";
   await auth.api.signOut({
     headers: await headers(),
-  })
-  redirect("/")
+  });
+  redirect("/");
 }
 
-const Profile = async() => {
+const Profile = async () => {
   const session = await auth.api.getSession({
     headers: await headers(),
-  })
+  });
 
-  if (!session?.user) return <AuthPage />
+  if (!session?.user) return <AuthPage />;
 
-  const user = session.user
+  const user = session.user;
 
   const application = await prisma.application.findUnique({
-    where: { userId: user.id }
-  })
+    where: { userId: user.id },
+  });
 
-  if (!application) redirect("/apply")
+  if (!application) redirect("/apply");
 
   return (
     <>
       <nav className="fixed w-full flex justify-between items-center p-4 border-b z-10">
         <Link href="/" className="flex items-center gap-4">
-          <Image src="/images/beaver.png" width={40} height={40} className="w-10 h-10 sm:w-12 sm:h-12" alt="logo"/>
+          <Image
+            src="/images/beaver.png"
+            width={40}
+            height={40}
+            className="w-10 h-10 sm:w-12 sm:h-12"
+            alt="logo"
+          />
           <div className="flex flex-col">
             <h1 className="text-lg uppercase font-bold sm:text-xl">
               BeaverHacks
@@ -46,8 +52,10 @@ const Profile = async() => {
             </p>
           </div>
         </Link>
-        <form action={logout}>  
-          <Button variant="outline" type="submit">Logout</Button>
+        <form action={logout}>
+          <Button variant="outline" type="submit">
+            Logout
+          </Button>
         </form>
       </nav>
 
@@ -56,7 +64,7 @@ const Profile = async() => {
           {`
   ________________________________________
 /                                         \\
-|  Welcome back ${user.name}!              ${' '.repeat(Math.max(0, 10 - user.name.length))}|
+|  Welcome back ${user.name}!              ${" ".repeat(Math.max(0, 10 - user.name.length))}|
 |  Congrats, you have submitted your      |
 |  application!                           |
 \\_________________________________________/
@@ -65,17 +73,17 @@ const Profile = async() => {
                                   |/`}
         </pre>
         <div>
-          <Image 
-            src="/images/beaver.png" 
-            width={150} 
-            height={150} 
-            alt="Beaver mascot" 
+          <Image
+            src="/images/beaver.png"
+            width={150}
+            height={150}
+            alt="Beaver mascot"
             className="w-24 h-24 md:w-32 md:h-32"
           />
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default Profile
+export default Profile;

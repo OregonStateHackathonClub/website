@@ -1,41 +1,48 @@
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { Button } from "@repo/ui/components/button"
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@repo/ui/components/button";
 
-interface NavbarProps {
-  aboutRef: React.RefObject<HTMLDivElement>
-  sponsorsRef: React.RefObject<HTMLDivElement>
-  faqRef: React.RefObject<HTMLDivElement>
-}
+type NavbarProps = {
+  aboutRef: React.RefObject<HTMLDivElement | null>;
+  sponsorsRef: React.RefObject<HTMLDivElement | null>;
+  faqRef: React.RefObject<HTMLDivElement | null>;
+};
 
 export const Navbar = ({ aboutRef, sponsorsRef, faqRef }: NavbarProps) => {
-  const [isOnVideoSection, setIsOnVideoSection] = useState(true)
+  const [isOnVideoSection, setIsOnVideoSection] = useState(true);
 
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY < window.innerHeight) {
-        setIsOnVideoSection(true)
+        setIsOnVideoSection(true);
       } else {
-        setIsOnVideoSection(false)
+        setIsOnVideoSection(false);
       }
-    }
+    };
 
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, []) 
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <nav className={`z-50 fixed w-screen flex items-center justify-between p-4 border-b transition-all duration-300 ${
-      isOnVideoSection 
-        ? "border-white/10 bg-black/30 backdrop-blur-sm text-white" 
-        : "border-border bg-background"
+    <nav
+      className={`z-50 fixed w-screen flex items-center justify-between p-4 border-b transition-all duration-300 ${
+        isOnVideoSection
+          ? "border-white/10 bg-black/30 backdrop-blur-sm text-white"
+          : "border-border bg-background"
       }`}
     >
       <div className="flex gap-8">
         <Link href="/" className="flex items-center gap-4">
           <div className="flex items-center gap-4">
-            <Image src="/images/beaver.png" width={40} height={40} className="w-10 h-10 sm:w-12 sm:h-12" alt="logo"/>
+            <Image
+              src="/images/beaver.png"
+              width={40}
+              height={40}
+              className="w-10 h-10 sm:w-12 sm:h-12"
+              alt="logo"
+            />
             <div className="flex flex-col">
               <h1 className="text-lg uppercase font-bold sm:text-xl">
                 BeaverHacks
@@ -47,9 +54,9 @@ export const Navbar = ({ aboutRef, sponsorsRef, faqRef }: NavbarProps) => {
           </div>
         </Link>
         <div className="flex items-center gap-4">
-          <Link 
-            href="https://instagram.com/beaverhacks" 
-            target="_blank" 
+          <Link
+            href="https://instagram.com/beaverhacks"
+            target="_blank"
             rel="noreferrer"
             className="text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Instagram"
@@ -62,9 +69,9 @@ export const Navbar = ({ aboutRef, sponsorsRef, faqRef }: NavbarProps) => {
               className="w-4 h-4 sm:w-5 sm:h-5"
             />
           </Link>
-          <Link 
-            href="https://youtube.com/@osubeaverhacks" 
-            target="_blank" 
+          <Link
+            href="https://youtube.com/@osubeaverhacks"
+            target="_blank"
             rel="noreferrer"
             className="text-muted-foreground hover:text-foreground transition-colors"
             aria-label="YouTube"
@@ -77,9 +84,9 @@ export const Navbar = ({ aboutRef, sponsorsRef, faqRef }: NavbarProps) => {
               className="w-5 h-5 sm:w-6 sm:h-6"
             />
           </Link>
-          <Link 
-            href="https://discord.gg/vuepffJxub" 
-            target="_blank" 
+          <Link
+            href="https://discord.gg/vuepffJxub"
+            target="_blank"
             rel="noreferrer"
             className="text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Discord"
@@ -96,29 +103,43 @@ export const Navbar = ({ aboutRef, sponsorsRef, faqRef }: NavbarProps) => {
       </div>
 
       <div className="flex gap-2 md:gap-4">
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           className="hidden md:block"
-          onClick={() => {aboutRef.current?.scrollIntoView({ behavior: "smooth" })}}
-        >About</Button>
-        <Button 
-          variant="outline" 
+          onClick={() => {
+            aboutRef.current?.scrollIntoView({ behavior: "smooth" });
+          }}
+        >
+          About
+        </Button>
+        <Button
+          variant="outline"
           className="hidden md:block"
-          onClick={() => {sponsorsRef.current?.scrollIntoView({ behavior: "smooth" })}}
-        >Sponsors</Button>        
-        <Button 
-          variant="outline" 
+          onClick={() => {
+            sponsorsRef.current?.scrollIntoView({ behavior: "smooth" });
+          }}
+        >
+          Sponsors
+        </Button>
+        <Button
+          variant="outline"
           className="hidden md:block"
-          onClick={() => {faqRef.current?.scrollIntoView({ behavior: "smooth" })}}
-        >FAQ</Button>
-        
+          onClick={() => {
+            faqRef.current?.scrollIntoView({ behavior: "smooth" });
+          }}
+        >
+          FAQ
+        </Button>
+
         <Link href="/apply">
-          <Button 
+          <Button
             variant="default"
             className="bg-orange-500 hover:bg-orange-600 text-white"
-          >Register</Button>
+          >
+            Register
+          </Button>
         </Link>
       </div>
     </nav>
-  )
-}
+  );
+};

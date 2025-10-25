@@ -8,36 +8,45 @@ export async function POST(request: Request): Promise<Response> {
     headers: await headers(),
   });
 
-  if (!session?.user || session.user.role !== "ADMIN") {
-    return new Response('Unauthorized', { status: 401 });
+  if (!session?.user) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { role: true },
+  });
+
+  if (!user || user.role !== "ADMIN") {
+    return new Response("Unauthorized", { status: 401 });
   }
 
   const data = await request.json();
   const { applicationId, status } = data;
 
   if (!applicationId || !status) {
-    return new Response('Missing required fields', { status: 400 });
+    return new Response("Missing required fields", { status: 400 });
   }
 
   try {
     const updatedApplication = await prisma.application.update({
       where: { id: applicationId },
-      data: { 
-        status: status as ApplicationStatus
+      data: {
+        status: status as ApplicationStatus,
       },
       include: {
         user: {
           select: {
             name: true,
-            email: true
-          }
-        }
-      }
+            email: true,
+          },
+        },
+      },
     });
 
     return Response.json(updatedApplication);
   } catch (error) {
-    console.error('Failed to update check-in status:', error);
-    return new Response('Failed to update check-in status', { status: 500 });
+    console.error("Failed to update check-in status:", error);
+    return new Response("Failed to update check-in status", { status: 500 });
   }
 }

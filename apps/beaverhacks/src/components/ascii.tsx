@@ -10,7 +10,9 @@ export const Ascii = () => {
   const beaverGroupRef = useRef<THREE.Group | null>(null);
   const rotationGroupRef = useRef<THREE.Group | null>(null);
   const scrollPercent = useRef<number>(0);
-  const originalPositions = useRef<Map<THREE.BufferGeometry, Float32Array>>(new Map());
+  const originalPositions = useRef<Map<THREE.BufferGeometry, Float32Array>>(
+    new Map(),
+  );
   const explosionProgress = useRef<number>(0);
 
   useEffect(() => {
@@ -24,7 +26,7 @@ export const Ascii = () => {
     let animationId: number;
 
     function lerp(x: number, y: number, a: number): number {
-      return (1 - a) * x + a * y
+      return (1 - a) * x + a * y;
     }
 
     function cubicBezier(x1: number, y1: number, x2: number, y2: number) {
@@ -36,69 +38,84 @@ export const Ascii = () => {
         let mid = t;
 
         for (let i = 0; i < 10; i++) {
-          const x = 3 * (1 - mid) * (1 - mid) * mid * x1 +
-                    3 * (1 - mid) * mid * mid * x2 +
-                    mid * mid * mid;
+          const x =
+            3 * (1 - mid) * (1 - mid) * mid * x1 +
+            3 * (1 - mid) * mid * mid * x2 +
+            mid * mid * mid;
           if (Math.abs(t - x) < 0.001) break;
           if (x < t) start = mid;
           else end = mid;
           mid = (start + end) / 2;
         }
 
-        return 3 * (1 - mid) * (1 - mid) * mid * y1 +
-               3 * (1 - mid) * mid * mid * y2 +
-               mid * mid * mid;
+        return (
+          3 * (1 - mid) * (1 - mid) * mid * y1 +
+          3 * (1 - mid) * mid * mid * y2 +
+          mid * mid * mid
+        );
       };
     }
 
     function scalePercent(start: number, end: number) {
-      return (scrollPercent.current - start) / (end - start)
+      return (scrollPercent.current - start) / (end - start);
     }
 
-    const animationScripts: { start: number; end: number; func: () => void }[] = []
+    const animationScripts: { start: number; end: number; func: () => void }[] =
+      [];
 
     animationScripts.push({
       start: 0,
       end: 100,
       func: () => {
         if (rotationGroupRef.current) {
-          rotationGroupRef.current.rotation.y = lerp(0, Math.PI * 1.5, scalePercent(0, 100))
+          rotationGroupRef.current.rotation.y = lerp(
+            0,
+            Math.PI * 1.5,
+            scalePercent(0, 100),
+          );
         }
       },
-    })
+    });
 
     animationScripts.push({
       start: 10,
       end: 80,
       func: () => {
         if (effect && effect.domElement) {
-          const fadeProgress = scalePercent(10, 80)
-          const easedProgress = 1 - Math.pow(1 - fadeProgress, 2)
-          const opacity = lerp(1, 0, easedProgress)
-          effect.domElement.style.opacity = opacity.toString()
+          const fadeProgress = scalePercent(10, 80);
+          const easedProgress = 1 - Math.pow(1 - fadeProgress, 2);
+          const opacity = lerp(1, 0, easedProgress);
+          effect.domElement.style.opacity = opacity.toString();
         }
       },
-    })
+    });
 
     function playScrollAnimations() {
       animationScripts.forEach((a) => {
         if (scrollPercent.current >= a.start && scrollPercent.current < a.end) {
-          a.func()
+          a.func();
         }
-      })
+      });
     }
 
     const handleScroll = () => {
       scrollPercent.current =
         ((document.documentElement.scrollTop || document.body.scrollTop) /
-          ((document.documentElement.scrollHeight || document.body.scrollHeight) -
-            document.documentElement.clientHeight)) * 100
-    }
+          ((document.documentElement.scrollHeight ||
+            document.body.scrollHeight) -
+            document.documentElement.clientHeight)) *
+        100;
+    };
 
     function init() {
       if (!containerRef.current) return;
 
-      camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
+      camera = new THREE.PerspectiveCamera(
+        70,
+        window.innerWidth / window.innerHeight,
+        1,
+        1000,
+      );
       camera.position.y = 150;
       camera.position.z = 800;
 
@@ -118,7 +135,7 @@ export const Ascii = () => {
 
       // load SVG logo and extrude it
       const loader = new SVGLoader();
-      loader.load('/beaverhacks_white.svg', (data) => {
+      loader.load("/beaverhacks_white.svg", (data) => {
         const paths = data.paths;
         const group = new THREE.Group();
 
@@ -133,17 +150,23 @@ export const Ascii = () => {
               bevelEnabled: true,
               bevelThickness: 2,
               bevelSize: 2,
-              bevelSegments: 5
+              bevelSegments: 5,
             });
 
             // Store original positions for later
             const positions = geometry.attributes.position.array;
-            originalPositions.current.set(geometry, new Float32Array(positions));
+            originalPositions.current.set(
+              geometry,
+              new Float32Array(positions),
+            );
 
-            const mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
-              color: path.color || 0xffffff,
-              flatShading: true
-            }));
+            const mesh = new THREE.Mesh(
+              geometry,
+              new THREE.MeshPhongMaterial({
+                color: path.color || 0xffffff,
+                flatShading: true,
+              }),
+            );
             group.add(mesh);
           }
         }
@@ -162,9 +185,9 @@ export const Ascii = () => {
             const positions = geometry.attributes.position.array;
 
             for (let k = 0; k < positions.length; k += 3) {
-              positions[k] = positions[k] + (Math.random() - 0.5) * 500;          // x
-              positions[k + 1] = positions[k + 1] + (Math.random() - 0.5) * 500;  // y
-              positions[k + 2] = positions[k + 2] + (Math.random() - 0.5) * 500;  // z
+              positions[k] = positions[k] + (Math.random() - 0.5) * 500; // x
+              positions[k + 1] = positions[k + 1] + (Math.random() - 0.5) * 500; // y
+              positions[k + 2] = positions[k + 2] + (Math.random() - 0.5) * 500; // z
             }
             geometry.attributes.position.needsUpdate = true;
           }
@@ -234,7 +257,9 @@ export const Ascii = () => {
               const positions = geometry.attributes.position.array;
               for (let i = 0; i < positions.length; i++) {
                 // lerp directly using eased progress
-                positions[i] = original[i] * easedProgress + positions[i] * (1 - easedProgress);
+                positions[i] =
+                  original[i] * easedProgress +
+                  positions[i] * (1 - easedProgress);
               }
               geometry.attributes.position.needsUpdate = true;
             }
@@ -270,6 +295,5 @@ export const Ascii = () => {
     };
   }, []);
 
-
   return <div ref={containerRef} className="w-screen h-screen"></div>;
-}
+};
