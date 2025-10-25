@@ -1,0 +1,306 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// AUTHENTICATION & CORE USER (Better Auth)
+// ============================================================================
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  role          UserRole  @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  sessions              Session[]
+  accounts              Account[]
+  application           Application?
+  hackathonParticipants HackathonParticipant[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+
+  @@map("verification")
+}
+
+// ============================================================================
+// APPLICATION SYSTEM (beaverhacks.org)
+// ============================================================================
+
+enum ApplicationStatus {
+  APPLIED
+  CHECKED_IN
+}
+
+enum ShirtSize {
+  XS
+  S
+  M
+  L
+  XL
+  XXL
+}
+
+model Application {
+  id             String            @id @default(cuid())
+  createdAt      DateTime          @default(now())
+  userId         String            @unique
+  university     String
+  graduationYear Int
+  shirtSize      ShirtSize
+  resumePath     String
+  status         ApplicationStatus @default(APPLIED)
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("application")
+}
+
+// ============================================================================
+// HACKATHON PARTICIPATION SYSTEM (judge.beaverhacks.org)
+// ============================================================================
+
+model Hackathon {
+  id           String                 @id @default(cuid())
+  name         String                 @unique
+  description  String?
+  rubric       Json                   @default("{}")
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+
+  // Relations
+  participants HackathonParticipant[]
+  teams        Team[]
+  tracks       Track[]
+  submissions  Submission[]
+  judges       JudgeAssignment[]
+
+  @@map("hackathon")
+}
+
+// Join table: User ↔ Hackathon (tracks who's participating in which hackathons)
+model HackathonParticipant {
+  id          String   @id @default(cuid())
+  userId      String
+  hackathonId String
+  joinedAt    DateTime @default(now())
+
+  // Relations
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hackathon   Hackathon    @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  teamMember  TeamMember?
+
+  @@unique([userId, hackathonId])
+  @@map("hackathon_participant")
+}
+
+model Team {
+  id                  String   @id @default(cuid())
+  name                String
+  description         String?
+  lookingForTeammates Boolean  @default(false)
+  contact             String?
+  creatorId           String   // The user who created the team
+  hackathonId         String
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  hackathon  Hackathon    @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  members    TeamMember[]
+  submission Submission?
+  invites    Invite[]
+
+  @@map("team")
+}
+
+// Join table: HackathonParticipant ↔ Team (one participant per hackathon can be on one team)
+model TeamMember {
+  id          String @id @default(cuid())
+  teamId      String
+  participantId String @unique // One participant can only be on one team per hackathon
+  joinedAt    DateTime @default(now())
+
+  // Relations
+  team        Team                 @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  participant HackathonParticipant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+
+  @@map("team_member")
+}
+
+model Invite {
+  id        String   @id @default(cuid())
+  code      String   @unique @default(cuid())
+  teamId    String
+  createdAt DateTime @default(now())
+  expiresAt DateTime?
+
+  // Relations
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@map("invite")
+}
+
+model Submission {
+  id              String   @id @default(cuid())
+  teamId          String   @unique
+  hackathonId     String
+  name            String
+  tagline         String   @default("")
+  description     String   @default("")
+  githubUrl       String   @default("")
+  videoUrl        String   @default("")
+  images          String[] @default([])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  team            Team                @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  hackathon       Hackathon           @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  submissionTracks SubmissionTrack[]
+  scores          Score[]
+
+  @@map("submission")
+}
+
+model Track {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  hackathonId String
+  prize       String?
+  createdAt   DateTime @default(now())
+
+  // Relations
+  hackathon        Hackathon         @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  submissionTracks SubmissionTrack[]
+
+  @@map("track")
+}
+
+// Join table: Submission ↔ Track (submissions can be in multiple tracks)
+model SubmissionTrack {
+  submissionId String
+  trackId      String
+
+  // Relations
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  track      Track      @relation(fields: [trackId], references: [id], onDelete: Cascade)
+
+  @@id([submissionId, trackId])
+  @@map("submission_track")
+}
+
+// ============================================================================
+// JUDGE SYSTEM (judge.beaverhacks.org)
+// ============================================================================
+
+enum JudgeRole {
+  JUDGE
+  ADMIN
+}
+
+model Judge {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  magicLinkToken String? @unique
+  tokenExpiresAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  assignments JudgeAssignment[]
+  scores      Score[]
+
+  @@map("judge")
+}
+
+// Join table: Judge ↔ Hackathon (judges can be assigned to multiple hackathons)
+model JudgeAssignment {
+  id          String    @id @default(cuid())
+  judgeId     String
+  hackathonId String
+  role        JudgeRole @default(JUDGE)
+  assignedAt  DateTime  @default(now())
+
+  // Relations
+  judge     Judge     @relation(fields: [judgeId], references: [id], onDelete: Cascade)
+  hackathon Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+
+  @@unique([judgeId, hackathonId])
+  @@map("judge_assignment")
+}
+
+model Score {
+  id           String   @id @default(cuid())
+  submissionId String
+  judgeId      String
+  rubricScores Json     @default("{}")
+  totalScore   Int      @default(0)
+  comments     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  judge      Judge      @relation(fields: [judgeId], references: [id], onDelete: Cascade)
+
+  @@unique([submissionId, judgeId])
+  @@map("score")
+}
