@@ -1,0 +1,19 @@
+{
+  "name": "@repo/database",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "scripts": {
+    "db:generate": "dotenv -e ../../.env.local -- prisma generate",
+    "db:push": "dotenv -e ../../.env.local -- prisma db push",
+    "db:migrate": "dotenv -e ../../.env.local -- prisma migrate dev",
+    "db:studio": "dotenv -e ../../.env.local -- prisma studio"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.15.0"
+  },
+  "devDependencies": {
+    "prisma": "^6.15.0"
+  }
+}
