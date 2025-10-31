@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "pnpm --filter \"./apps/*\" dev",
+    "dev:judge": "pnpm --filter judge dev",
     "build": "pnpm --filter \"./apps/*\" build",
     "db:generate": "pnpm --filter @repo/database db:generate",
     "db:push": "pnpm --filter @repo/database db:push",
