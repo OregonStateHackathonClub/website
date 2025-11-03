@@ -90,10 +90,10 @@ export default function FormClient({
 						id: "preview",
 						name: form.watch("name") || "Title Preview",
 						images: form.watch("photos") || "/beaver.png",
-						miniDescription: form.watch("description") || "Description Preview",
-						githubURL: form.watch("github") || null,
-						ytVideo: form.watch("youtube") || null,
-						trackLinks: [],
+						tagline: form.watch("description") || "Description Preview",
+						githubUrl: form.watch("github") || null,
+						videoUrl: form.watch("youtube") || null,
+						submissionTracks: [],
 					}}
 					index={0}
 					showOpenButton={false}

@@ -17,10 +17,10 @@ type Submission = {
 	id: string;
 	name: string;
 	images?: string[];
-	miniDescription?: string;
-	githubURL?: string | null;
-	ytVideo?: string | null;
-	trackLinks?: { track: { name: string } }[];
+	tagline?: string;
+	githubUrl?: string | null;
+	videoUrl?: string | null;
+	submissionTracks?: { track: { name: string } }[];
 };
 
 interface SubmissionCardProps {
@@ -48,9 +48,9 @@ export default function SubmissionCard({
 				<CardTitle className="line-clamp-2 font-bold text-lg text-white leading-snug">
 					{submission.name}
 				</CardTitle>
-				{submission.trackLinks && submission.trackLinks.length > 0 && (
+				{submission.submissionTracks && submission.submissionTracks.length > 0 && (
 					<div className="flex flex-wrap gap-1">
-						{submission.trackLinks.map(
+						{submission.submissionTracks.map(
 							({ track }: { track: { name: string } }) => (
 								<span
 									key={track.name}
@@ -79,17 +79,17 @@ export default function SubmissionCard({
 
 			{/* Bottom Section: Description and Links */}
 			<CardContent className="flex-grow px-2 pt-1 pb-0">
-				{submission.miniDescription && (
+				{submission.tagline && (
 					<CardDescription className="line-clamp-2 text-neutral-400 text-sm">
-						{submission.miniDescription}
+						{submission.tagline}
 					</CardDescription>
 				)}
 			</CardContent>
 			<CardFooter className="p-2">
 				<div className="flex w-full items-center justify-between gap-3">
 					<ProjectLinks
-						githubURL={submission.githubURL ?? null}
-						ytVideo={submission.ytVideo ?? null}
+						githubURL={submission.githubUrl ?? null}
+						ytVideo={submission.videoUrl ?? null}
 					/>
 					{showOpenButton && (
 						<button
