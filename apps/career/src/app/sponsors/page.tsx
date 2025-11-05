@@ -114,13 +114,13 @@ export default function SponsorsPage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="h-screen flex flex-col">
       <Navbar />
 
-      <main className="px-6 pb-8">
-        <div className="flex items-center justify-between mb-8">
+      <main className="px-6 py-4 flex flex-col h-full">
+        <div className="flex items-center justify-between gap-6">
           <h1 className="text-4xl font-bold">BeaverHacks Attendees</h1>
-          <div className="flex gap-4">
+          <div className="flex items-center gap-4">
             <div className="relative w-80">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
               <Input
@@ -131,16 +131,19 @@ export default function SponsorsPage() {
                 className="pl-10 rounded-full h-12"
               />
             </div>
-            <Button asChild className="bg-osu-orange hover:bg-osu-orange/90">
+            <Button
+              asChild
+              className="bg-osu-orange hover:bg-osu-orange/90 h-12 px-6"
+            >
               <a href="/api/resumes" download>
-                Bulk Download Resumes
+                Download All Resumes
               </a>
             </Button>
           </div>
         </div>
 
         {filteredUsers.length === 0 ? (
-          <div className="flex items-center justify-center h-96">
+          <div className="flex items-center justify-center h-full">
             <p className="text-muted-foreground">
               {searchTerm
                 ? "No users found matching your search."
@@ -158,7 +161,7 @@ export default function SponsorsPage() {
                   <div className="flex gap-4 mb-6">
                     {user.image ? (
                       <Image
-                        src={user.image}
+                        src={user.image || "/placeholder.svg"}
                         alt={user.name}
                         className="w-16 h-16 rounded-full shrink-0 object-cover"
                       />
