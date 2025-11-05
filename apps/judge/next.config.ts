@@ -18,6 +18,11 @@ const nextConfig: NextConfig = {
       // You can add other trusted domains here
     ],
   },
+  experimental: {
+		useCache: true,
+		authInterrupts: true,
+	},
+	reactCompiler: true,
 };
 
 export default nextConfig;

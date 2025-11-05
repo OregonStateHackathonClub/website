@@ -18,6 +18,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "embla-carousel-react": "^8.6.0",
+    "geist": "^1.5.1",
     "lucide-react": "^0.475.0",
     "next-themes": "^0.4.6",
     "react": "^19.1.1",
@@ -41,6 +42,7 @@
   "exports": {
     "./globals.css": "./src/styles/globals.css",
     "./postcss.config": "./postcss.config.mjs",
+    "./fonts": "./src/fonts.ts",
     "./lib/*": "./src/lib/*.ts",
     "./components/*": "./src/components/*.tsx"
   }

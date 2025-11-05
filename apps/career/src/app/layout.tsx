@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { GeistSans } from "geist/font/sans";
+import { GeistSans } from "@repo/ui/fonts";
 
 import "@repo/ui/globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -16,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={GeistSans.className}>
+      <body className={`${GeistSans.className}`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

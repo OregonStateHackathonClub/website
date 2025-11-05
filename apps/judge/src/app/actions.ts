@@ -37,6 +37,36 @@ export async function isTeamMember(teamId: string): Promise<boolean> {
     (member) => member.participant.user.id === session.user.id,
   );
 }
+export async function createHackathonParticipant(): Promise<boolean> {
+	try {
+		const session = await auth.api.getSession({ headers: await headers() });
+		if (!session) {
+			return false;
+		}
+
+		const userId = session.user.id;
+
+		const hackathon = await prisma.hackathon.findFirst({
+			select: { id: true },
+		});
+
+		if (!hackathon) {
+			return false;
+		}
+
+		await prisma.hackathonParticipant.create({
+			data: {
+				user: { connect: { id: userId } },
+				hackathon: { connect: { id: hackathon.id } },
+			},
+		});
+
+		return true;
+	} catch (error) {
+		console.error("Error creating hackathon participant:", error);
+		return false;
+	}
+}
 
 // Return teamId if successful. false if unsucessful
 export async function createTeam(
@@ -209,6 +239,7 @@ export async function getTeamInfo(teamId: string) {
       description: true,
       contact: true,
       lookingForTeammates: true,
+	  creatorId: true,
       members: {
         select: {
           id: true,

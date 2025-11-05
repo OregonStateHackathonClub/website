@@ -32,3 +32,4 @@ export type Session = typeof auth.$Infer.Session;
 
 // Re-export for Next.js API routes
 export { toNextJsHandler } from "better-auth/next-js";
+export { getSessionCookie } from "better-auth/cookies"
