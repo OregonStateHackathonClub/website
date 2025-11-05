@@ -116,7 +116,7 @@ export default function SponsorsPage() {
   return (
     <div className="min-h-screen">
       <Navbar />
-      
+
       <main className="px-6 pb-8 pt-8">
         <div className="flex items-center justify-between mb-8 gap-6">
           <h1 className="text-4xl font-bold">BeaverHacks Attendees</h1>
@@ -131,7 +131,10 @@ export default function SponsorsPage() {
                 className="pl-10 rounded-full h-12"
               />
             </div>
-            <Button asChild className="bg-osu-orange hover:bg-osu-orange/90 h-12 px-6">
+            <Button
+              asChild
+              className="bg-osu-orange hover:bg-osu-orange/90 h-12 px-6"
+            >
               <a href="/api/resumes" download>
                 Bulk Download Resumes
               </a>
@@ -142,7 +145,9 @@ export default function SponsorsPage() {
         {filteredUsers.length === 0 ? (
           <div className="flex items-center justify-center h-96">
             <p className="text-muted-foreground">
-              {searchTerm ? "No users found matching your search." : "No users available."}
+              {searchTerm
+                ? "No users found matching your search."
+                : "No users available."}
             </p>
           </div>
         ) : (
@@ -171,27 +176,41 @@ export default function SponsorsPage() {
                         <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm mb-4">
                           <p>
                             <span className="font-medium">Email: </span>
-                            <span className="text-muted-foreground">{user.email}</span>
+                            <span className="text-muted-foreground">
+                              {user.email}
+                            </span>
                           </p>
                           <p>
                             <span className="font-medium">University: </span>
-                            <span className="text-muted-foreground">{user.application.university}</span>
+                            <span className="text-muted-foreground">
+                              {user.application.university}
+                            </span>
                           </p>
                           <p>
                             <span className="font-medium">Graduation: </span>
-                            <span className="text-muted-foreground">{user.application.graduationYear}</span>
+                            <span className="text-muted-foreground">
+                              {user.application.graduationYear}
+                            </span>
                           </p>
                           <p>
                             <span className="font-medium">Shirt Size: </span>
-                            <span className="text-muted-foreground">{user.application.shirtSize}</span>
+                            <span className="text-muted-foreground">
+                              {user.application.shirtSize}
+                            </span>
                           </p>
                           <p>
                             <span className="font-medium">Status: </span>
-                            <span className="text-muted-foreground">{user.application.status}</span>
+                            <span className="text-muted-foreground">
+                              {user.application.status}
+                            </span>
                           </p>
                         </div>
                       )}
-                      <Button asChild className="bg-osu-orange hover:bg-osu-orange/90" size="sm">
+                      <Button
+                        asChild
+                        className="bg-osu-orange hover:bg-osu-orange/90"
+                        size="sm"
+                      >
                         <a
                           href={`/api/resumes/${user.application?.resumePath}`}
                           download
@@ -207,43 +226,65 @@ export default function SponsorsPage() {
                   {/* Hackathon Projects Section */}
                   {user.hackathonParticipants.length > 0 && (
                     <div className="border-t border-border pt-4">
-                      <h4 className="font-semibold text-lg mb-3">Hackathon Projects</h4>
+                      <h4 className="font-semibold text-lg mb-3">
+                        Hackathon Projects
+                      </h4>
                       <div className="space-y-4">
                         {user.hackathonParticipants.map((participant) => {
-                          const team = participant.teamMember?.team
-                          const submission = team?.submission
+                          const team = participant.teamMember?.team;
+                          const submission = team?.submission;
 
-                          if (!team || !submission) return null
+                          if (!team || !submission) return null;
 
                           return (
-                            <div key={participant.id} className="bg-secondary/30 rounded-lg p-4">
+                            <div
+                              key={participant.id}
+                              className="bg-secondary/30 rounded-lg p-4"
+                            >
                               <div className="flex items-start justify-between mb-2">
                                 <div>
-                                  <h5 className="font-semibold text-base">{submission.name}</h5>
+                                  <h5 className="font-semibold text-base">
+                                    {submission.name}
+                                  </h5>
                                   <p className="text-sm text-muted-foreground">
-                                    {participant.hackathon.name} • Team: {team.name}
+                                    {participant.hackathon.name} • Team:{" "}
+                                    {team.name}
                                   </p>
                                 </div>
                                 <div className="flex gap-2">
                                   {submission.githubUrl && (
                                     <Button asChild variant="outline" size="sm">
-                                      <a href={submission.githubUrl} target="_blank" rel="noopener noreferrer">
+                                      <a
+                                        href={submission.githubUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                      >
                                         <Github className="w-4 h-4" />
                                       </a>
                                     </Button>
                                   )}
                                   {submission.videoUrl && (
                                     <Button asChild variant="outline" size="sm">
-                                      <a href={submission.videoUrl} target="_blank" rel="noopener noreferrer">
+                                      <a
+                                        href={submission.videoUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                      >
                                         <ExternalLink className="w-4 h-4" />
                                       </a>
                                     </Button>
                                   )}
                                 </div>
                               </div>
-                              {submission.tagline && <p className="text-sm italic mb-2">{submission.tagline}</p>}
+                              {submission.tagline && (
+                                <p className="text-sm italic mb-2">
+                                  {submission.tagline}
+                                </p>
+                              )}
                               {submission.description && (
-                                <p className="text-sm text-muted-foreground mb-3">{submission.description}</p>
+                                <p className="text-sm text-muted-foreground mb-3">
+                                  {submission.description}
+                                </p>
                               )}
                               {submission.submissionTracks.length > 0 && (
                                 <div className="flex flex-wrap gap-2">
@@ -258,7 +299,7 @@ export default function SponsorsPage() {
                                 </div>
                               )}
                             </div>
-                          )
+                          );
                         })}
                       </div>
                     </div>
@@ -273,30 +314,37 @@ export default function SponsorsPage() {
                   <PaginationItem>
                     <PaginationPrevious
                       onClick={() => page > 1 && handlePageChange(page - 1)}
-                      className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      className={
+                        page === 1
+                          ? "pointer-events-none opacity-50"
+                          : "cursor-pointer"
+                      }
                     />
                   </PaginationItem>
 
                   {[...Array(totalPages)].map((_, i) => {
-                    const pageNum = i + 1
+                    const pageNum = i + 1;
 
                     // Show first page, last page, current page, and pages around current
                     const showPage =
-                      pageNum === 1 || pageNum === totalPages || (pageNum >= page - 1 && pageNum <= page + 1)
+                      pageNum === 1 ||
+                      pageNum === totalPages ||
+                      (pageNum >= page - 1 && pageNum <= page + 1);
 
                     // Show ellipsis
-                    const showEllipsisBefore = pageNum === page - 2 && page > 3
-                    const showEllipsisAfter = pageNum === page + 2 && page < totalPages - 2
+                    const showEllipsisBefore = pageNum === page - 2 && page > 3;
+                    const showEllipsisAfter =
+                      pageNum === page + 2 && page < totalPages - 2;
 
                     if (showEllipsisBefore || showEllipsisAfter) {
                       return (
                         <PaginationItem key={pageNum}>
                           <PaginationEllipsis />
                         </PaginationItem>
-                      )
+                      );
                     }
 
-                    if (!showPage) return null
+                    if (!showPage) return null;
 
                     return (
                       <PaginationItem key={pageNum}>
@@ -308,13 +356,19 @@ export default function SponsorsPage() {
                           {pageNum}
                         </PaginationLink>
                       </PaginationItem>
-                    )
+                    );
                   })}
 
                   <PaginationItem>
                     <PaginationNext
-                      onClick={() => page < totalPages && handlePageChange(page + 1)}
-                      className={page === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      onClick={() =>
+                        page < totalPages && handlePageChange(page + 1)
+                      }
+                      className={
+                        page === totalPages
+                          ? "pointer-events-none opacity-50"
+                          : "cursor-pointer"
+                      }
                     />
                   </PaginationItem>
                 </PaginationContent>
@@ -324,5 +378,5 @@ export default function SponsorsPage() {
         )}
       </main>
     </div>
-  )
+  );
 }
