@@ -114,11 +114,11 @@ export default function SponsorsPage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="h-screen flex flex-col">
       <Navbar />
 
-      <main className="px-6 pb-8 pt-8">
-        <div className="flex items-center justify-between mb-8 gap-6">
+      <main className="px-6 py-4 flex flex-col h-full">
+        <div className="flex items-center justify-between gap-6">
           <h1 className="text-4xl font-bold">BeaverHacks Attendees</h1>
           <div className="flex items-center gap-4">
             <div className="relative w-80">
@@ -136,14 +136,14 @@ export default function SponsorsPage() {
               className="bg-osu-orange hover:bg-osu-orange/90 h-12 px-6"
             >
               <a href="/api/resumes" download>
-                Bulk Download Resumes
+                Download All Resumes
               </a>
             </Button>
           </div>
         </div>
 
         {filteredUsers.length === 0 ? (
-          <div className="flex items-center justify-center h-96">
+          <div className="flex items-center justify-center h-full">
             <p className="text-muted-foreground">
               {searchTerm
                 ? "No users found matching your search."
