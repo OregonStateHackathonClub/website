@@ -1,7 +1,8 @@
 import { del, put } from "@vercel/blob";
 import { NextResponse } from "next/server";
+import { auth } from "@repo/auth"
 
-// Very lightweight in-memory rate limiter per IP (best-effort only).
+
 const lastRequestByIp = new Map<string, number>();
 const MIN_INTERVAL_MS = 3000; // 3s between uploads per IP
 
@@ -29,6 +30,18 @@ function isVercelBlobUrl(urlStr: string) {
 }
 
 export async function POST(req: Request) {
+	// Check if user is logged in to upload a image
+	const session = await auth.api.getSession({
+		headers: req.headers
+	});
+	
+	if (!session) {
+		return NextResponse.json(
+			{ error: "Unauthorized. Please log in to upload files." },
+			{ status: 401 }
+		);
+	}
+
 	// Rate limit (best-effort)
 	const ip = getClientIp(req);
 	const now = Date.now();
@@ -106,6 +119,18 @@ export async function POST(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+	// Check if user is logged in to delete blob
+	const session = await auth.api.getSession({
+		headers: req.headers
+	});
+	
+	if (!session) {
+		return NextResponse.json(
+			{ error: "Unauthorized. Please log in to delete files." },
+			{ status: 401 }
+		);
+	}
+
 	if (!process.env.BLOB_READ_WRITE_TOKEN) {
 		return NextResponse.json(
 			{ error: "Server not configured for Blob deletes." },
