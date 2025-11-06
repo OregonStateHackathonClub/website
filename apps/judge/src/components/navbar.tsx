@@ -27,7 +27,7 @@ const HackathonHomepageButton = ({ link = "/" }: { link?: string }) => (
 		className="flex items-center gap-5 p-5 hover:bg-gray-200"
 	>
 		<div className="relative h-10 w-10">
-			<Image src="/beaver.png" alt="beaver" fill />
+			<Image src="/beaverhacks_gradient.png" alt="beaver" fill />
 		</div>
 		<h1>BeaverHacks Official Judging Platform</h1>
 	</Link>
