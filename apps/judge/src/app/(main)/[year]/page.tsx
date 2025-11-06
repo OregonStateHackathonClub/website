@@ -68,7 +68,7 @@ export default async function Page(props: {
 	// Use a guard clause for the "not found" case
 	if (!hackathon) {
 		return (
-			<div className="flex min-h-[calc(100vh-80px)] flex-col items-center justify-center bg-neutral-900 p-4 text-center">
+			<div className="flex min-h-[calc(100vh-80px)] flex-col items-center justify-center p-4 text-center">
 				<div className="max-w-md">
 					<SearchX
 						className="mx-auto h-16 w-16 text-neutral-600"

@@ -11,10 +11,10 @@ async function Teams() {
 		<div className="grid gap-4">
 			{data.map((team) => (
 				<Link key={team.id} href={`/${hackathonId}/team/${team.id}`}>
-					<div className="cursor-pointer rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all duration-200 hover:bg-gray-50 hover:shadow-md">
-						<h3 className="font-semibold text-gray-800 text-lg">{team.name}</h3>
+					<div className="cursor-pointer rounded-xl border border-neutral-800 bg-neutral-900 p-4 shadow-sm transition-all duration-200 hover:bg-neutral-800/50 hover:shadow-md">
+						<h3 className="font-semibold text-neutral-200 text-lg">{team.name}</h3>
 						{team.description && (
-							<p className="mt-1 text-gray-500 text-sm">
+							<p className="mt-1 text-neutral-400 text-sm">
 								{team.description.length > 100
 									? `${team.description.slice(0, 100)}...`
 									: team.description}
@@ -37,19 +37,19 @@ async function GetTeams() {
 
 export default function Home() {
 	return (
-		<div className="min-h-screen bg-gray-50 py-10">
-			<div className="mx-auto w-full max-w-3xl">
-				<h1 className="mb-6 text-center font-bold text-4xl text-gray-900">
+		<div className="min-h-screen py-10">
+			<div className="mx-auto w-full max-w-3xl px-4">
+				<h1 className="mb-6 text-center font-bold text-4xl text-neutral-50">
 					Find a Team
 				</h1>
 
-				<p className="mb-8 text-center text-gray-600 text-lg">
+				<p className="mb-8 text-center text-neutral-400 text-lg">
 					Browse groups searching for teammates and join a project!
 				</p>
 
 				<Suspense
 					fallback={
-						<p className="text-center text-gray-500">Loading teams...</p>
+						<p className="text-center text-neutral-500">Loading teams...</p>
 					}
 				>
 					<Teams />

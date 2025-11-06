@@ -13,7 +13,7 @@ export default async function RootPage() {
 
 	// This content is shown ONLY if no hackathons are found in the database.
 	return (
-		<div className="flex min-h-screen flex-col items-center justify-center bg-neutral-950 text-center text-neutral-400">
+		<div className="flex flex-col items-center justify-center text-center text-neutral-400">
 			<h1 className="font-bold text-2xl text-white">No Hackathon Found</h1>
 			<p className="mt-2">Please check back later.</p>
 		</div>

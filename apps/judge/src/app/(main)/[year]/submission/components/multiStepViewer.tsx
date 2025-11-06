@@ -127,7 +127,7 @@ export function MultiStepViewer({
 	}, [form, autosaveDraft]);
 
 	return (
-		<div className="flex flex-col gap-2">
+		<div className="flex flex-col gap-2 bg-neutral-950 p-6 rounded-lg shadow-lg">
 			<div className="mb-4 flex flex-col items-center justify-start">
 				<Progress value={(currentStep / steps.length) * 100} />
 			</div>
@@ -146,6 +146,7 @@ export function MultiStepViewer({
 			<div className="flex w-full items-center gap-3 pt-3">
 				{currentStep !== 1 && (
 					<Button
+						className="hover:cursor-pointer"
 						size="sm"
 						variant="outline"
 						type="button"
@@ -190,7 +191,7 @@ export function MultiStepViewer({
 					<Button
 						size="sm"
 						type="button"
-						className="ml-auto"
+						className="ml-auto hover:cursor-pointer"
 						onClick={async () => {
 							// List the field names for the current stepS
 							const valid = await form.trigger(fieldsToValidate(currentStep));

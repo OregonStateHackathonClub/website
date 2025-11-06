@@ -85,7 +85,7 @@ export default function FormClient({
           />
         </form>
       </Form>
-      <div className="min-w-76">
+      <div className="w-80 min-w-80 shrink-0 lg:w-96 lg:min-w-96 max-h-[600px] overflow-y-auto p-1 scrollbar-thin">
         <SubmissionCard
           submission={{
             id: "preview",
