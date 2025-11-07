@@ -7,16 +7,37 @@ import { ButtonGroup } from "@repo/ui/components/button-group";
 
 
 import { toast } from "sonner";
-import { UserRole } from "@prisma/client";
+import { JudgeRole, UserRole } from "@prisma/client";
+import { ChevronDown } from "lucide-react";
 export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 	const [search, setSearch] = useState("");
+
+	const [superadmins, setSuperadmins] = useState<any[]>([]);
+	const [admins, setAdmins] = useState<any[]>([]);
+	const [judges, setJudges] = useState<any[]>([]);
 	const [users, setUsers] = useState<any[]>([]);
-	const [page, setPage] = useState(1);
+
+	const [superadminPage, setSuperadminPage] = useState(1);
+	const [adminPage, setAdminPage] = useState(1);
+	const [judgePage, setJudgePage] = useState(1);
+	const [userPage, setUserPage] = useState(1);
+
+
 
 	const fetchUsers = useCallback(async () => {
-		const res = await userSearch(search, hackathonId);
-		if (!res) return;
-		setUsers(res);
+		if (hackathonId) {
+			const adminResult = await userSearch(search, hackathonId, JudgeRole.ADMIN);
+			if (adminResult) setAdmins(adminResult);
+
+			const judgeResult = await userSearch(search, hackathonId, JudgeRole.JUDGE);
+			if (judgeResult) setJudges(judgeResult);
+		} else {
+			const superAdminResult = await userSearch(search, "", UserRole.ADMIN);
+			if (superAdminResult) setSuperadmins(superAdminResult);
+		}
+		
+		const usersResult = await userSearch(search, hackathonId);
+		if (usersResult) setUsers(usersResult);
 	}, [search]);
 
 	useEffect(() => {
@@ -47,19 +68,27 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 			toast.error(`Failed to ${superAdminValue ? "add" : "remove"} superadmin.`);
 		}
 	}
+	
+	function Users({
+		list,
+		page,
+		setPage,
+	}: {
+		list: any[];
+		page: number;
+		setPage: React.Dispatch<React.SetStateAction<number>>;
+	}) {
+		const entriesPerPage = 1;
+		const totalPages = Math.ceil(list.length / entriesPerPage);
 
-	function Users() {
-		const usersPerPage = 10;
-		const totalPages = Math.ceil(users.length / usersPerPage);
-
-		const startIndex = (page - 1) * usersPerPage;
-		const endIndex = startIndex + usersPerPage;
-		const currentUsers = users.slice(startIndex, endIndex);
+		const startIndex = (page - 1) * entriesPerPage;
+		const endIndex = startIndex + entriesPerPage;
+		const currentEntries = list.slice(startIndex, endIndex);
 
 		return (
 			<div>
 				<div className="grid gap-2">
-					{currentUsers.map((user) => {
+					{currentEntries.map((user) => {
 						return (
 							<div key={user.id}>
 								<div className="flex items-center justify-between gap-3 rounded-xl border border-gray-800 bg-gray-900 p-2 shadow-sm">
@@ -67,53 +96,42 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 										<h3 className="font-semibold text-gray-100">{user.name}</h3>
 										<p className="text-xs">{user.email}</p>
 									</div>
-									<ButtonGroup>
+									<div className="flex gap-5">
 										<Button
 											variant="outline"
 											className="rounded-xl border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
-											onClick={() => copyString(user.id)}
+											onClick={() => {}}
 										>
-											Copy UserId
+											Edit
 										</Button>
 
-										{user?.role == UserRole.USER && (
-											<Button
-												variant="outline"
-												className="rounded-xl border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
-												onClick={() => modifySuperadmin(true, user.id)}
-											>
-												Promote to Superuser
-											</Button>
-										)}
-
-										{user?.role == UserRole.ADMIN && (
-											<Button
-												variant="outline"
-												className="rounded-xl border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
-												onClick={() => modifySuperadmin(false, user.id)}
-											>
-												Demote to User
-											</Button>
-										)}
 										<Button
 											variant="outline"
 											className="rounded-xl border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
-											onClick={() => deleteUser(user.id)}
+											onClick={() => {}}
 										>
-											Delete User
+											<ChevronDown />
 										</Button>
-									</ButtonGroup>
+									</div>
 								</div>
 							</div>
 						);
 					})}
 				</div>
-				<Pages totalPages={totalPages} />
+				<Pages totalPages={totalPages} page={page} setPage={setPage} />
 			</div>
 		);
 	}
 
-	function Pages({ totalPages }: { totalPages: number }) {
+	function Pages({
+		totalPages,
+		page,
+		setPage,
+	}: {
+		totalPages: number;
+		page: number;
+		setPage: React.Dispatch<React.SetStateAction<number>>;
+	}) {
 		return (
 			<Pagination className="pt-2">
 				<PaginationContent>
@@ -126,14 +144,11 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 					</PaginationItem>
 					{Array.from({ length: totalPages }, (_, i) => i + 1)
 						.filter((pageNum) => {
-							// Always show first & last page
 							if (pageNum === 1 || pageNum === totalPages) return true;
-							// Show a range around the current page
 							if (Math.abs(pageNum - page) <= 2) return true;
 							return false;
 						})
 						.map((pageNum, idx, arr) => {
-							// Insert ellipses where there's a gap
 							const prev = arr[idx - 1];
 							const showEllipsis = prev && pageNum - prev > 1;
 
@@ -147,7 +162,11 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 									<PaginationItem>
 										<PaginationLink
 											onClick={() => setPage(pageNum)}
-											className={`hover:bg-gray-800 hover:text-white ${page === pageNum ? "border-gray-700 bg-gray-900 text-white" : ""}`}
+											className={`hover:bg-gray-800 hover:text-white ${
+												page === pageNum
+													? "border-gray-700 bg-gray-900 text-white"
+													: ""
+											}`}
 											isActive={page === pageNum}
 										>
 											{pageNum}
@@ -183,7 +202,47 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 					onChange={(e) => setSearch(e.target.value)}
 				/>
 			</div>
-			{users ? <Users /> : <div>Loading...</div>}
+			{
+				hackathonId ?
+				<div>
+					<div className="flex w-full justify-between items-center my-5">
+						<div>
+							Admins
+						</div>
+						<div className="flex-1 h-0.5 mx-5 bg-gray-800" />
+						<Button variant={"outline"} className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100">+</Button>
+					</div>
+					{users ? <Users list={admins} page={adminPage} setPage={setAdminPage} /> : <div>Loading...</div>}
+
+					<div className="flex w-full justify-between items-center my-5">
+						<div>
+							Judges
+						</div>
+						<div className="flex-1 h-0.5 mx-5 bg-gray-800" />
+						<Button variant={"outline"} className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100">+</Button>
+					</div>
+					{users ? <Users list={judges} page={judgePage} setPage={setJudgePage} /> : <div>Loading...</div>}
+				</div>
+				:
+				<div>
+					<div className="flex w-full justify-between items-center my-5">
+						<div>
+							Superadmins
+						</div>
+						<div className="flex-1 h-0.5 mx-5 bg-gray-800" />
+						<Button variant={"outline"} className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100">+</Button>
+					</div>
+					{users ? <Users list={superadmins} page={superadminPage} setPage={setSuperadminPage} /> : <div>Loading...</div>}
+				</div>
+			}
+			<div className="flex w-full justify-between items-center my-5">
+				<div>
+					Users
+				</div>
+				<div className="flex-1 h-0.5 mx-5 bg-gray-800" />
+				<Button variant={"outline"} className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100">+</Button>
+			</div>
+			{users ? <Users list={users} page={userPage} setPage={setUserPage} /> : <div>Loading...</div>}
 		</div>
 	);
 }

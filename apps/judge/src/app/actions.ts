@@ -1,6 +1,6 @@
 "use server";
 
-import { Prisma, prisma, UserRole } from "@repo/database";
+import { JudgeRole, Prisma, prisma, UserRole } from "@repo/database";
 import { auth } from "@repo/auth";
 import { headers } from "next/headers";
 
@@ -469,7 +469,7 @@ export async function removeUser(
 	return false;
 }
 
-export async function userSearch(search: string, hackathonId: string = "") {
+export async function userSearch(search: string, hackathonId: string = "", role: UserRole | JudgeRole = UserRole.USER) {
 	if (!isSuperadmin()) return false;
 
 	const users = await prisma.user.findMany({
