@@ -13,24 +13,25 @@ datasource db {
 
 enum UserRole {
   USER
-  ADMIN
+  SUPERADMIN
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String   @id @default(cuid())
   name          String
-  email         String    @unique
-  emailVerified Boolean   @default(false)
+  email         String   @unique
+  emailVerified Boolean  @default(false)
   image         String?
-  role          UserRole  @default(USER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  role          UserRole @default(USER)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   // Relations
   sessions              Session[]
   accounts              Account[]
   application           Application?
   hackathonParticipants HackathonParticipant[]
+  judges                Judge[]
 
   @@map("user")
 }
@@ -116,12 +117,12 @@ model Application {
 // ============================================================================
 
 model Hackathon {
-  id           String                 @id @default(cuid())
-  name         String                 @unique
-  description  String?
-  rubric       Json                   @default("{}")
-  createdAt    DateTime               @default(now())
-  updatedAt    DateTime               @updatedAt
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  rubric      Json     @default("{}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relations
   participants HackathonParticipant[]
@@ -141,9 +142,9 @@ model HackathonParticipant {
   joinedAt    DateTime @default(now())
 
   // Relations
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  hackathon   Hackathon    @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
-  teamMember  TeamMember?
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hackathon  Hackathon   @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  teamMember TeamMember?
 
   @@unique([userId, hackathonId])
   @@map("hackathon_participant")
@@ -155,7 +156,7 @@ model Team {
   description         String?
   lookingForTeammates Boolean  @default(false)
   contact             String?
-  creatorId           String   // The user who created the team
+  creatorId           String // The user who created the team
   hackathonId         String
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
@@ -171,10 +172,10 @@ model Team {
 
 // Join table: HackathonParticipant ↔ Team (one participant per hackathon can be on one team)
 model TeamMember {
-  id          String @id @default(cuid())
-  teamId      String
-  participantId String @unique // One participant can only be on one team per hackathon
-  joinedAt    DateTime @default(now())
+  id            String   @id @default(cuid())
+  teamId        String
+  participantId String   @unique // One participant can only be on one team per hackathon
+  joinedAt      DateTime @default(now())
 
   // Relations
   team        Team                 @relation(fields: [teamId], references: [id], onDelete: Cascade)
@@ -184,10 +185,10 @@ model TeamMember {
 }
 
 model Invite {
-  id        String   @id @default(cuid())
-  code      String   @unique @default(cuid())
+  id        String    @id @default(cuid())
+  code      String    @unique @default(cuid())
   teamId    String
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
   expiresAt DateTime?
 
   // Relations
@@ -197,23 +198,23 @@ model Invite {
 }
 
 model Submission {
-  id              String   @id @default(cuid())
-  teamId          String   @unique
-  hackathonId     String
-  name            String
-  tagline         String   @default("")
-  description     String   @default("")
-  githubUrl       String   @default("")
-  videoUrl        String   @default("")
-  images          String[] @default([])
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id          String   @id @default(cuid())
+  teamId      String   @unique
+  hackathonId String
+  name        String
+  tagline     String   @default("")
+  description String   @default("")
+  githubUrl   String   @default("")
+  videoUrl    String   @default("")
+  images      String[] @default([])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relations
-  team            Team                @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  hackathon       Hackathon           @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  team             Team              @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  hackathon        Hackathon         @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
   submissionTracks SubmissionTrack[]
-  scores          Score[]
+  scores           Score[]
 
   @@map("submission")
 }
@@ -256,15 +257,13 @@ enum JudgeRole {
 }
 
 model Judge {
-  id          String   @id @default(cuid())
-  name        String
-  email       String   @unique
+  id             String  @id @default(cuid())
+  name           String
+  email          String  @unique
   magicLinkToken String? @unique
-  tokenExpiresAt DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 
   // Relations
+  user        User[]
   assignments JudgeAssignment[]
   scores      Score[]
 
