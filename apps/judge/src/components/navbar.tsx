@@ -41,7 +41,7 @@ const HackathonHomepageButton = ({ link = "/" }: { link?: string }) => (
                 src="/beaverhacks_white.png"
                 alt="BeaverHacks White Logo"
                 fill
-                className="opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100"
+                className="opacity-0 transition-opacity duration-7000 ease-in-out group-hover:opacity-100"
             />
         </div>
         <h1>BeaverHacks Official Judging Platform</h1>
