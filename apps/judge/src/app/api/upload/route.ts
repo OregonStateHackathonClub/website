@@ -3,8 +3,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@repo/auth"
 
 
-const lastRequestByIp = new Map<string, number>();
-const MIN_INTERVAL_MS = 3000; // 3s between uploads per IP
+
 
 const ALLOWED_MIME = new Set([
 	"image/png",
@@ -13,12 +12,6 @@ const ALLOWED_MIME = new Set([
 	"application/pdf",
 ]);
 const MAX_BYTES = 5 * 1024 * 1024; // 5MB
-
-function getClientIp(req: Request) {
-	const fwd = req.headers.get("x-forwarded-for");
-	if (fwd) return fwd.split(",")[0]?.trim() || "unknown";
-	return req.headers.get("x-real-ip") || "unknown";
-}
 
 function isVercelBlobUrl(urlStr: string) {
 	try {
@@ -42,17 +35,7 @@ export async function POST(req: Request) {
 		);
 	}
 
-	// Rate limit (best-effort)
-	const ip = getClientIp(req);
-	const now = Date.now();
-	const last = lastRequestByIp.get(ip) || 0;
-	if (now - last < MIN_INTERVAL_MS) {
-		return NextResponse.json(
-			{ error: "Too many requests. Please wait a moment." },
-			{ status: 429 },
-		);
-	}
-	lastRequestByIp.set(ip, now);
+	
 
 	if (!process.env.BLOB_READ_WRITE_TOKEN) {
 		return NextResponse.json(

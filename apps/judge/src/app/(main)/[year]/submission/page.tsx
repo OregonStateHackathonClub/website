@@ -10,9 +10,74 @@ async function getInitialData(searchParams: {
 	const teamId = searchParams?.teamId ?? null;
 	const editId = searchParams?.edit ?? null;
 
+	// If editing an existing submission, load draft data if available, otherwise submission data
 	if (editId) {
 		const submission = await prisma.submission.findUnique({
 			where: { id: editId },
+			select: {
+				id: true,
+				teamId: true,
+				name: true,
+				tagline: true,
+				description: true,
+				githubUrl: true,
+				videoUrl: true,
+				images: true,
+				team: {
+					select: {
+						drafts: {
+							select: {
+								id: true,
+								name: true,
+								tagline: true,
+								description: true,
+								githubUrl: true,
+								videoUrl: true,
+								images: true,
+							},
+						},
+					},
+				},
+			},
+		});
+		
+		if (submission) {
+			// If there's a draft, use draft data; otherwise use submission data
+			const draft = submission.team.drafts;
+			if (draft) {
+				return {
+					submissionId: submission.id,
+					draftId: draft.id,
+					teamId: submission.teamId,
+					name: draft.name || "",
+					description: draft.tagline || "",
+					mainDescription: draft.description || "",
+					github: draft.githubUrl || "",
+					youtube: draft.videoUrl || "",
+					photos: draft.images || [],
+					status: "draft",
+				};
+			} else {
+				return {
+					submissionId: submission.id,
+					draftId: null,
+					teamId: submission.teamId,
+					name: submission.name || "",
+					description: submission.tagline || "",
+					mainDescription: submission.description || "",
+					github: submission.githubUrl || "",
+					youtube: submission.videoUrl || "",
+					photos: submission.images || [],
+					status: "draft",
+				};
+			}
+		}
+	}
+
+	// If no edit ID or starting fresh, check if there's an existing draft for the team
+	if (teamId) {
+		const draft = await prisma.draft.findUnique({
+			where: { teamId },
 			select: {
 				id: true,
 				name: true,
@@ -21,26 +86,28 @@ async function getInitialData(searchParams: {
 				githubUrl: true,
 				videoUrl: true,
 				images: true,
-				//status: true,
 			},
 		});
-		if (submission) {
+
+		if (draft) {
 			return {
-				submissionId: submission.id,
+				submissionId: null,
+				draftId: draft.id,
 				teamId,
-				name: submission.name || "",
-				description: submission.tagline || "",
-				mainDescription: submission.description || "",
-				github: submission.githubUrl || "",
-				youtube: submission.videoUrl || "",
-				photos: submission.images || [],
-				//status: submission.status || "draft",
+				name: draft.name || "",
+				description: draft.tagline || "",
+				mainDescription: draft.description || "",
+				github: draft.githubUrl || "",
+				youtube: draft.videoUrl || "",
+				photos: draft.images || [],
+				status: "draft",
 			};
 		}
 	}
 
 	return {
 		submissionId: null,
+		draftId: null,
 		teamId,
 		name: "",
 		description: "",

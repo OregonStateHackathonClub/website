@@ -3,6 +3,154 @@
 import { randomUUID } from "node:crypto";
 import { prisma } from "@repo/database";
 
+export async function createDraft(
+	teamId: string,
+	hackathonId: string,
+	data: {
+		projectTitle?: string;
+		miniDescription?: string;
+		projectDescription?: string;
+		githubLink?: string;
+		youtubeLink?: string;
+		uploadPhotos?: string[];
+	},
+) {
+	try {
+		const draft = await prisma.draft.create({
+			data: {
+				id: randomUUID(),
+				teamId,
+				hackathonId,
+				name: data.projectTitle || "",
+				tagline: data.miniDescription || "",
+				description: data.projectDescription || "",
+				githubUrl: data.githubLink || "",
+				videoUrl: data.youtubeLink || "",
+				images: Array.isArray(data.uploadPhotos) ? data.uploadPhotos : [],
+			},
+		});
+		return { success: true, draft };
+	} catch (error) {
+		console.error("Draft creation error", error);
+		const message = error instanceof Error ? error.message : "Unknown error";
+		return { success: false, error: `Draft creation failed: ${message}` };
+	}
+}
+
+export async function updateDraft(
+	draftId: string,
+	data: {
+		projectTitle?: string;
+		miniDescription?: string;
+		projectDescription?: string;
+		githubLink?: string;
+		youtubeLink?: string;
+		uploadPhotos?: string[];
+	},
+) {
+	try {
+		const updatedDraft = await prisma.draft.update({
+			where: { id: draftId },
+			data: {
+				name: data.projectTitle || "",
+				tagline: data.miniDescription || "",
+				description: data.projectDescription || "",
+				githubUrl: data.githubLink || "",
+				videoUrl: data.youtubeLink || "",
+				images: Array.isArray(data.uploadPhotos) ? data.uploadPhotos : [],
+			},
+		});
+		return { success: true, draft: updatedDraft };
+	} catch (error) {
+		console.error("Draft update error", error);
+		const message = error instanceof Error ? error.message : "Unknown error";
+		return { success: false, error: `Draft update failed: ${message}` };
+	}
+}
+
+export async function createSubmissionFromDraft(
+	draftId: string,
+) {
+	try {
+		const draft = await prisma.draft.findUnique({
+			where: { id: draftId },
+			include: { draftTracks: true },
+		});
+
+		if (!draft) {
+			return { success: false, error: "Draft not found" };
+		}
+
+		// Check if submission already exists
+		const existingSubmission = await prisma.submission.findUnique({
+			where: { teamId: draft.teamId },
+		});
+
+		let submission;
+		if (existingSubmission) {
+			// Update existing submission
+			submission = await prisma.submission.update({
+				where: { id: existingSubmission.id },
+				data: {
+					name: draft.name || "",
+					tagline: draft.tagline || "",
+					description: draft.description || "",
+					githubUrl: draft.githubUrl || "",
+					videoUrl: draft.videoUrl || "",
+					images: draft.images || [],
+				},
+			});
+		} else {
+			// Create new submission
+			submission = await prisma.submission.create({
+				data: {
+					id: randomUUID(),
+					teamId: draft.teamId,
+					hackathonId: draft.hackathonId,
+					name: draft.name || "",
+					tagline: draft.tagline || "",
+					description: draft.description || "",
+					githubUrl: draft.githubUrl || "",
+					videoUrl: draft.videoUrl || "",
+					images: draft.images || [],
+				},
+			});
+
+			// Update team to link to submission
+			await prisma.team.update({
+				where: { id: draft.teamId },
+				data: {
+					submission: {
+						connect: { id: submission.id },
+					},
+				},
+			});
+		}
+
+		// Copy tracks from draft to submission
+		if (draft.draftTracks.length > 0) {
+			// Clear existing submission tracks
+			await prisma.submissionTrack.deleteMany({
+				where: { submissionId: submission.id },
+			});
+
+			// Add new tracks
+			await prisma.submissionTrack.createMany({
+				data: draft.draftTracks.map(draftTrack => ({
+					submissionId: submission.id,
+					trackId: draftTrack.trackId,
+				})),
+			});
+		}
+
+		return { success: true, submission };
+	} catch (error) {
+		console.error("Submission from draft error", error);
+		const message = error instanceof Error ? error.message : "Unknown error";
+		return { success: false, error: `Submission creation failed: ${message}` };
+	}
+}
+
 export async function updateData(
 	submissionId: string,
 	data: {
