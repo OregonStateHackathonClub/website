@@ -36,7 +36,7 @@ export default function SubmissionCard({
 	index,
 	showOpenButton,
 }: SubmissionCardProps) {
-	const img = submission.images?.[0] || "/beaver.png";
+	const img = submission.images?.[0] || "/beaverhacks_gradient.png";
 
 	return (
 		<Card
