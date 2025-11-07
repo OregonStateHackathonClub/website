@@ -14,6 +14,7 @@ export default function LoginLogoutButton() {
 				onClick={async () => {
 					await signOut();
 				}}
+			className="hover:cursor-pointer bg-orange-500 hover:bg-orange-300 text-white hover:text-black"
 			>
 				Sign Out
 			</Button>
@@ -21,12 +22,12 @@ export default function LoginLogoutButton() {
 	} else {
 		return (
 			<div>
-				<Button asChild className="m-1 bg-orange-500 hover:bg-orange-300">
+				<Button asChild className="m-1 bg-orange-500 hover:bg-orange-300 text-white hover:text-black">
 					<Link href="/log-in" className="flex items-center px-5">
 						Login
 					</Link>
 				</Button>
-				<Button asChild className="m-1 bg-orange-500 hover:bg-orange-300">
+				<Button asChild className="m-1 bg-orange-500 hover:bg-orange-300 text-white hover:text-black">
 					<Link href="/sign-up" className="flex items-center px-5">
 						Sign Up
 					</Link>
