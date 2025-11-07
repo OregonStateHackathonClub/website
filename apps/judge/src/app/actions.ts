@@ -1,11 +1,32 @@
 "use server";
 
-import { Prisma, prisma } from "@repo/database";
+import { Prisma, prisma, UserRole } from "@repo/database";
 import { auth } from "@repo/auth";
 import { headers } from "next/headers";
 
+
+export async function isSuperadmin(): Promise<boolean> {
+  const session = await auth.api.getSession({ headers: await headers() });
+
+  if (!session) {
+    return false;
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: session.user.id,
+    },
+  });
+
+  if (!user) {
+    return false;
+  }
+
+  return user.role == UserRole.ADMIN
+}
+
 // Return true if user is logged in and a part of the given team. Otherwise, returns false
-export async function isTeamMember(teamId: string): Promise<boolean> {
+export async function isteamMember(teamId: string): Promise<boolean> {
   const session = await auth.api.getSession({ headers: await headers() });
 
   if (!session) {
@@ -37,6 +58,7 @@ export async function isTeamMember(teamId: string): Promise<boolean> {
     (member) => member.participant.user.id === session.user.id,
   );
 }
+
 export async function createHackathonParticipant(): Promise<boolean> {
 	try {
 		const session = await auth.api.getSession({ headers: await headers() });
@@ -147,7 +169,7 @@ export async function updateTeam(
   teamData: Prisma.TeamUpdateInput,
 ): Promise<boolean> {
   try {
-    if (!(await isTeamMember(teamId))) {
+    if (!(await isteamMember(teamId))) {
       return false;
     }
 
@@ -267,32 +289,99 @@ export async function getTeamInfo(teamId: string) {
 
 // Returns true if successful. Otherwise, return false
 // Return false if user is not a member of the given team
-export async function removeUserToTeams(
-  teamMemberId: string,
-  teamId: string,
+export async function removeUserFromTeam(
+	teamMemberId: string,
+	teamId: string,
 ): Promise<boolean> {
-  try {
-    if (!(await isTeamMember(teamId))) {
-      return false;
-    }
+	try {
+		const session = await auth.api.getSession({ headers: await headers() });
+		
+		const team = await prisma.team.findUnique({
+			where: {
+				id: teamId,
+			}
+		});
+		
+		const target_teamMember = await prisma.teamMember.findUnique({
+			where: { id: teamMemberId },
+			include: { participant: true }
+		});
 
-    await prisma.teamMember.delete({
-      where: {
-        id: teamMemberId,
-      },
-    });
+		const participant = await prisma.hackathonParticipant.findFirst({
+			where: {
+				userId: session?.user.id,
+				hackathonId: team?.hackathonId
+			},
+		});
 
-    return true;
-  } catch (error) {
-    console.error(error);
-    return false;
-  }
+		if ( !team || !target_teamMember || !participant ||
+			(team.creatorId !== participant.id &&
+				target_teamMember?.participant.id !== participant.id)
+		) {
+			// Cope
+			console.error("Failed to remove user from team")
+			return false;
+		}
+		await prisma.team.update({
+			where: { id: teamId },
+			data: {
+				members: {
+					delete: { id: target_teamMember.id },
+				},
+			},
+		});
+
+		const newTeam = await prisma.team.findUnique({
+			where: {
+				id: teamId,
+			},
+			select: {
+				members: true,
+			},
+		});
+
+		if (newTeam == null) {
+			// Cry like a baby
+			return false;
+		}
+
+		// Delete team if no members left
+		if (newTeam.members.length === 0) {
+			await prisma.invite.deleteMany({
+				where: {
+					teamId: teamId,
+				},
+			});
+
+			await prisma.team.delete({
+				where: {
+					id: teamId,
+				},
+			});
+			// Replace leader if necessary
+		}
+		else if (team.creatorId === target_teamMember.id) {
+			await prisma.team.update({
+				data: {
+					creatorId: newTeam.members[0].id,
+				},
+				where: {
+					id: teamId,
+				},
+			});
+		}
+
+		return true;
+	} catch (error) {
+		console.error(error);
+		return false;
+	}
 }
 
 // Return invite code if successful. Otherwise, return false
 // Return false if user is not a member of the given team
 export async function getInviteCode(teamId: string): Promise<string | false> {
-  if (!(await isTeamMember(teamId))) {
+  if (!(await isteamMember(teamId))) {
     return false;
   }
 
@@ -337,7 +426,7 @@ export async function resetInviteCode(inviteCode: string): Promise<boolean> {
   const teamId = await getTeamIdFromInvite(inviteCode);
 
   if (!teamId) return false;
-  if (!(await isTeamMember(teamId))) return false;
+  if (!(await isteamMember(teamId))) return false;
 
   try {
     await prisma.invite.delete({
@@ -350,4 +439,73 @@ export async function resetInviteCode(inviteCode: string): Promise<boolean> {
     console.error(error);
     return false;
   }
+}
+
+export async function setSuperadmin(
+  superadminValue: boolean,
+	userId: string,
+): Promise<boolean> {
+
+  if (!isSuperadmin())
+    return false
+
+  await prisma.user.update({
+    where: {
+      id: userId
+    },
+    data: {
+      role: superadminValue ? UserRole.ADMIN : UserRole.USER
+    }
+  })
+
+  return false
+}
+
+
+export async function removeUser(
+	id: string,
+): Promise<boolean> {
+	// Require superadmin
+	return false;
+}
+
+export async function userSearch(search: string) {
+	if (!isSuperadmin()) return false;
+
+	const users = await prisma.user.findMany({
+		where: {
+			OR: [
+				{
+					name: {
+						contains: search,
+						mode: "insensitive",
+					},
+				},
+				{
+					id: {
+						contains: search,
+						mode: "insensitive",
+					},
+				},
+				{
+					email: {
+						contains: search,
+						mode: "insensitive",
+					},
+				},
+			],
+		},
+		select: {
+			name: true,
+			id: true,
+			email: true,
+			role: true,
+		},
+	});
+
+	if (!users) {
+		return null;
+	}
+
+	return users;
 }
