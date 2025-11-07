@@ -6,7 +6,7 @@ import LoginLogoutButton from "./loginLogoutButton";
 
 export const Navbar = () => {
 	return (
-		<div className="flex h-20 items-center justify-between bg-gray-100 px-8">
+		<div className="flex h-20 items-center justify-between bg-gray-600 px-8">
 			<Suspense fallback={<HackathonHomepageButton />}>
 				<HackathonHomepageButtonWrapper />
 			</Suspense>
@@ -24,7 +24,7 @@ const HackathonHomepageButtonWrapper = async () => {
 const HackathonHomepageButton = ({ link = "/" }: { link?: string }) => (
 	<Link
 		href={{ pathname: link }}
-		className="flex items-center gap-5 p-5 hover:bg-gray-200"
+		className="flex items-center gap-5 p-5"
 	>
 		<div className="relative h-10 w-10">
 			<Image src="/beaverhacks_gradient.png" alt="beaver" fill />
