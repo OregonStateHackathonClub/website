@@ -87,7 +87,7 @@ export function SignUpForm() {
             </CardHeader>
             <CardContent>
                 <form className="grid gap-4" onSubmit={handleEmailSignUp}>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-4 items-start">
                         <Field
                             label="First name"
                             placeholder="Benny"
