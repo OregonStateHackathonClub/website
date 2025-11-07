@@ -8,14 +8,13 @@ import { ButtonGroup } from "@repo/ui/components/button-group";
 
 import { toast } from "sonner";
 import { UserRole } from "@prisma/client";
-
-export default function GlobalUsersPage() {
+export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 	const [search, setSearch] = useState("");
 	const [users, setUsers] = useState<any[]>([]);
 	const [page, setPage] = useState(1);
 
 	const fetchUsers = useCallback(async () => {
-		const res = await userSearch(search);
+		const res = await userSearch(search, hackathonId);
 		if (!res) return;
 		setUsers(res);
 	}, [search]);

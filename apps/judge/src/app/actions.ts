@@ -26,7 +26,7 @@ export async function isSuperadmin(): Promise<boolean> {
 }
 
 // Return true if user is logged in and a part of the given team. Otherwise, returns false
-export async function isteamMember(teamId: string): Promise<boolean> {
+export async function isTeamMember(teamId: string): Promise<boolean> {
   const session = await auth.api.getSession({ headers: await headers() });
 
   if (!session) {
@@ -169,7 +169,7 @@ export async function updateTeam(
   teamData: Prisma.TeamUpdateInput,
 ): Promise<boolean> {
   try {
-    if (!(await isteamMember(teamId))) {
+    if (!(await isTeamMember(teamId))) {
       return false;
     }
 
@@ -381,7 +381,7 @@ export async function removeUserFromTeam(
 // Return invite code if successful. Otherwise, return false
 // Return false if user is not a member of the given team
 export async function getInviteCode(teamId: string): Promise<string | false> {
-  if (!(await isteamMember(teamId))) {
+  if (!(await isTeamMember(teamId))) {
     return false;
   }
 
@@ -426,7 +426,7 @@ export async function resetInviteCode(inviteCode: string): Promise<boolean> {
   const teamId = await getTeamIdFromInvite(inviteCode);
 
   if (!teamId) return false;
-  if (!(await isteamMember(teamId))) return false;
+  if (!(await isTeamMember(teamId))) return false;
 
   try {
     await prisma.invite.delete({
@@ -469,31 +469,44 @@ export async function removeUser(
 	return false;
 }
 
-export async function userSearch(search: string) {
+export async function userSearch(search: string, hackathonId: string = "") {
 	if (!isSuperadmin()) return false;
 
 	const users = await prisma.user.findMany({
 		where: {
-			OR: [
-				{
-					name: {
-						contains: search,
-						mode: "insensitive",
-					},
-				},
-				{
-					id: {
-						contains: search,
-						mode: "insensitive",
-					},
-				},
-				{
-					email: {
-						contains: search,
-						mode: "insensitive",
-					},
-				},
-			],
+      AND: [
+        ...(hackathonId ? [
+          {
+            hackathonParticipants: {
+              some: {
+                hackathonId: hackathonId,
+              },
+            },
+          },
+        ] : []),
+        {
+          OR: [
+            {
+              name: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+            {
+              id: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+            {
+              email: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+          ],
+        }
+      ],
 		},
 		select: {
 			name: true,

@@ -12,7 +12,7 @@ import {
 	getInviteCode,
 	getTeamInfo,
 	isTeamMember,
-	removeUserToTeams,
+	removeUserFromTeam,
 	resetInviteCode,
 	updateTeam,
 } from "@/app/actions";
@@ -140,7 +140,7 @@ export default function TeamPageClient({
 	};
 
 	const removeUser = async (teamMemberId: string) => {
-		const result = await removeUserToTeams(teamMemberId, teamId);
+		const result = await removeUserFromTeam(teamMemberId, teamId);
 		if (result) {
 			setTeam((prevTeam) => {
 				if (!prevTeam) return prevTeam;

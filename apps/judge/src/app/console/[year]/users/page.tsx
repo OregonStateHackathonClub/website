@@ -1,9 +1,7 @@
 // admin only
 // manage users
 // add users to teams
-
-import GlobalUsersPage from "./GlobalUsersPage";
-import HackathonUsersPage from "./HackathonUsersPage";
+import UsersPage from "./UsersPage";
 
 export default async function Page({
 	params,
@@ -11,10 +9,6 @@ export default async function Page({
 	params: Promise<{ year: string;}>;
 }) {
 	const { year } = await params;
-	if (year === "~") {
-		return <GlobalUsersPage />
-	}
-	else {
-		return <HackathonUsersPage hackathonId={year} />
-	}
+
+	return <UsersPage hackathonId={year == "~" ? "" : year} />
 }
