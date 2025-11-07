@@ -85,7 +85,7 @@ export function LoginForm() {
 
                     <Button
                         type="submit"
-                        className="w-full bg-orange-500  hover:cursor-pointer"
+                        className="w-full bg-orange-500  hover:bg-orange-300 hover:cursor-pointer"
                         disabled={loading}
                     >
                         {loading ? (

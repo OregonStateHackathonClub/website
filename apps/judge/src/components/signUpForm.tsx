@@ -137,7 +137,7 @@ export function SignUpForm() {
 
 					<Button
 						type="submit"
-						className="w-full bg-orange-500 hover:bg-orange-300"
+						className="w-full bg-orange-500 hover:bg-orange-300  hover:cursor-pointer"
 						disabled={loading}
 					>
 						{loading ? (
@@ -159,18 +159,20 @@ export function SignUpForm() {
 					</div>
 
 					{/* GitHub Sign-Up Button */}
-					<Button
-						variant="outline"
-						className="w-full"
-						onClick={() =>
-							signIn.social({ provider: "github", callbackURL: "/" })
-						}
-					>
-						<Github className="mr-2 h-4 w-4" />
-						GitHub
-					</Button>
-				</form>
-			</CardContent>
-		</Card>
-	);
+                    <Button
+                        variant="outline"
+                        className="w-full mt-4 group transition-colors duration-200 hover:border-blue-500 hover:bg-blue-500/10  hover:cursor-pointer"
+                        onClick={() =>
+                            signIn.social({ provider: "github", callbackURL: "/" })
+                        }
+                    >
+                        <Github className="mr-2 h-4 w-4 text-neutral-200 transition-colors duration-200 group-hover:text-blue-500" />
+                        <span className="transition-colors duration-200 group-hover:text-blue-500">
+                            GitHub
+                        </span>
+                    </Button>
+                </form>
+            </CardContent>
+        </Card>
+    );
 }
