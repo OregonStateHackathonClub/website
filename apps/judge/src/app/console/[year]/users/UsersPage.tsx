@@ -32,7 +32,7 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 			const judgeResult = await userSearch(search, hackathonId, JudgeRole.JUDGE);
 			if (judgeResult) setJudges(judgeResult);
 		} else {
-			const superAdminResult = await userSearch(search, "", UserRole.ADMIN);
+			const superAdminResult = await userSearch(search, "", UserRole.SUPERADMIN);
 			if (superAdminResult) setSuperadmins(superAdminResult);
 		}
 		
