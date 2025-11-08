@@ -165,7 +165,7 @@ model Team {
   hackathon  Hackathon    @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
   members    TeamMember[]
   submission Submission?
-  drafts     Draft?      
+  drafts     Draft?
   invites    Invite[]
 
   @@map("team")
@@ -199,21 +199,21 @@ model Invite {
 }
 
 model Draft {
-  id              String   @id @default(cuid())
-  teamId          String   @unique
-  hackathonId     String   
-  name            String?  
-  tagline         String?  
-  description     String?  
-  githubUrl       String?  
-  videoUrl        String?  
-  images          String[] @default([]) 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  tracks          Track[]
+  id          String   @id @default(cuid())
+  teamId      String   @unique
+  hackathonId String
+  name        String?
+  tagline     String?
+  description String?
+  githubUrl   String?
+  videoUrl    String?
+  images      String[] @default([])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tracks      Track[]
 
   // Relations
-  team         Team        @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   @@map("draft")
 }
