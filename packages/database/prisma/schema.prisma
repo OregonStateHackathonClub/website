@@ -31,7 +31,6 @@ model User {
   accounts              Account[]
   application           Application?
   hackathonParticipants HackathonParticipant[]
-  judges                Judge[]
 
   @@map("user")
 }
@@ -145,6 +144,7 @@ model HackathonParticipant {
   user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   hackathon  Hackathon   @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
   teamMember TeamMember?
+  judge      Judge?
 
   @@unique([userId, hackathonId])
   @@map("hackathon_participant")
@@ -165,6 +165,7 @@ model Team {
   hackathon  Hackathon    @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
   members    TeamMember[]
   submission Submission?
+  drafts     Draft?
   invites    Invite[]
 
   @@map("team")
@@ -197,6 +198,26 @@ model Invite {
   @@map("invite")
 }
 
+model Draft {
+  id          String   @id @default(cuid())
+  teamId      String   @unique
+  hackathonId String
+  name        String?
+  tagline     String?
+  description String?
+  githubUrl   String?
+  videoUrl    String?
+  images      String[] @default([])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tracks      Track[]
+
+  // Relations
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@map("draft")
+}
+
 model Submission {
   id          String   @id @default(cuid())
   teamId      String   @unique
@@ -226,6 +247,7 @@ model Track {
   hackathonId String
   prize       String?
   createdAt   DateTime @default(now())
+  drafts      Draft[]
 
   // Relations
   hackathon        Hackathon         @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
@@ -257,15 +279,16 @@ enum JudgeRole {
 }
 
 model Judge {
-  id             String  @id @default(cuid())
-  name           String
-  email          String  @unique
-  magicLinkToken String? @unique
+  id                       String  @id @default(cuid())
+  name                     String
+  email                    String  @unique
+  magicLinkToken           String? @unique
+  hackathon_participant_id String  @unique
 
   // Relations
-  user        User[]
-  assignments JudgeAssignment[]
-  scores      Score[]
+  hackathon_participant HackathonParticipant @relation(fields: [hackathon_participant_id], references: [id], onDelete: Cascade)
+  assignments           JudgeAssignment[]
+  scores                Score[]
 
   @@map("judge")
 }
