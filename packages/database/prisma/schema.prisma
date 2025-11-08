@@ -279,11 +279,12 @@ enum JudgeRole {
 }
 
 model Judge {
-  id                       String  @id @default(cuid())
+  id                       String    @id @default(cuid())
   name                     String
-  email                    String  @unique
-  magicLinkToken           String? @unique
-  hackathon_participant_id String  @unique
+  email                    String    @unique
+  magicLinkToken           String?   @unique
+  hackathon_participant_id String    @unique
+  role                     JudgeRole @default(JUDGE)
 
   // Relations
   hackathon_participant HackathonParticipant @relation(fields: [hackathon_participant_id], references: [id], onDelete: Cascade)
@@ -295,11 +296,10 @@ model Judge {
 
 // Join table: Judge ↔ Hackathon (judges can be assigned to multiple hackathons)
 model JudgeAssignment {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   judgeId     String
   hackathonId String
-  role        JudgeRole @default(JUDGE)
-  assignedAt  DateTime  @default(now())
+  assignedAt  DateTime @default(now())
 
   // Relations
   judge     Judge     @relation(fields: [judgeId], references: [id], onDelete: Cascade)
