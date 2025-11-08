@@ -469,52 +469,73 @@ export async function removeUser(
 	return false;
 }
 
-export async function userSearch(search: string, hackathonId: string = "", role: UserRole | JudgeRole = UserRole.USER) {
+export async function userSearch(search: string, hackathonId: string = "", role: UserRole | JudgeRole | null = null) {
 	if (!isSuperadmin()) return false;
+    const users = await prisma.user.findMany({
+      where: {
+        AND: [
+          // Filter by hackathon
+          ...(hackathonId ? [
+            {
+              hackathonParticipants: {
+                some: {
+                  hackathonId: hackathonId,
+                },
+              },
+            },
+          ] : []),
+          // Filter by User/Superadmin
+          ...(role && Object.values(UserRole).includes(role as UserRole)
+            ? [{ role: role as UserRole }]
+            : []),
 
-	const users = await prisma.user.findMany({
-		where: {
-      AND: [
-        ...(hackathonId ? [
+          // Filter by Judge/Admin
+          ...(role && Object.values(JudgeRole).includes(role as JudgeRole)
+            ? [{
+              hackathonParticipants: {
+                some: {
+                  judge: {
+                    is: {
+                      role: role as JudgeRole
+                    }
+                  }
+                }
+              }
+            }]
+            : []),
+            
+          // Search by name, id, email
           {
-            hackathonParticipants: {
-              some: {
-                hackathonId: hackathonId,
+            OR: [
+              {
+                name: {
+                  contains: search,
+                  mode: "insensitive",
+                },
               },
-            },
-          },
-        ] : []),
-        {
-          OR: [
-            {
-              name: {
-                contains: search,
-                mode: "insensitive",
+              {
+                id: {
+                  contains: search,
+                  mode: "insensitive",
+                },
               },
-            },
-            {
-              id: {
-                contains: search,
-                mode: "insensitive",
+              {
+                email: {
+                  contains: search,
+                  mode: "insensitive",
+                },
               },
-            },
-            {
-              email: {
-                contains: search,
-                mode: "insensitive",
-              },
-            },
-          ],
-        }
-      ],
-		},
-		select: {
-			name: true,
-			id: true,
-			email: true,
-			role: true,
-		},
-	});
+            ],
+          }
+        ],
+      },
+      select: {
+        name: true,
+        id: true,
+        email: true,
+        role: true,
+      },
+    });
 
 	if (!users) {
 		return null;

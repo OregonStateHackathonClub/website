@@ -3,7 +3,10 @@ import { removeUser, setSuperadmin, userSearch } from "@/app/actions";
 import React, { useCallback, useEffect, useState } from "react";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@repo/ui/components/pagination";
 import { Button } from "@repo/ui/components/button";
-import { ButtonGroup } from "@repo/ui/components/button-group";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, } from "@repo/ui/components/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@repo/ui/components/popover";
+
+
 
 
 import { toast } from "sonner";
@@ -16,13 +19,13 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 	const [admins, setAdmins] = useState<any[]>([]);
 	const [judges, setJudges] = useState<any[]>([]);
 	const [users, setUsers] = useState<any[]>([]);
+	const [allUsers, setAllUsers] = useState<any[]>([]);
 
 	const [superadminPage, setSuperadminPage] = useState(1);
 	const [adminPage, setAdminPage] = useState(1);
 	const [judgePage, setJudgePage] = useState(1);
 	const [userPage, setUserPage] = useState(1);
-
-
+	const [allUserPage, setAllUserPage] = useState(1);
 
 	const fetchUsers = useCallback(async () => {
 		if (hackathonId) {
@@ -31,13 +34,16 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 
 			const judgeResult = await userSearch(search, hackathonId, JudgeRole.JUDGE);
 			if (judgeResult) setJudges(judgeResult);
+
+			const allUsersResult = await userSearch(search, hackathonId);
+			if (allUsersResult) setAllUsers(allUsersResult);
 		} else {
 			const superAdminResult = await userSearch(search, "", UserRole.SUPERADMIN);
 			if (superAdminResult) setSuperadmins(superAdminResult);
+
+			const usersResult = await userSearch(search, "", UserRole.USER);
+			if (usersResult) setUsers(usersResult);
 		}
-		
-		const usersResult = await userSearch(search, hackathonId);
-		if (usersResult) setUsers(usersResult);
 	}, [search]);
 
 	useEffect(() => {
@@ -47,7 +53,7 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 	async function copyString(toCopy: string) {
 		try {
 			await navigator.clipboard.writeText(toCopy);
-			toast.success("UserId opied to clipboard");
+			toast.success("Copied to clipboard");
 		} catch (err) {
 			toast.error("Failed to copy text");
 		}
@@ -78,7 +84,7 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 		page: number;
 		setPage: React.Dispatch<React.SetStateAction<number>>;
 	}) {
-		const entriesPerPage = 1;
+		const entriesPerPage = 5;
 		const totalPages = Math.ceil(list.length / entriesPerPage);
 
 		const startIndex = (page - 1) * entriesPerPage;
@@ -97,21 +103,37 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 										<p className="text-xs">{user.email}</p>
 									</div>
 									<div className="flex gap-5">
-										<Button
-											variant="outline"
-											className="rounded-xl border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
-											onClick={() => {}}
-										>
-											Edit
-										</Button>
+										<Popover>
+											<PopoverTrigger asChild>
+												<Button
+													variant="outline"
+													className="rounded-xl border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
+												>
+													Edit
+												</Button>
+											</PopoverTrigger>
+											<PopoverContent>
+												Not yet implemented
+											</PopoverContent>
+										</Popover>
 
-										<Button
-											variant="outline"
-											className="rounded-xl border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
-											onClick={() => {}}
-										>
-											<ChevronDown />
-										</Button>
+										<DropdownMenu>
+											<DropdownMenuTrigger asChild>
+												<Button
+													variant="outline"
+													className="rounded-xl border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
+													onClick={() => toast.error("Not yet implemented")}
+												>
+													<ChevronDown />
+												</Button>
+											</DropdownMenuTrigger>
+											<DropdownMenuContent>
+												<DropdownMenuItem onClick={() => copyString(user.id)}> Copy User ID</DropdownMenuItem>
+												{ list == judges &&
+													<DropdownMenuItem onClick={() => toast.error("Not yet implemented")}> Regenerate Invite Link</DropdownMenuItem>
+												}
+											</DropdownMenuContent>
+										</DropdownMenu>
 									</div>
 								</div>
 							</div>
@@ -209,8 +231,11 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 						<div>
 							Admins
 						</div>
-						<div className="flex-1 h-0.5 mx-5 bg-gray-800" />
-						<Button variant={"outline"} className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100">+</Button>
+						<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
+						<Button
+						variant={"outline"}
+						className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
+						onClick={() => toast.error("Not yet implemented")}>+</Button>
 					</div>
 					{users ? <Users list={admins} page={adminPage} setPage={setAdminPage} /> : <div>Loading...</div>}
 
@@ -218,10 +243,25 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 						<div>
 							Judges
 						</div>
-						<div className="flex-1 h-0.5 mx-5 bg-gray-800" />
-						<Button variant={"outline"} className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100">+</Button>
+						<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
+						<Button
+						variant={"outline"}
+						className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
+						onClick={() => toast.error("Not yet implemented")}>+</Button>
 					</div>
 					{users ? <Users list={judges} page={judgePage} setPage={setJudgePage} /> : <div>Loading...</div>}
+
+					<div className="flex w-full justify-between items-center my-5">
+						<div>
+							Users
+						</div>
+						<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
+						<Button
+						variant={"outline"}
+						className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
+						onClick={() => toast.error("Not yet implemented")}>+</Button>
+					</div>
+					{users ? <Users list={allUsers} page={allUserPage} setPage={setAllUserPage} /> : <div>Loading...</div>}
 				</div>
 				:
 				<div>
@@ -229,20 +269,26 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 						<div>
 							Superadmins
 						</div>
-						<div className="flex-1 h-0.5 mx-5 bg-gray-800" />
-						<Button variant={"outline"} className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100">+</Button>
+						<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
+						<Button
+						variant={"outline"}
+						className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
+						onClick={() => toast.error("Not yet implemented")}>+</Button>
 					</div>
 					{users ? <Users list={superadmins} page={superadminPage} setPage={setSuperadminPage} /> : <div>Loading...</div>}
+					<div className="flex w-full justify-between items-center my-5">
+						<div>
+							Users
+						</div>
+						<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
+						<Button
+						variant={"outline"}
+						className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
+						onClick={() => toast.error("Not yet implemented")}>+</Button>
+					</div>
+					{users ? <Users list={users} page={userPage} setPage={setUserPage} /> : <div>Loading...</div>}
 				</div>
 			}
-			<div className="flex w-full justify-between items-center my-5">
-				<div>
-					Users
-				</div>
-				<div className="flex-1 h-0.5 mx-5 bg-gray-800" />
-				<Button variant={"outline"} className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100">+</Button>
-			</div>
-			{users ? <Users list={users} page={userPage} setPage={setUserPage} /> : <div>Loading...</div>}
 		</div>
 	);
 }
