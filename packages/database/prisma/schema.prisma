@@ -209,25 +209,12 @@ model Draft {
   images          String[] @default([]) 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  tracks          Track[]
 
   // Relations
   team         Team        @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  draftTracks  DraftTrack[]
 
   @@map("draft")
-}
-
-// Join table: Draft ↔ Track (drafts can be in multiple tracks)
-model DraftTrack {
-  draftId String
-  trackId String
-
-  // Relations
-  draft   Draft @relation(fields: [draftId], references: [id], onDelete: Cascade)
-  track   Track @relation(fields: [trackId], references: [id], onDelete: Cascade)
-
-  @@id([draftId, trackId])
-  @@map("draft_track")
 }
 
 model Submission {
@@ -259,11 +246,11 @@ model Track {
   hackathonId String
   prize       String?
   createdAt   DateTime @default(now())
+  drafts      Draft[]
 
   // Relations
   hackathon        Hackathon         @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
   submissionTracks SubmissionTrack[]
-  draftTracks      DraftTrack[]
 
   @@map("track")
 }
