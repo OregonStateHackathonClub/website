@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { Button } from "@repo/ui/components/button";
 import { ModeToggle } from "@/components/mode-toggle";
+import { FaInstagram, FaDiscord, FaYoutube } from "react-icons/fa";
 
 export const Navbar = () => {
   const pathname = usePathname();
@@ -36,6 +37,34 @@ export const Navbar = () => {
         </Link>
 
         <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <Link
+              href="https://www.instagram.com/beaverhacks"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaInstagram className="w-5 h-5 hover:text-osu-orange transition" />
+            </Link>
+            <Link
+              href="https://www.youtube.com/@osubeaverhacks"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaYoutube className="w-5 h-5 hover:text-osu-orange transition" />
+            </Link>
+            <Link
+              href="https://discord.com/invite/vuepffJxub"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaDiscord className="w-5 h-5 hover:text-osu-orange transition" />
+            </Link>
+          </div>
+
+
+
+
+
           <ModeToggle />
           {isSponsorPage && (
             <Button
