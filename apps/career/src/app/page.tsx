@@ -12,6 +12,8 @@ import {
 import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
 import { Button } from "@repo/ui/components/button";
+import { Navbar } from "../components/navbar";
+import { motion } from "framer-motion";
 
 export default function Home() {
   const [password, setPassword] = useState("");
@@ -48,9 +50,20 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1 text-center">
+    <div className="min-h-screen flex flex-col">
+      <header className="w-full">
+        <Navbar />
+      </header>
+
+      <main className="flex-1 flex items-center justify-center px-4">
+        <motion.div 
+          className="w-full max-w-md"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        >
+          <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-3xl font-bold">Sponsor Portal</CardTitle>
           <CardDescription>
             Enter the password to view attendee profiles
@@ -86,7 +99,12 @@ export default function Home() {
             </Button>
           </form>
         </CardContent>
-      </Card>
+        </Card>
+        </motion.div>
+
+        
+      </main>
     </div>
+
   );
 }
