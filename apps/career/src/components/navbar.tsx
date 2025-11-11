@@ -61,10 +61,6 @@ export const Navbar = () => {
             </Link>
           </div>
 
-
-
-
-
           <ModeToggle />
           {isSponsorPage && (
             <Button
