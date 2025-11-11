@@ -56,55 +56,54 @@ export default function Home() {
       </header>
 
       <main className="flex-1 flex items-center justify-center px-4">
-        <motion.div 
+        <motion.div
           className="w-full max-w-md"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
           <Card className="w-full max-w-md">
-          <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-3xl font-bold">Sponsor Portal</CardTitle>
-          <CardDescription>
-            Enter the password to view attendee profiles
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter sponsor password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={isLoading}
-              />
-            </div>
+            <CardHeader className="space-y-1 text-center">
+              <CardTitle className="text-3xl font-bold">
+                Sponsor Portal
+              </CardTitle>
+              <CardDescription>
+                Enter the password to view attendee profiles
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Enter sponsor password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
 
-            {error && (
-              <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/50">
-                <p className="text-destructive text-sm">{error}</p>
-              </div>
-            )}
+                {error && (
+                  <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/50">
+                    <p className="text-destructive text-sm">{error}</p>
+                  </div>
+                )}
 
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-osu-orange hover:bg-osu-orange/90"
-            >
-              {isLoading ? "Checking..." : "Access Portal"}
-            </Button>
-          </form>
-        </CardContent>
-        </Card>
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-osu-orange hover:bg-osu-orange/90"
+                >
+                  {isLoading ? "Checking..." : "Access Portal"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
         </motion.div>
-
-        
       </main>
     </div>
-
   );
 }
