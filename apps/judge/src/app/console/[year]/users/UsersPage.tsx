@@ -1,25 +1,27 @@
 "use client";
-import { removeUser, setSuperadmin, userSearch } from "@/app/actions";
+import { createJudge, getJudgeType, removeUser, setJudgeType, setSuperadmin, userSearch, UserSearchResult } from "@/app/actions";
 import React, { useCallback, useEffect, useState } from "react";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@repo/ui/components/pagination";
 import { Button } from "@repo/ui/components/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, } from "@repo/ui/components/dropdown-menu";
-import { Popover, PopoverContent, PopoverTrigger } from "@repo/ui/components/popover";
-
-
-
-
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@repo/ui/components/sheet";
 import { toast } from "sonner";
 import { JudgeRole, UserRole } from "@prisma/client";
 import { ChevronDown } from "lucide-react";
+import { Switch } from "@repo/ui/components/switch";
+import { Label } from "@repo/ui/components/label";
+
 export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 	const [search, setSearch] = useState("");
 
-	const [superadmins, setSuperadmins] = useState<any[]>([]);
-	const [admins, setAdmins] = useState<any[]>([]);
-	const [judges, setJudges] = useState<any[]>([]);
-	const [users, setUsers] = useState<any[]>([]);
-	const [allUsers, setAllUsers] = useState<any[]>([]);
+	const [isSheetOpen, setIsSheetOpen] = useState(false);
+	const [currentUser, setCurrentUser] = useState<UserSearchResult>();
+
+	const [superadmins, setSuperadmins] = useState<UserSearchResult[]>([]);
+	const [admins, setAdmins] = useState<UserSearchResult[]>([]);
+	const [judges, setJudges] = useState<UserSearchResult[]>([]);
+	const [users, setUsers] = useState<UserSearchResult[]>([]);
+	const [allUsers, setAllUsers] = useState<UserSearchResult[]>([]);
 
 	const [superadminPage, setSuperadminPage] = useState(1);
 	const [adminPage, setAdminPage] = useState(1);
@@ -59,6 +61,11 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 		}
 	}
 
+	function getParticipant(user: UserSearchResult) {
+		const participant = user.hackathonParticipants.find( (p) => p.hackathonId === hackathonId );
+		return participant
+	}
+
 	async function deleteUser(judgeProfileId: string) {
 		const res = await removeUser(judgeProfileId);
 		if (!res) {
@@ -78,10 +85,12 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 	function Users({
 		list,
 		page,
+		setList,
 		setPage,
 	}: {
-		list: any[];
+		list: UserSearchResult[];
 		page: number;
+		setList: React.Dispatch<React.SetStateAction<UserSearchResult[]>>;
 		setPage: React.Dispatch<React.SetStateAction<number>>;
 	}) {
 		const entriesPerPage = 5;
@@ -93,6 +102,79 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 
 		return (
 			<div>
+				<Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+					<SheetContent>
+						{
+							currentUser &&
+							<>
+								<SheetHeader>
+									<SheetTitle>{currentUser.name}</SheetTitle>
+									<SheetDescription>
+										Description -- Nothing here is implemented at the moment
+									</SheetDescription>
+								</SheetHeader>
+								<div className="flex justify-between gap-2.5">
+									<Label htmlFor={`${currentUser.id}-superadmin`} className="w-15 flex justify-end flex-1" >User</Label>
+									<Switch
+										id={`${currentUser.id}-superadmin`}
+										checked={currentUser.role === UserRole.SUPERADMIN}
+										onCheckedChange={(checked) => {
+											setSuperadmin(checked, currentUser.id)
+										}} />
+									<Label htmlFor={`${currentUser.id}-superadmin`} className="flex-1" >Superadmin</Label>
+								</div>
+								<div className="flex justify-between gap-2.5">
+									<Label htmlFor={`${currentUser.id}-judge-type`} className="w-15 flex justify-end flex-1" >Judge</Label>
+									<Switch
+										id={`${currentUser.id}-judge-type`}
+										checked={ getParticipant(currentUser)?.judge?.role === JudgeRole.ADMIN }
+										onCheckedChange={async (checked) => {
+											const role = checked ? JudgeRole.ADMIN : JudgeRole.JUDGE
+
+											const participant = getParticipant(currentUser)
+											if (!participant) return
+
+											if (!participant?.judge) {
+												const judge = await createJudge(participant.id, role)
+
+												if (judge) participant.judge = judge
+												else return false
+											}
+											
+											await setJudgeType(participant.judge.id, role)
+											participant.judge.role = role
+											
+											const updatedUser = { ...currentUser }
+											updatedUser.hackathonParticipants = currentUser.hackathonParticipants.map(p =>
+												p.id === participant.id ? { ...participant } : p
+											);
+											setCurrentUser(updatedUser)
+										}} />
+									<Label htmlFor={`${currentUser.id}-judge-type`} className="flex-1" >Admin</Label>
+								</div>
+
+								<div className="flex justify-center">
+									<Button variant={"destructive"} className="w-60">
+										Delete Judge
+									</Button>
+								</div>
+
+								<div className="flex justify-center">
+									<Button variant={"destructive"} className="w-60">
+										Delete Hackathon Participant
+									</Button>
+								</div>
+
+								<div className="flex justify-center">
+									<Button variant={"destructive"} className="w-60">
+										Delete User
+									</Button>
+								</div>
+							</>
+						}
+
+					</SheetContent>
+				</Sheet>
 				<div className="grid gap-2">
 					{currentEntries.map((user) => {
 						return (
@@ -103,20 +185,16 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 										<p className="text-xs">{user.email}</p>
 									</div>
 									<div className="flex gap-5">
-										<Popover>
-											<PopoverTrigger asChild>
-												<Button
-													variant="outline"
-													className="rounded-xl border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
-												>
-													Edit
-												</Button>
-											</PopoverTrigger>
-											<PopoverContent>
-												Not yet implemented
-											</PopoverContent>
-										</Popover>
-
+										<Button
+											variant="outline"
+											className="rounded-xl border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
+											onClick={() => {
+												setCurrentUser(user)
+												setIsSheetOpen(true)
+											}}
+										>
+											Edit
+										</Button>
 										<DropdownMenu>
 											<DropdownMenuTrigger asChild>
 												<Button
@@ -237,7 +315,7 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 						className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
 						onClick={() => toast.error("Not yet implemented")}>+</Button>
 					</div>
-					{users ? <Users list={admins} page={adminPage} setPage={setAdminPage} /> : <div>Loading...</div>}
+					{users ? <Users list={admins} page={adminPage} setList={setAdmins} setPage={setAdminPage} /> : <div>Loading...</div>}
 
 					<div className="flex w-full justify-between items-center my-5">
 						<div>
@@ -249,7 +327,7 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 						className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
 						onClick={() => toast.error("Not yet implemented")}>+</Button>
 					</div>
-					{users ? <Users list={judges} page={judgePage} setPage={setJudgePage} /> : <div>Loading...</div>}
+					{users ? <Users list={judges} page={judgePage} setList={setJudges} setPage={setJudgePage} /> : <div>Loading...</div>}
 
 					<div className="flex w-full justify-between items-center my-5">
 						<div>
@@ -261,7 +339,7 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 						className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
 						onClick={() => toast.error("Not yet implemented")}>+</Button>
 					</div>
-					{users ? <Users list={allUsers} page={allUserPage} setPage={setAllUserPage} /> : <div>Loading...</div>}
+					{users ? <Users list={allUsers} page={allUserPage} setList={setAllUsers} setPage={setAllUserPage} /> : <div>Loading...</div>}
 				</div>
 				:
 				<div>
@@ -275,7 +353,7 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 						className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
 						onClick={() => toast.error("Not yet implemented")}>+</Button>
 					</div>
-					{users ? <Users list={superadmins} page={superadminPage} setPage={setSuperadminPage} /> : <div>Loading...</div>}
+					{users ? <Users list={superadmins} page={superadminPage} setList={setSuperadmins} setPage={setSuperadminPage} /> : <div>Loading...</div>}
 					<div className="flex w-full justify-between items-center my-5">
 						<div>
 							Users
@@ -286,7 +364,7 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 						className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
 						onClick={() => toast.error("Not yet implemented")}>+</Button>
 					</div>
-					{users ? <Users list={users} page={userPage} setPage={setUserPage} /> : <div>Loading...</div>}
+					{users ? <Users list={users} page={userPage} setList={setUsers} setPage={setUserPage} /> : <div>Loading...</div>}
 				</div>
 			}
 		</div>
