@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import {
   Card,
   CardContent,
@@ -12,8 +13,7 @@ import {
 import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
 import { Button } from "@repo/ui/components/button";
-import { Navbar } from "../components/navbar";
-import { motion } from "framer-motion";
+import { Navbar } from "@/components/navbar";
 
 export default function Home() {
   const [password, setPassword] = useState("");

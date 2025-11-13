@@ -15,8 +15,5 @@
     "@repo/typescript-config": "workspace:*",
     "prettier": "^3.6.2",
     "typescript": "^5.9.2"
-  },
-  "dependencies": {
-    "framer-motion": "^12.23.24"
   }
 }
