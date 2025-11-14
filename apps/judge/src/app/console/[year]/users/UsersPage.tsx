@@ -31,7 +31,7 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 
 	const fetchUsers = useCallback(async () => {
 		if (hackathonId) {
-			const adminResult = await userSearch(search, hackathonId, JudgeRole.ADMIN);
+			const adminResult = await userSearch(search, hackathonId, JudgeRole.MANAGER);
 			if (adminResult) setAdmins(adminResult);
 
 			const judgeResult = await userSearch(search, hackathonId, JudgeRole.JUDGE);
@@ -40,7 +40,7 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 			const allUsersResult = await userSearch(search, hackathonId);
 			if (allUsersResult) setAllUsers(allUsersResult);
 		} else {
-			const superAdminResult = await userSearch(search, "", UserRole.SUPERADMIN);
+			const superAdminResult = await userSearch(search, "", UserRole.ADMIN);
 			if (superAdminResult) setSuperadmins(superAdminResult);
 
 			const usersResult = await userSearch(search, "", UserRole.USER);
@@ -117,7 +117,7 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 									<Label htmlFor={`${currentUser.id}-superadmin`} className="w-15 flex justify-end flex-1" >User</Label>
 									<Switch
 										id={`${currentUser.id}-superadmin`}
-										checked={currentUser.role === UserRole.SUPERADMIN}
+										checked={currentUser.role === UserRole.ADMIN}
 										onCheckedChange={(checked) => {
 											setSuperadmin(checked, currentUser.id)
 										}} />
@@ -127,9 +127,9 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 									<Label htmlFor={`${currentUser.id}-judge-type`} className="w-15 flex justify-end flex-1" >Judge</Label>
 									<Switch
 										id={`${currentUser.id}-judge-type`}
-										checked={ getParticipant(currentUser)?.judge?.role === JudgeRole.ADMIN }
+										checked={ getParticipant(currentUser)?.judge?.role === JudgeRole.MANAGER }
 										onCheckedChange={async (checked) => {
-											const role = checked ? JudgeRole.ADMIN : JudgeRole.JUDGE
+											const role = checked ? JudgeRole.MANAGER : JudgeRole.JUDGE
 
 											const participant = getParticipant(currentUser)
 											if (!participant) return

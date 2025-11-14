@@ -22,7 +22,7 @@ export async function isSuperadmin(): Promise<boolean> {
     return false;
   }
 
-  return user.role == UserRole.SUPERADMIN
+  return user.role == UserRole.ADMIN
 }
 
 // Return true if user is logged in and a part of the given team. Otherwise, returns false
@@ -454,7 +454,7 @@ export async function setSuperadmin(
       id: userId
     },
     data: {
-      role: superadminValue ? UserRole.SUPERADMIN : UserRole.USER
+      role: superadminValue ? UserRole.ADMIN : UserRole.USER
     }
   })
 
