@@ -74,74 +74,45 @@ export async function createSubmissionFromDraft(
 	try {
 		const draft = await prisma.draft.findUnique({
 			where: { id: draftId },
-			include: { draftTracks: true },
 		});
 
 		if (!draft) {
 			return { success: false, error: "Draft not found" };
 		}
 
-		// Check if submission already exists
-		const existingSubmission = await prisma.submission.findUnique({
+		// Upsert submission: create if doesn't exist, update if it does
+		const submission = await prisma.submission.upsert({
 			where: { teamId: draft.teamId },
+			create: {
+				id: randomUUID(),
+				teamId: draft.teamId,
+				hackathonId: draft.hackathonId,
+				name: draft.name || "",
+				tagline: draft.tagline || "",
+				description: draft.description || "",
+				githubUrl: draft.githubUrl || "",
+				videoUrl: draft.videoUrl || "",
+				images: draft.images || [],
+			},
+			update: {
+				name: draft.name || "",
+				tagline: draft.tagline || "",
+				description: draft.description || "",
+				githubUrl: draft.githubUrl || "",
+				videoUrl: draft.videoUrl || "",
+				images: draft.images || [],
+			},
 		});
 
-		let submission;
-		if (existingSubmission) {
-			// Update existing submission
-			submission = await prisma.submission.update({
-				where: { id: existingSubmission.id },
-				data: {
-					name: draft.name || "",
-					tagline: draft.tagline || "",
-					description: draft.description || "",
-					githubUrl: draft.githubUrl || "",
-					videoUrl: draft.videoUrl || "",
-					images: draft.images || [],
+		// Ensure team is linked to submission
+		await prisma.team.update({
+			where: { id: draft.teamId },
+			data: {
+				submission: {
+					connect: { id: submission.id },
 				},
-			});
-		} else {
-			// Create new submission
-			submission = await prisma.submission.create({
-				data: {
-					id: randomUUID(),
-					teamId: draft.teamId,
-					hackathonId: draft.hackathonId,
-					name: draft.name || "",
-					tagline: draft.tagline || "",
-					description: draft.description || "",
-					githubUrl: draft.githubUrl || "",
-					videoUrl: draft.videoUrl || "",
-					images: draft.images || [],
-				},
-			});
-
-			// Update team to link to submission
-			await prisma.team.update({
-				where: { id: draft.teamId },
-				data: {
-					submission: {
-						connect: { id: submission.id },
-					},
-				},
-			});
-		}
-
-		// Copy tracks from draft to submission
-		if (draft.draftTracks.length > 0) {
-			// Clear existing submission tracks
-			await prisma.submissionTrack.deleteMany({
-				where: { submissionId: submission.id },
-			});
-
-			// Add new tracks
-			await prisma.submissionTrack.createMany({
-				data: draft.draftTracks.map(draftTrack => ({
-					submissionId: submission.id,
-					trackId: draftTrack.trackId,
-				})),
-			});
-		}
+			},
+		});
 
 		return { success: true, submission };
 	} catch (error) {

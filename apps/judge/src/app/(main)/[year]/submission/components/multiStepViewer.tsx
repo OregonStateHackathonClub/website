@@ -93,7 +93,6 @@ export function MultiStepViewer({
 						...form.getValues(),
 						draftId,
 					});
-					console.log("Draft save result: ", result);
 					if (result.data?.success) {
 						if (result.data.draft?.draft?.id) {
 							setDraftId(result.data.draft.draft.id);
@@ -105,7 +104,6 @@ export function MultiStepViewer({
 							JSON.stringify(result.validationErrors) ||
 							result.data?.error ||
 							"An unknown error occurred.";
-						console.error("Draft save failed:", errorMessage);
 						toast(`There was an error saving your progress: ${errorMessage}`);
 					}
 				}
@@ -158,7 +156,6 @@ export function MultiStepViewer({
 									...form.getValues(),
 									draftId,
 								});
-								console.log("Draft save result: ", result);
 
 								if (result.data?.success) {
 									if (result.data.draft?.draft?.id) {
@@ -172,7 +169,6 @@ export function MultiStepViewer({
 										JSON.stringify(result.validationErrors) ||
 										result.data?.error ||
 										"An unknown error occurred.";
-									console.error("Draft save failed:", errorMessage);
 									toast(
 										`There was an error saving your progress: ${errorMessage}`,
 									);
@@ -202,7 +198,6 @@ export function MultiStepViewer({
 									...form.getValues(),
 									draftId,
 								});
-								console.log("Draft save result: ", result);
 
 								if (result.data?.success) {
 									if (result.data.draft?.draft?.id) {
@@ -216,7 +211,6 @@ export function MultiStepViewer({
 										JSON.stringify(result.validationErrors) ||
 										result.data?.error ||
 										"An unknown error occurred.";
-									console.error("Draft save failed:", errorMessage);
 									toast(
 										`There was an error saving your progress: ${errorMessage}`,
 									);
@@ -240,6 +234,7 @@ export function MultiStepViewer({
 							if (valid) {
 								// First save the current form data as a draft if we don't have one
 								let finalDraftId = draftId;
+								// If we don't have a final draft ID
 								if (!finalDraftId) {
 									const draftResult = await saveDraftAction({
 										...form.getValues(),
@@ -254,7 +249,6 @@ export function MultiStepViewer({
 											JSON.stringify(draftResult.validationErrors) ||
 											draftResult.data?.error ||
 											"An unknown error occurred.";
-										console.error("Draft save failed:", errorMessage);
 										toast(`There was an error saving your draft: ${errorMessage}`);
 										return;
 									}
@@ -270,7 +264,6 @@ export function MultiStepViewer({
 											JSON.stringify(draftResult.validationErrors) ||
 											draftResult.data?.error ||
 											"An unknown error occurred.";
-										console.error("Draft update failed:", errorMessage);
 										toast(`There was an error updating your draft: ${errorMessage}`);
 										return;
 									}
@@ -290,7 +283,6 @@ export function MultiStepViewer({
 										JSON.stringify(result.validationErrors) ||
 										result.data?.error ||
 										"An unknown error occurred.";
-									console.error("Submission failed:", errorMessage);
 									toast(
 										`There was an error submitting your project: ${errorMessage}`,
 									);
