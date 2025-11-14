@@ -28,6 +28,7 @@
     "@repo/ui": "workspace:*",
     "@vercel/blob": "^0.27.3",
     "dotenv-cli": "^9.0.0",
+    "framer-motion": "^12.23.24",
     "jose": "^6.1.0",
     "jszip": "^3.10.1",
     "lucide-react": "^0.525.0",

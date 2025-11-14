@@ -13,7 +13,7 @@ datasource db {
 
 enum UserRole {
   USER
-  SUPERADMIN
+  ADMIN
 }
 
 model User {
@@ -275,7 +275,7 @@ model SubmissionTrack {
 
 enum JudgeRole {
   JUDGE
-  ADMIN
+  MANAGER
 }
 
 model Judge {
