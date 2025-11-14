@@ -119,7 +119,6 @@ model Hackathon {
   id          String   @id @default(cuid())
   name        String   @unique
   description String?
-  rubric      Json     @default("{}")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -234,7 +233,7 @@ model Submission {
   // Relations
   team             Team              @relation(fields: [teamId], references: [id], onDelete: Cascade)
   hackathon        Hackathon         @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
-  submissionTracks SubmissionTrack[]
+  tracks           Track[]
   scores           Score[]
 
   @@map("submission")
@@ -246,27 +245,15 @@ model Track {
   description String
   hackathonId String
   prize       String?
+  rubric      Json     @default("{}")
   createdAt   DateTime @default(now())
   drafts      Draft[]
 
   // Relations
   hackathon        Hackathon         @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
-  submissionTracks SubmissionTrack[]
+  submissions      Submission[]
 
   @@map("track")
-}
-
-// Join table: Submission ↔ Track (submissions can be in multiple tracks)
-model SubmissionTrack {
-  submissionId String
-  trackId      String
-
-  // Relations
-  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
-  track      Track      @relation(fields: [trackId], references: [id], onDelete: Cascade)
-
-  @@id([submissionId, trackId])
-  @@map("submission_track")
 }
 
 // ============================================================================
