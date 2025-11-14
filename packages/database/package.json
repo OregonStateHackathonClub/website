@@ -9,6 +9,7 @@
     "db:push": "dotenv -e ../../.env.local -- prisma db push",
     "db:migrate": "dotenv -e ../../.env.local -- prisma migrate dev",
     "db:studio": "dotenv -e ../../.env.local -- prisma studio",
+    "db:format": "dotenv -e ../../.env.local -- prisma format",
     "postinstall": "prisma generate"
   },
   "dependencies": {
