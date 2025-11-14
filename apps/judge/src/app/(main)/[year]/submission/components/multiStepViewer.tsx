@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import type z from "zod";
 import { Button } from "@repo/ui/components/button";
 import type { formSchema } from "../schema";
-import { serverAction } from "../server-action";
+import { saveDraftAction, submitProjectAction } from "../server-action";
 import StepOne from "./formStep1";
 import StepTwo from "./formStep2";
 import StepThree from "./formStep3";
@@ -20,12 +20,12 @@ type FormType = UseFormReturn<FormValues>;
 
 export function MultiStepViewer({
 	form,
-	submissionId,
-	setSubmissionId,
+	draftId,
+	setDraftId,
 }: {
 	form: FormType;
-	submissionId: string | null;
-	setSubmissionId: (id: string) => void;
+	draftId: string | null;
+	setDraftId: (id: string) => void;
 }) {
 	const router = useRouter();
 	const stepFormElements: {
@@ -89,14 +89,13 @@ export function MultiStepViewer({
 					fieldName as keyof FormValues | `photos.${number}`,
 				);
 				if (valid) {
-					const result = await serverAction({
+					const result = await saveDraftAction({
 						...form.getValues(),
-						submissionId,
+						draftId,
 					});
-					console.log("Submission result: ", result);
 					if (result.data?.success) {
-						if (result.data.submission?.submission?.id) {
-							setSubmissionId(result.data.submission.submission.id);
+						if (result.data.draft?.draft?.id) {
+							setDraftId(result.data.draft.draft.id);
 							setLastSaved(new Date());
 						}
 					} else {
@@ -105,13 +104,12 @@ export function MultiStepViewer({
 							JSON.stringify(result.validationErrors) ||
 							result.data?.error ||
 							"An unknown error occurred.";
-						console.error("Submission failed:", errorMessage);
 						toast(`There was an error saving your progress: ${errorMessage}`);
 					}
 				}
 			}, delay);
 		},
-		[form, setSubmissionId, submissionId],
+		[form, setDraftId, draftId],
 	);
 
 	useEffect(() => {
@@ -154,15 +152,14 @@ export function MultiStepViewer({
 
 							if (valid) {
 								goToPrevious();
-								const result = await serverAction({
+								const result = await saveDraftAction({
 									...form.getValues(),
-									submissionId,
+									draftId,
 								});
-								console.log("Submission result: ", result);
 
 								if (result.data?.success) {
-									if (result.data.submission?.submission?.id) {
-										setSubmissionId(result.data.submission.submission.id);
+									if (result.data.draft?.draft?.id) {
+										setDraftId(result.data.draft.draft.id);
 										setLastSaved(new Date());
 									}
 								} else {
@@ -172,7 +169,6 @@ export function MultiStepViewer({
 										JSON.stringify(result.validationErrors) ||
 										result.data?.error ||
 										"An unknown error occurred.";
-									console.error("Submission failed:", errorMessage);
 									toast(
 										`There was an error saving your progress: ${errorMessage}`,
 									);
@@ -198,15 +194,14 @@ export function MultiStepViewer({
 
 							if (valid) {
 								goToNext();
-								const result = await serverAction({
+								const result = await saveDraftAction({
 									...form.getValues(),
-									submissionId,
+									draftId,
 								});
-								console.log("Submission result: ", result);
 
 								if (result.data?.success) {
-									if (result.data.submission?.submission?.id) {
-										setSubmissionId(result.data.submission.submission.id);
+									if (result.data.draft?.draft?.id) {
+										setDraftId(result.data.draft.draft.id);
 										setLastSaved(new Date());
 									}
 								} else {
@@ -216,7 +211,6 @@ export function MultiStepViewer({
 										JSON.stringify(result.validationErrors) ||
 										result.data?.error ||
 										"An unknown error occurred.";
-									console.error("Submission failed:", errorMessage);
 									toast(
 										`There was an error saving your progress: ${errorMessage}`,
 									);
@@ -238,10 +232,47 @@ export function MultiStepViewer({
 						onClick={async () => {
 							const valid = await form.trigger();
 							if (valid) {
-								const result = await serverAction({
+								// First save the current form data as a draft if we don't have one
+								let finalDraftId = draftId;
+								// If we don't have a final draft ID
+								if (!finalDraftId) {
+									const draftResult = await saveDraftAction({
+										...form.getValues(),
+										draftId: null,
+									});
+									if (draftResult.data?.success && draftResult.data.draft?.draft?.id) {
+										finalDraftId = draftResult.data.draft.draft.id;
+										setDraftId(finalDraftId);
+									} else {
+										const errorMessage =
+											draftResult.serverError ||
+											JSON.stringify(draftResult.validationErrors) ||
+											draftResult.data?.error ||
+											"An unknown error occurred.";
+										toast(`There was an error saving your draft: ${errorMessage}`);
+										return;
+									}
+								} else {
+									// Update existing draft with final data
+									const draftResult = await saveDraftAction({
+										...form.getValues(),
+										draftId: finalDraftId,
+									});
+									if (!draftResult.data?.success) {
+										const errorMessage =
+											draftResult.serverError ||
+											JSON.stringify(draftResult.validationErrors) ||
+											draftResult.data?.error ||
+											"An unknown error occurred.";
+										toast(`There was an error updating your draft: ${errorMessage}`);
+										return;
+									}
+								}
+
+								// Then submit the project using the draft
+								const result = await submitProjectAction({
 									...form.getValues(),
-									submissionId,
-									status: "submitted",
+									draftId: finalDraftId,
 								});
 								if (result.data?.success) {
 									toast("Project submitted successfully.");
@@ -252,7 +283,6 @@ export function MultiStepViewer({
 										JSON.stringify(result.validationErrors) ||
 										result.data?.error ||
 										"An unknown error occurred.";
-									console.error("Submission failed:", errorMessage);
 									toast(
 										`There was an error submitting your project: ${errorMessage}`,
 									);

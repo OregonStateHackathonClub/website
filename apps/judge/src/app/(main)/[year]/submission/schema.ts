@@ -12,6 +12,7 @@ export interface ActionResponse<T = z.infer<typeof formSchema>> {
 }
 export const formSchema = z.object({
 	submissionId: z.string().optional().nullable(),
+	draftId: z.string().optional().nullable(),
 	teamId: z.string().optional().nullable(),
 	name: z
 		.string()
