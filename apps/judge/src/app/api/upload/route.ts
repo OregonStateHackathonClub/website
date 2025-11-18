@@ -1,9 +1,9 @@
 import { del, put } from "@vercel/blob";
 import { NextResponse } from "next/server";
+import { auth } from "@repo/auth"
 
-// Very lightweight in-memory rate limiter per IP (best-effort only).
-const lastRequestByIp = new Map<string, number>();
-const MIN_INTERVAL_MS = 3000; // 3s between uploads per IP
+
+
 
 const ALLOWED_MIME = new Set([
 	"image/png",
@@ -12,12 +12,6 @@ const ALLOWED_MIME = new Set([
 	"application/pdf",
 ]);
 const MAX_BYTES = 5 * 1024 * 1024; // 5MB
-
-function getClientIp(req: Request) {
-	const fwd = req.headers.get("x-forwarded-for");
-	if (fwd) return fwd.split(",")[0]?.trim() || "unknown";
-	return req.headers.get("x-real-ip") || "unknown";
-}
 
 function isVercelBlobUrl(urlStr: string) {
 	try {
@@ -29,17 +23,19 @@ function isVercelBlobUrl(urlStr: string) {
 }
 
 export async function POST(req: Request) {
-	// Rate limit (best-effort)
-	const ip = getClientIp(req);
-	const now = Date.now();
-	const last = lastRequestByIp.get(ip) || 0;
-	if (now - last < MIN_INTERVAL_MS) {
+	// Check if user is logged in to upload a image
+	const session = await auth.api.getSession({
+		headers: req.headers
+	});
+	
+	if (!session) {
 		return NextResponse.json(
-			{ error: "Too many requests. Please wait a moment." },
-			{ status: 429 },
+			{ error: "Unauthorized. Please log in to upload files." },
+			{ status: 401 }
 		);
 	}
-	lastRequestByIp.set(ip, now);
+
+	
 
 	if (!process.env.BLOB_READ_WRITE_TOKEN) {
 		return NextResponse.json(
@@ -106,6 +102,18 @@ export async function POST(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+	// Check if user is logged in to delete blob
+	const session = await auth.api.getSession({
+		headers: req.headers
+	});
+	
+	if (!session) {
+		return NextResponse.json(
+			{ error: "Unauthorized. Please log in to delete files." },
+			{ status: 401 }
+		);
+	}
+
 	if (!process.env.BLOB_READ_WRITE_TOKEN) {
 		return NextResponse.json(
 			{ error: "Server not configured for Blob deletes." },

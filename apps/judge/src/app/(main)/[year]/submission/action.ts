@@ -3,6 +3,125 @@
 import { randomUUID } from "node:crypto";
 import { prisma } from "@repo/database";
 
+export async function createDraft(
+	teamId: string,
+	hackathonId: string,
+	data: {
+		projectTitle?: string;
+		miniDescription?: string;
+		projectDescription?: string;
+		githubLink?: string;
+		youtubeLink?: string;
+		uploadPhotos?: string[];
+	},
+) {
+	try {
+		const draft = await prisma.draft.create({
+			data: {
+				id: randomUUID(),
+				teamId,
+				hackathonId,
+				name: data.projectTitle || "",
+				tagline: data.miniDescription || "",
+				description: data.projectDescription || "",
+				githubUrl: data.githubLink || "",
+				videoUrl: data.youtubeLink || "",
+				images: Array.isArray(data.uploadPhotos) ? data.uploadPhotos : [],
+			},
+		});
+		return { success: true, draft };
+	} catch (error) {
+		console.error("Draft creation error", error);
+		const message = error instanceof Error ? error.message : "Unknown error";
+		return { success: false, error: `Draft creation failed: ${message}` };
+	}
+}
+
+export async function updateDraft(
+	draftId: string,
+	data: {
+		projectTitle?: string;
+		miniDescription?: string;
+		projectDescription?: string;
+		githubLink?: string;
+		youtubeLink?: string;
+		uploadPhotos?: string[];
+	},
+) {
+	try {
+		const updatedDraft = await prisma.draft.update({
+			where: { id: draftId },
+			data: {
+				name: data.projectTitle || "",
+				tagline: data.miniDescription || "",
+				description: data.projectDescription || "",
+				githubUrl: data.githubLink || "",
+				videoUrl: data.youtubeLink || "",
+				images: Array.isArray(data.uploadPhotos) ? data.uploadPhotos : [],
+			},
+		});
+		return { success: true, draft: updatedDraft };
+	} catch (error) {
+		console.error("Draft update error", error);
+		const message = error instanceof Error ? error.message : "Unknown error";
+		return { success: false, error: `Draft update failed: ${message}` };
+	}
+}
+
+export async function createSubmissionFromDraft(
+	draftId: string,
+) {
+	try {
+		const draft = await prisma.draft.findUnique({
+			where: { id: draftId },
+		});
+
+		if (!draft) {
+			return { success: false, error: "Draft not found" };
+		}
+
+		// Upsert submission: create if doesn't exist, update if it does
+		const submission = await prisma.submission.upsert({
+			where: { teamId: draft.teamId },
+			create: {
+				id: randomUUID(),
+				teamId: draft.teamId,
+				hackathonId: draft.hackathonId,
+				name: draft.name || "",
+				tagline: draft.tagline || "",
+				description: draft.description || "",
+				githubUrl: draft.githubUrl || "",
+				videoUrl: draft.videoUrl || "",
+				images: draft.images || [],
+			},
+			update: {
+				name: draft.name || "",
+				tagline: draft.tagline || "",
+				description: draft.description || "",
+				githubUrl: draft.githubUrl || "",
+				videoUrl: draft.videoUrl || "",
+				images: draft.images || [],
+			},
+		});
+
+		// Ensure team is linked to submission
+		await prisma.team.update({
+			where: { id: draft.teamId },
+			data: {
+				submission: {
+					connect: { id: submission.id },
+				},
+			},
+		});
+
+		return { success: true, submission };
+	} catch (error) {
+		console.error("Submission from draft error", error);
+		const message = error instanceof Error ? error.message : "Unknown error";
+		return { success: false, error: `Submission creation failed: ${message}` };
+	}
+}
+
 export async function updateData(
 	submissionId: string,
 	data: {
