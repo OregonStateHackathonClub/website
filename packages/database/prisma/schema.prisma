@@ -259,11 +259,12 @@ model Track {
 
 model Rubric{
   id          String   @id @default(cuid())
+  name        String
   trackId     String   @unique
 
-  // relation
+  // Relations
   track       Track    @relation(fields: [trackId], references: [id], onDelete: Cascade)
-  criteria    RubricCriteria?
+  criteria    RubricCriteria[]
 
   @@map("rubric")
 }
@@ -275,7 +276,7 @@ model RubricCriteria{
   weight      Float
   maxScore    Int
 
-  // relations
+  // Relations
   rubric      Rubric   @relation(fields: [rubricId], references: [id], onDelete: Cascade)
   grade       RubricGrade[]
 
@@ -288,9 +289,9 @@ model RubricGrade{
   rubricCriteriaId String
   score        Float
 
-  //realtions
+  // Relations
   submission  Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
-  rubriccriteria  RubricCriteria @relation(fields: [rubricCriteriaId], references: [id], onDelete: Cascade)
+  rubricCriteria  RubricCriteria @relation(fields: [rubricCriteriaId], references: [id], onDelete: Cascade)
 
 
   @@map("rubric_grade")
