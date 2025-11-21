@@ -44,7 +44,7 @@ export default function StepFour({ form }: { form: FormType }) {
 						alt={`${formData.name} cover`}
 						fill
 						sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-						className="object-cover rounded-xl"
+						className="object-cover rounded-l"
 					/>
 				</div>
 
