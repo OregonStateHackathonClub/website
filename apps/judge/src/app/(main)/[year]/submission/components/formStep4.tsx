@@ -1,14 +1,11 @@
 import type { UseFormReturn } from "react-hook-form";
 import type * as z from "zod";
 import type { formSchema } from "../schema";
-import SubmissionCard from "@/components/submissionCard";
-import { Tag } from "lucide-react";
 import Image from "next/image";
 import { ProjectLinks } from "@/components/projectLinks";
 import {
 	Card,
 	CardContent,
-	CardDescription,
 	CardFooter,
 	CardHeader,
 	CardTitle,
