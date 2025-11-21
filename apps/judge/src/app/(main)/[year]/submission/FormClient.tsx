@@ -75,7 +75,7 @@ export default function FormClient({
           />
         </form>
       </Form>
-      <div className="min-w-76">
+      <div className="min-w-76 max-w-md lg:sticky lg:top-4 lg:self-start">
         <SubmissionCard
           submission={{
             id: "preview",
