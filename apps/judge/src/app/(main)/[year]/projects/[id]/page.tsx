@@ -17,7 +17,7 @@ import Image from "next/image";
 
 // Define the reusable 'include' object for our query
 const submissionInclude = {
-	submissionTracks: { include: { track: true } },
+	tracks: true,
 	team: {
 		include: {
 			members: {
@@ -110,13 +110,13 @@ export default async function ProjectPage(props: {
 						</div>
 						<div className="flex w-72 flex-col gap-4">
 							<div className="flex flex-wrap gap-2">
-								{submission.submissionTracks.map(
-									(link: SubmissionWithDetails["submissionTracks"][number]) => (
+								{submission.tracks.map(
+									(link: SubmissionWithDetails["tracks"][number]) => (
 										<Badge
-											key={link.trackId}
+											key={link.id}
 											className="bg-neutral-800 text-neutral-300 hover:bg-neutral-700"
 										>
-											{link.track.name}
+											{link.name}
 										</Badge>
 									),
 								)}

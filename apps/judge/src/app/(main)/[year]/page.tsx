@@ -58,20 +58,8 @@ export default async function Page(props: {
 		include: {
 			tracks: true,
 			submissions: {
-				// where: {
-				// 	status: {
-				// 		not: "draft", // Only include submissions where status is NOT "DRAFT"
-				// 	},
-				// },
 				include: {
-					submissionTracks: {
-						include: {
-							track: true,
-						},
-					},
-				},
-				orderBy: {
-					// score: "desc",  #does not exist in current schema
+					tracks: true,
 				},
 			},
 		},

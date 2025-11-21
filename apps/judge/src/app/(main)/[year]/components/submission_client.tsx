@@ -20,7 +20,7 @@ interface Submission {
 	tagline?: string;
 	githubUrl?: string | null;
 	videoUrl?: string | null;
-	submissionTracks?: { track: { id: string; name: string } }[];
+	tracks?: { id: string; name: string } [];
 }
 
 interface Hackathon {
@@ -77,8 +77,8 @@ export default function SubmissionsClient({
 			setFilteredSubmissions(hackathon.submissions);
 		} else {
 			const filtered = hackathon.submissions.filter((submission: Submission) =>
-				submission.submissionTracks?.some(
-					(link) => String(link.track.id) === String(selectedTrack),
+				submission.tracks?.some(
+					(link) => String(link.id) === String(selectedTrack),
 				),
 			);
 			setFilteredSubmissions(filtered);
