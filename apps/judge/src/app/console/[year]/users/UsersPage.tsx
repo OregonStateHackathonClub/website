@@ -104,6 +104,8 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 			<div>
 				<Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
 					<SheetContent>
+						{/* PUT COMPONENT HERE */}
+						{/* <some component user={currentUser} > */}
 						{
 							currentUser &&
 							<>
@@ -118,8 +120,16 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 									<Switch
 										id={`${currentUser.id}-superadmin`}
 										checked={currentUser.role === UserRole.ADMIN}
-										onCheckedChange={(checked) => {
-											setSuperadmin(checked, currentUser.id)
+										onCheckedChange={async (checked) => {
+											await setSuperadmin(checked, currentUser.id)
+											setCurrentUser(prev => {
+												if (!prev) return prev
+
+												return {
+													...prev,
+													role: checked ? UserRole.ADMIN : UserRole.USER
+												}
+											})
 										}} />
 									<Label htmlFor={`${currentUser.id}-superadmin`} className="flex-1" >Superadmin</Label>
 								</div>
