@@ -34,7 +34,7 @@ export default function RootLayout({
               </div>
               <h2 className="text-4xl font-bold">Under Maintenance</h2>
               <p className="text-xl text-muted-foreground">
-                We're currently performing maintenance to improve your
+                We&apos;re currently performing maintenance to improve your
                 experience.
               </p>
               <p className="text-lg text-muted-foreground">
