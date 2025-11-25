@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { Analytics } from "@vercel/analytics/react";
 import { GeistSans } from "@repo/ui/fonts";
 
@@ -40,6 +41,53 @@ export default function RootLayout({
               <p className="text-lg text-muted-foreground">
                 Please check back soon!
               </p>
+              <div className="flex items-center justify-center gap-6 mt-8">
+                <Link
+                  href="https://instagram.com/beaverhacks"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Instagram"
+                >
+                  <Image
+                    src="/images/instagram.svg"
+                    width={24}
+                    height={24}
+                    alt="Instagram logo"
+                    className="w-6 h-6"
+                  />
+                </Link>
+                <Link
+                  href="https://youtube.com/@osubeaverhacks"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="YouTube"
+                >
+                  <Image
+                    src="/images/youtube.svg"
+                    width={28}
+                    height={28}
+                    alt="Youtube logo"
+                    className="w-7 h-7"
+                  />
+                </Link>
+                <Link
+                  href="https://discord.gg/vuepffJxub"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Discord"
+                >
+                  <Image
+                    src="/images/discord.svg"
+                    width={28}
+                    height={28}
+                    alt="Discord logo"
+                    className="w-7 h-7"
+                  />
+                </Link>
+              </div>
             </div>
           </div>
           <Analytics />
