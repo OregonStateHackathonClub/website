@@ -3,6 +3,27 @@ import { prisma } from "@repo/database";
 import FormClient, { type InitialFormData } from "./FormClient";
 import Loading from "./loading";
 
+async function getHackathonTracks(hackathonId: string): Promise<{ id: string; name: string }[]> {
+  if (!hackathonId) return [];
+
+  const hackathon = await prisma.hackathon.findFirst({
+    where: { id: hackathonId },
+    include: {
+      tracks: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  });
+
+  return hackathon?.tracks ?? [];
+}
+
+
+
+
 async function getInitialData(searchParams: {
 	teamId?: string | null;
 	edit?: string | null;
@@ -23,6 +44,7 @@ async function getInitialData(searchParams: {
 				githubUrl: true,
 				videoUrl: true,
 				images: true,
+				tracks: true,
 				team: {
 					select: {
 						drafts: {
@@ -34,6 +56,7 @@ async function getInitialData(searchParams: {
 								githubUrl: true,
 								videoUrl: true,
 								images: true,
+								tracks: true,
 							},
 						},
 					},
@@ -56,6 +79,7 @@ async function getInitialData(searchParams: {
 					youtube: draft.videoUrl || "",
 					photos: draft.images || [],
 					status: "draft",
+					tracks: draft.tracks || [],
 				};
 			} else {
 				return {
@@ -69,6 +93,7 @@ async function getInitialData(searchParams: {
 					youtube: submission.videoUrl || "",
 					photos: submission.images || [],
 					status: "draft",
+					tracks: submission.tracks || [],
 				};
 			}
 		}
@@ -86,6 +111,7 @@ async function getInitialData(searchParams: {
 				githubUrl: true,
 				videoUrl: true,
 				images: true,
+				tracks: true,
 			},
 		});
 
@@ -101,6 +127,7 @@ async function getInitialData(searchParams: {
 				youtube: draft.videoUrl || "",
 				photos: draft.images || [],
 				status: "draft",
+				tracks: draft.tracks || [],
 			};
 		}
 	}
@@ -116,18 +143,23 @@ async function getInitialData(searchParams: {
 		youtube: "",
 		photos: [],
 		status: "draft",
+		tracks: [],
 	};
 }
 
 export default function DraftForm(props: {
-	searchParams: Promise<{ teamId?: string; edit?: string }>;
-}) {
+	params: {year: string};
+	searchParams: Promise<{ teamId?: string; edit?: string; hackathonId?: string }>;
+}){
 	const initialDataPromise: Promise<InitialFormData> = props.searchParams.then(
 		(sp) => getInitialData(sp),
 	);
+
+	const hackathonId = props.params.year;
+	const availableTracksPromise: Promise<{ id: string; name: string }[]> = getHackathonTracks(hackathonId);
 	return (
 		<Suspense fallback={<Loading />}>
-			<FormClient initialData={initialDataPromise} />
+			<FormClient initialData={initialDataPromise} availableTracks={availableTracksPromise}/>
 		</Suspense>
 	);
 }

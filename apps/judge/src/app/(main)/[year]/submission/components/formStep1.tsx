@@ -15,10 +15,11 @@ import { Input } from "@repo/ui/components/input";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@repo/ui/components/textarea";
 import { type formSchema, totalImages } from "../schema";
+import { MultiSelect } from "@/components/multi-select";
 
 type FormType = UseFormReturn<z.infer<typeof formSchema>>;
 
-export default function StepOne({ form }: { form: FormType }) {
+export default function StepOne({ form, availableTracks }: { form: FormType; availableTracks: { id: string; name: string }[]; }) {
 	const inputRef = useRef<HTMLInputElement | null>(null);
 	const [isUploading, setIsUploading] = useState(false);
 	const [error, setError] = useState<string>("");
@@ -123,6 +124,13 @@ export default function StepOne({ form }: { form: FormType }) {
 		onFieldChange(next);
 	};
 
+	const trackOptions = availableTracks.map((track) => ({
+		value: track.id,
+		label: track.name, 
+	}));
+
+
+
 	return (
 		<div>
 			<h1 className="font-bold text-xl text-zinc-800">
@@ -171,6 +179,30 @@ export default function StepOne({ form }: { form: FormType }) {
 					</FormItem>
 				)}
 			/>
+			{/* TRACKS */}
+			<div className="m-4" />
+			<FormField
+				control={form.control}
+				name="tracks" // <-- field name in your form schema
+				render={({ field }) => (
+					<FormItem>
+						<FormLabel>Available Tracks</FormLabel>
+						<FormControl>
+							<MultiSelect
+								options={trackOptions}
+								defaultValue={field.value}
+								onValueChange={(values) => {
+									field.onChange(values);          // update form state
+									console.log("Selected tracks:", values); // debug log
+								}}
+								placeholder="Select tracks"
+							/>
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				)}
+			/>
+
 			<div className="mt-6">
 				<FormField
 					control={form.control}

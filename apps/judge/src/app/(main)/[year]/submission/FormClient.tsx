@@ -7,6 +7,7 @@ import SubmissionCard from "@/components/submissionCard";
 import { Form } from "@repo/ui/components/form";
 import { MultiStepViewer } from "./components/multiStepViewer";
 import { formSchema } from "./schema";
+import { Track } from "@prisma/client";
 
 type FormValues = z.infer<typeof formSchema>;
 
@@ -21,15 +22,19 @@ export type InitialFormData = {
   youtube?: string;
   photos: string[];
   status?: string;
+  tracks: Track[];
 };
 
 export default function FormClient({
   initialData,
+  availableTracks,
 }: {
   initialData: Promise<InitialFormData>;
+  availableTracks: Promise<{ id: string; name: string; }[]>;
 }) {
   // Unwrap server-fetched data using React's use() hook with Suspense
   const data = use(initialData);
+  const tracks = use(availableTracks);
 
   const [draftId, setDraftId] = useState<string | null>(data.draftId ?? null);
 
@@ -45,6 +50,7 @@ export default function FormClient({
       youtube: data.youtube || "",
       photos: Array.isArray(data.photos) ? data.photos : [],
       status: data.status || "draft",
+      tracks: Array.isArray(data.tracks) ? data.photos : [],
     }),
     [data],
   );
@@ -72,6 +78,7 @@ export default function FormClient({
             form={form}
             draftId={draftId}
             setDraftId={setDraftId}
+            availableTracks={tracks}
           />
         </form>
       </Form>
