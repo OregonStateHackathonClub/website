@@ -21,15 +21,6 @@ const Apply = async () => {
 
   if (existingApplication) redirect("/profile");
 
-  const applicationsOpen = false;
-
-  if (!applicationsOpen)
-    return (
-      <div className="flex w-screen h-screen items-center justify-center">
-        <div>Applications are closed</div>
-      </div>
-    );
-
   return (
     <div className="flex justify-center items-center h-screen">
       <div className="h-[90vh]">
