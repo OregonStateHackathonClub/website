@@ -7,7 +7,6 @@ import SubmissionCard from "@/components/submissionCard";
 import { Form } from "@repo/ui/components/form";
 import { MultiStepViewer } from "./components/multiStepViewer";
 import { formSchema } from "./schema";
-import { Track } from "@prisma/client";
 
 type FormValues = z.infer<typeof formSchema>;
 

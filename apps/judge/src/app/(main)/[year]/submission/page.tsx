@@ -148,18 +148,22 @@ async function getInitialData(searchParams: {
 }
 
 export default function DraftForm(props: {
-	params: {year: string};
-	searchParams: Promise<{ teamId?: string; edit?: string; hackathonId?: string }>;
+	params: Promise<{year: string}>;
+	searchParams: Promise<{ teamId?: string; edit?: string }>;
 }){
 	const initialDataPromise: Promise<InitialFormData> = props.searchParams.then(
 		(sp) => getInitialData(sp),
 	);
+	
+	const availableTracksPromise: Promise<{ id: string; name: string }[]> = props.params.then(
+    	(p) => getHackathonTracks(p.year),
+  	);
 
-	const hackathonId = props.params.year;
-	const availableTracksPromise: Promise<{ id: string; name: string }[]> = getHackathonTracks(hackathonId);
 	return (
 		<Suspense fallback={<Loading />}>
-			<FormClient initialData={initialDataPromise} availableTracks={availableTracksPromise}/>
+			<FormClient 
+				initialData={initialDataPromise} 
+				availableTracks={availableTracksPromise}/>
 		</Suspense>
 	);
 }
