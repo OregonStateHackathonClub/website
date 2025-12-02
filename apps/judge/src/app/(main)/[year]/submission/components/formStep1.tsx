@@ -192,8 +192,7 @@ export default function StepOne({ form, availableTracks }: { form: FormType; ava
 								options={trackOptions}
 								defaultValue={field.value}
 								onValueChange={(values) => {
-									field.onChange(values);          // update form state
-									console.log("Selected tracks:", values); // debug log
+									field.onChange(values);
 								}}
 								placeholder="Select tracks"
 							/>

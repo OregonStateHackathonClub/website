@@ -1,6 +1,6 @@
 "use client";
 
-import { Tag } from "lucide-react";
+// import { Tag } from "lucide-react";
 import Image from "next/image";
 import { ProjectLinks } from "@/components/projectLinks";
 import {
@@ -20,7 +20,7 @@ type Submission = {
 	tagline?: string;
 	githubUrl?: string | null;
 	videoUrl?: string | null;
-	submissionTracks?: { track: { name: string } }[];
+	// submissionTracks?: { track: { name: string } }[];
 };
 
 interface SubmissionCardProps {
@@ -48,7 +48,7 @@ export default function SubmissionCard({
 				<CardTitle className="line-clamp-2 font-bold text-lg text-white leading-snug">
 					{submission.name}
 				</CardTitle>
-				{submission.submissionTracks && submission.submissionTracks.length > 0 && (
+				{/* {submission.submissionTracks && submission.submissionTracks.length > 0 && (
 					<div className="flex flex-wrap gap-1">
 						{submission.submissionTracks.map(
 							({ track }: { track: { name: string } }) => (
@@ -62,7 +62,7 @@ export default function SubmissionCard({
 							),
 						)}
 					</div>
-				)}
+				)} */}
 			</CardHeader>
 
 			{/* Middle Section: Image */}

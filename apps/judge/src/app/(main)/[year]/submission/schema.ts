@@ -63,5 +63,5 @@ export const formSchema = z.object({
 		.max(totalImages, { message: "You can upload up to 5 photos" })
 		.default([]),
 	status: z.string().optional(),
-	tracks: z.array(z.string()),
+	tracks: z.array(z.string()).default([]),
 });

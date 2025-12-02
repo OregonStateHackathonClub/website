@@ -91,7 +91,7 @@ export default function FormClient({
             tagline: form.watch("description") || "Description Preview",
             githubUrl: form.watch("github") || null,
             videoUrl: form.watch("youtube") || null,
-            submissionTracks: [],
+            // submissionTracks: [],
           }}
           index={0}
           showOpenButton={false}
