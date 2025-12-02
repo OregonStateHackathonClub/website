@@ -22,7 +22,7 @@ export type InitialFormData = {
   youtube?: string;
   photos: string[];
   status?: string;
-  tracks: Track[];
+  tracks: string[];
 };
 
 export default function FormClient({
@@ -50,7 +50,7 @@ export default function FormClient({
       youtube: data.youtube || "",
       photos: Array.isArray(data.photos) ? data.photos : [],
       status: data.status || "draft",
-      tracks: Array.isArray(data.tracks) ? data.photos : [],
+      tracks: Array.isArray(data.tracks) ? data.tracks : [],
     }),
     [data],
   );

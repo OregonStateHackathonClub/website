@@ -80,7 +80,9 @@ export async function createSubmissionFromDraft(
 	try {
 		const draft = await prisma.draft.findUnique({
 			where: { id: draftId },
-			include: { tracks: true },
+			include: { tracks: {select: { id: true, name: true },
+    },
+ },
 		});
 
 		if (!draft) {

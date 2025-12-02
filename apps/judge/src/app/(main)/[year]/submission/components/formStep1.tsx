@@ -191,9 +191,7 @@ export default function StepOne({ form, availableTracks }: { form: FormType; ava
 							<MultiSelect
 								options={trackOptions}
 								defaultValue={field.value}
-								onValueChange={(values) => {
-									field.onChange(values);
-								}}
+								onValueChange={field.onChange}
 								placeholder="Select tracks"
 							/>
 						</FormControl>

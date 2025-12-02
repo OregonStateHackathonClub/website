@@ -79,7 +79,7 @@ async function getInitialData(searchParams: {
 					youtube: draft.videoUrl || "",
 					photos: draft.images || [],
 					status: "draft",
-					tracks: draft.tracks || [],
+					tracks: draft.tracks.map((t) => t.id),
 				};
 			} else {
 				return {
@@ -93,7 +93,7 @@ async function getInitialData(searchParams: {
 					youtube: submission.videoUrl || "",
 					photos: submission.images || [],
 					status: "draft",
-					tracks: submission.tracks || [],
+					tracks: submission.tracks.map((t) => t.id),
 				};
 			}
 		}
@@ -127,7 +127,7 @@ async function getInitialData(searchParams: {
 				youtube: draft.videoUrl || "",
 				photos: draft.images || [],
 				status: "draft",
-				tracks: draft.tracks || [],
+				tracks: draft.tracks.map((t) => t.id),
 			};
 		}
 	}
