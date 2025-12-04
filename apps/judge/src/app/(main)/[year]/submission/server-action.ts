@@ -15,6 +15,7 @@ export const saveDraftAction = actionClient
 				githubLink: parsedInput.github || "",
 				youtubeLink: parsedInput.youtube || "",
 				uploadPhotos: parsedInput.photos || [],
+				tracks: parsedInput.tracks?.map((id) => ({ id })) || [],
 			};
 
 			if (!parsedInput.teamId) {
@@ -89,6 +90,7 @@ export const serverAction = actionClient
 				uploadPhotos: string[];
 				status: string;
 				teamId: string | null;
+				tracks: { id: string }[];
 			} = {
 				projectTitle: parsedInput.name,
 				miniDescription: parsedInput.description,
@@ -98,6 +100,7 @@ export const serverAction = actionClient
 				uploadPhotos: parsedInput.photos || [],
 				status: parsedInput.status || "draft",
 				teamId: parsedInput.teamId || null,
+				tracks: parsedInput.tracks?.map((id) => ({ id })) || [],
 			};
 			const result = parsedInput.submissionId
 				? await updateData(parsedInput.submissionId, mapData)
