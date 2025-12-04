@@ -60,6 +60,10 @@ export default function FormClient({
     defaultValues,
   });
 
+  const selectedTrackIds = form.watch("tracks") || [];
+  const selectedTracks = tracks.filter((t) => selectedTrackIds.includes(t.id));
+
+
   // Note: Form submission is now handled entirely through the MultiStepViewer component
   // This ensures proper draft workflow and prevents direct submission bypassing
 
@@ -90,7 +94,7 @@ export default function FormClient({
             tagline: form.watch("description") || "Description Preview",
             githubUrl: form.watch("github") || null,
             videoUrl: form.watch("youtube") || null,
-            // submissionTracks: [],
+            tracks: selectedTracks,
           }}
           index={0}
           showOpenButton={false}
