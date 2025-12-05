@@ -13,6 +13,7 @@ export async function createDraft(
 		githubLink?: string;
 		youtubeLink?: string;
 		uploadPhotos?: string[];
+		tracks?: { id: string }[];
 	},
 ) {
 	try {
@@ -27,6 +28,7 @@ export async function createDraft(
 				githubUrl: data.githubLink || "",
 				videoUrl: data.youtubeLink || "",
 				images: Array.isArray(data.uploadPhotos) ? data.uploadPhotos : [],
+				tracks: data.tracks ? { connect: data.tracks.map((t) => ({ id: t.id })) } : undefined,
 			},
 		});
 		return { success: true, draft };
@@ -46,6 +48,7 @@ export async function updateDraft(
 		githubLink?: string;
 		youtubeLink?: string;
 		uploadPhotos?: string[];
+		tracks?: { id: string }[]
 	},
 ) {
 	try {
@@ -58,6 +61,9 @@ export async function updateDraft(
 				githubUrl: data.githubLink || "",
 				videoUrl: data.youtubeLink || "",
 				images: Array.isArray(data.uploadPhotos) ? data.uploadPhotos : [],
+				tracks: data.tracks?.length
+					? { set: data.tracks.map((t) => ({ id: t.id })) }
+					: { set: [] },
 			},
 		});
 		return { success: true, draft: updatedDraft };
@@ -74,6 +80,9 @@ export async function createSubmissionFromDraft(
 	try {
 		const draft = await prisma.draft.findUnique({
 			where: { id: draftId },
+			include: { tracks: {select: { id: true, name: true },
+    },
+ },
 		});
 
 		if (!draft) {
@@ -93,6 +102,10 @@ export async function createSubmissionFromDraft(
 				githubUrl: draft.githubUrl || "",
 				videoUrl: draft.videoUrl || "",
 				images: draft.images || [],
+				tracks: draft.tracks
+					? { connect: draft.tracks.map((t) => ({ id: t.id })) }
+					: undefined,
+
 			},
 			update: {
 				name: draft.name || "",
@@ -101,6 +114,9 @@ export async function createSubmissionFromDraft(
 				githubUrl: draft.githubUrl || "",
 				videoUrl: draft.videoUrl || "",
 				images: draft.images || [],
+				tracks: draft.tracks
+					? { set: draft.tracks.map((t) => ({ id: t.id })) }
+					: { set: [] },
 			},
 		});
 
@@ -133,6 +149,7 @@ export async function updateData(
 		uploadPhotos: string[];
 		//status: string;
 		teamId?: string | null;
+		tracks?: { id: string }[];
 	},
 ) {
 	try {
@@ -145,6 +162,7 @@ export async function updateData(
 				githubUrl: data.githubLink,
 				videoUrl: data.youtubeLink,
 				images: Array.isArray(data.uploadPhotos) ? data.uploadPhotos : [],
+				tracks: data.tracks ? { connect: data.tracks.map((t) => ({ id: t.id })) } : undefined,
 				//status: data.status, This is not in the new database
 			},
 		});
@@ -177,6 +195,7 @@ export async function sendData(data: {
 	uploadPhotos: string[];
 	status: string;
 	teamId?: string | null;
+	tracks?: { id: string }[];
 }) {
 	// Read JSON data from the submission form
 	try {
@@ -201,6 +220,7 @@ export async function sendData(data: {
 				githubUrl: data.githubLink,
 				videoUrl: data.youtubeLink,
 				images: Array.isArray(data.uploadPhotos) ? data.uploadPhotos : [],
+				tracks: data.tracks ? { connect: data.tracks.map((t) => ({ id: t.id })) } : undefined,
 				//comments: "",
 				//rubric: {},
 				//score: 0,

@@ -22,17 +22,19 @@ export function MultiStepViewer({
 	form,
 	draftId,
 	setDraftId,
+	availableTracks,
 }: {
 	form: FormType;
 	draftId: string | null;
 	setDraftId: (id: string) => void;
+	availableTracks: { id: string; name: string; }[];
 }) {
 	const router = useRouter();
 	const stepFormElements: {
 		[key: number]: JSX.Element;
 	} = {
 		// Step 1
-		1: <StepOne form={form} />,
+		1: <StepOne form={form} availableTracks={availableTracks} />,
 		// Step 2
 		2: <StepTwo form={form} />,
 		// Step 3
@@ -52,9 +54,10 @@ export function MultiStepViewer({
 		| "youtube"
 		| "photos"
 		| "status"
+		| "tracks"
 	)[] {
 		return currentStep === 1
-			? ["name", "description"]
+			? ["name", "description", "tracks"]
 			: currentStep === 2
 				? ["mainDescription"]
 				: currentStep === 3

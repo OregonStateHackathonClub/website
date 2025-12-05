@@ -20,7 +20,7 @@ type Submission = {
 	tagline?: string;
 	githubUrl?: string | null;
 	videoUrl?: string | null;
-	submissionTracks?: { track: { name: string } }[];
+	tracks?: { id: string; name: string } [];
 };
 
 interface SubmissionCardProps {
@@ -48,16 +48,15 @@ export default function SubmissionCard({
 				<CardTitle className="line-clamp-2 font-bold text-lg text-white leading-snug">
 					{submission.name}
 				</CardTitle>
-				{submission.submissionTracks && submission.submissionTracks.length > 0 && (
+				{submission.tracks && submission.tracks.length > 0 && (
 					<div className="flex flex-wrap gap-1">
-						{submission.submissionTracks.map(
-							({ track }: { track: { name: string } }) => (
+						{submission.tracks.map(({ id, name }) => (
 								<span
-									key={track.name}
+									key={id}
 									className="inline-flex items-center gap-1 rounded-full border border-neutral-800 bg-neutral-900 px-2 py-0.5 text-[10px] text-neutral-300 uppercase tracking-wide"
 								>
 									<Tag className="h-3 w-3" />
-									{track.name}
+									{name}
 								</span>
 							),
 						)}
