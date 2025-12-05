@@ -1,7 +1,7 @@
 // admin only
 // manage users
 // add users to teams
-import UsersPage from "./UsersPage";
+import UsersPage from "./components/UsersPage";
 
 export default async function Page({
 	params,
