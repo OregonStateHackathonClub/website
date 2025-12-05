@@ -11,6 +11,7 @@ import UserOuterSheet from "./UserOuterSheet";
 
 export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 	const [search, setSearch] = useState("");
+	const [debouncedSearch, setDebouncedSearch] = useState(search);
 
 	const [isSheetOpen, setIsSheetOpen] = useState(false);
 	const [currentUser, setCurrentUser] = useState<UserSearchResult>();
@@ -32,10 +33,19 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 	);
 	const users = allUsers.filter(u => u.role === UserRole.USER);
 
-	const fetchUsers = useCallback(async () => {
-		const allUsersResult = await userSearch(search, hackathonId);
-		if (allUsersResult) setAllUsers(allUsersResult);
+	useEffect(() => {
+		const handler = setTimeout(() => {
+			setDebouncedSearch(search);
+		}, 400); // 400ms debounce
+		
+		return () => clearTimeout(handler);
 	}, [search]);
+
+
+	const fetchUsers = useCallback(async () => {
+		const allUsersResult = await userSearch(debouncedSearch, hackathonId);
+		if (allUsersResult) setAllUsers(allUsersResult);
+	}, [debouncedSearch, hackathonId]);
 
 	useEffect(() => {
 		fetchUsers();
