@@ -1,26 +1,21 @@
 "use client";
-import { createJudge, getJudgeType, removeUser, setJudgeType, setSuperadmin, userSearch, UserSearchResult } from "@/app/actions";
+import { removeUser, setSuperadmin, userSearch, UserSearchResult } from "@/app/actions";
 import React, { useCallback, useEffect, useState } from "react";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@repo/ui/components/pagination";
 import { Button } from "@repo/ui/components/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, } from "@repo/ui/components/dropdown-menu";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@repo/ui/components/sheet";
+import { Sheet, SheetTrigger } from "@repo/ui/components/sheet";
 import { toast } from "sonner";
 import { JudgeRole, UserRole } from "@prisma/client";
 import { ChevronDown } from "lucide-react";
-import { Switch } from "@repo/ui/components/switch";
-import { Label } from "@repo/ui/components/label";
+import UserOuterSheet from "./UserOuterSheet";
 
 export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 	const [search, setSearch] = useState("");
 
 	const [isSheetOpen, setIsSheetOpen] = useState(false);
 	const [currentUser, setCurrentUser] = useState<UserSearchResult>();
-
-	const [superadmins, setSuperadmins] = useState<UserSearchResult[]>([]);
-	const [admins, setAdmins] = useState<UserSearchResult[]>([]);
-	const [judges, setJudges] = useState<UserSearchResult[]>([]);
-	const [users, setUsers] = useState<UserSearchResult[]>([]);
+	
 	const [allUsers, setAllUsers] = useState<UserSearchResult[]>([]);
 
 	const [superadminPage, setSuperadminPage] = useState(1);
@@ -29,23 +24,18 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 	const [userPage, setUserPage] = useState(1);
 	const [allUserPage, setAllUserPage] = useState(1);
 
+	const superadmins = allUsers.filter(u => u.role === UserRole.ADMIN);
+	const judges = allUsers.filter(u =>
+		u.hackathonParticipants.some(p => p.judge?.role === JudgeRole.JUDGE)
+	);
+	const admins = allUsers.filter(u =>
+		u.hackathonParticipants.some(p => p.judge?.role === JudgeRole.MANAGER)
+	);
+	const users = allUsers.filter(u => u.role === UserRole.USER);
+
 	const fetchUsers = useCallback(async () => {
-		if (hackathonId) {
-			const adminResult = await userSearch(search, hackathonId, JudgeRole.MANAGER);
-			if (adminResult) setAdmins(adminResult);
-
-			const judgeResult = await userSearch(search, hackathonId, JudgeRole.JUDGE);
-			if (judgeResult) setJudges(judgeResult);
-
-			const allUsersResult = await userSearch(search, hackathonId);
-			if (allUsersResult) setAllUsers(allUsersResult);
-		} else {
-			const superAdminResult = await userSearch(search, "", UserRole.ADMIN);
-			if (superAdminResult) setSuperadmins(superAdminResult);
-
-			const usersResult = await userSearch(search, "", UserRole.USER);
-			if (usersResult) setUsers(usersResult);
-		}
+		const allUsersResult = await userSearch(search, hackathonId);
+		if (allUsersResult) setAllUsers(allUsersResult);
 	}, [search]);
 
 	useEffect(() => {
@@ -85,12 +75,12 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 	function Users({
 		list,
 		page,
-		setList,
+		// setList,
 		setPage,
 	}: {
 		list: UserSearchResult[];
 		page: number;
-		setList: React.Dispatch<React.SetStateAction<UserSearchResult[]>>;
+		// setList: React.Dispatch<React.SetStateAction<UserSearchResult[]>>;
 		setPage: React.Dispatch<React.SetStateAction<number>>;
 	}) {
 		const entriesPerPage = 5;
@@ -102,89 +92,6 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 
 		return (
 			<div>
-				<Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-					<SheetContent>
-						{/* PUT COMPONENT HERE */}
-						{/* <some component user={currentUser} > */}
-						{
-							currentUser &&
-							<>
-								<SheetHeader>
-									<SheetTitle>{currentUser.name}</SheetTitle>
-									<SheetDescription>
-										Description -- Nothing here is implemented at the moment
-									</SheetDescription>
-								</SheetHeader>
-								<div className="flex justify-between gap-2.5">
-									<Label htmlFor={`${currentUser.id}-superadmin`} className="w-15 flex justify-end flex-1" >User</Label>
-									<Switch
-										id={`${currentUser.id}-superadmin`}
-										checked={currentUser.role === UserRole.ADMIN}
-										onCheckedChange={async (checked) => {
-											await setSuperadmin(checked, currentUser.id)
-											setCurrentUser(prev => {
-												if (!prev) return prev
-
-												return {
-													...prev,
-													role: checked ? UserRole.ADMIN : UserRole.USER
-												}
-											})
-										}} />
-									<Label htmlFor={`${currentUser.id}-superadmin`} className="flex-1" >Superadmin</Label>
-								</div>
-								<div className="flex justify-between gap-2.5">
-									<Label htmlFor={`${currentUser.id}-judge-type`} className="w-15 flex justify-end flex-1" >Judge</Label>
-									<Switch
-										id={`${currentUser.id}-judge-type`}
-										checked={ getParticipant(currentUser)?.judge?.role === JudgeRole.MANAGER }
-										onCheckedChange={async (checked) => {
-											const role = checked ? JudgeRole.MANAGER : JudgeRole.JUDGE
-
-											const participant = getParticipant(currentUser)
-											if (!participant) return
-
-											if (!participant?.judge) {
-												const judge = await createJudge(participant.id, role)
-
-												if (judge) participant.judge = judge
-												else return false
-											}
-											
-											await setJudgeType(participant.judge.id, role)
-											participant.judge.role = role
-											
-											const updatedUser = { ...currentUser }
-											updatedUser.hackathonParticipants = currentUser.hackathonParticipants.map(p =>
-												p.id === participant.id ? { ...participant } : p
-											);
-											setCurrentUser(updatedUser)
-										}} />
-									<Label htmlFor={`${currentUser.id}-judge-type`} className="flex-1" >Admin</Label>
-								</div>
-
-								<div className="flex justify-center">
-									<Button variant={"destructive"} className="w-60">
-										Delete Judge
-									</Button>
-								</div>
-
-								<div className="flex justify-center">
-									<Button variant={"destructive"} className="w-60">
-										Delete Hackathon Participant
-									</Button>
-								</div>
-
-								<div className="flex justify-center">
-									<Button variant={"destructive"} className="w-60">
-										Delete User
-									</Button>
-								</div>
-							</>
-						}
-
-					</SheetContent>
-				</Sheet>
 				<div className="grid gap-2">
 					{currentEntries.map((user) => {
 						return (
@@ -299,84 +206,96 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 	}
 
 	return (
-		<div className="mx-auto w-full max-w-3xl py-10">
-			<div className="flex justify-center">
-				<div className="font-bold text-3xl">Users</div>
-			</div>
-			<div>
-				<input
-					type="text"
-					placeholder="Search..."
-					className="mb-2 w-75 cursor-text rounded-xl border border-gray-700 bg-gray-900 p-2 shadow-sm transition-all duration-200 hover:bg-gray-800 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-					value={search}
-					onChange={(e) => setSearch(e.target.value)}
-				/>
-			</div>
+		<>
 			{
-				hackathonId ?
-				<div>
-					<div className="flex w-full justify-between items-center my-5">
-						<div>
-							Admins
-						</div>
-						<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
-						<Button
-						variant={"outline"}
-						className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
-						onClick={() => toast.error("Not yet implemented")}>+</Button>
-					</div>
-					{users ? <Users list={admins} page={adminPage} setList={setAdmins} setPage={setAdminPage} /> : <div>Loading...</div>}
-
-					<div className="flex w-full justify-between items-center my-5">
-						<div>
-							Judges
-						</div>
-						<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
-						<Button
-						variant={"outline"}
-						className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
-						onClick={() => toast.error("Not yet implemented")}>+</Button>
-					</div>
-					{users ? <Users list={judges} page={judgePage} setList={setJudges} setPage={setJudgePage} /> : <div>Loading...</div>}
-
-					<div className="flex w-full justify-between items-center my-5">
-						<div>
-							Users
-						</div>
-						<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
-						<Button
-						variant={"outline"}
-						className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
-						onClick={() => toast.error("Not yet implemented")}>+</Button>
-					</div>
-					{users ? <Users list={allUsers} page={allUserPage} setList={setAllUsers} setPage={setAllUserPage} /> : <div>Loading...</div>}
-				</div>
-				:
-				<div>
-					<div className="flex w-full justify-between items-center my-5">
-						<div>
-							Superadmins
-						</div>
-						<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
-						<Button
-						variant={"outline"}
-						className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
-						onClick={() => toast.error("Not yet implemented")}>+</Button>
-					</div>
-					{users ? <Users list={superadmins} page={superadminPage} setList={setSuperadmins} setPage={setSuperadminPage} /> : <div>Loading...</div>}
-					<div className="flex w-full justify-between items-center my-5">
-						<div>
-							Users
-						</div>
-						<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
-						<Button
-						variant={"outline"}
-						className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
-						onClick={() => toast.error("Not yet implemented")}>+</Button>
-					</div>
-					{users ? <Users list={users} page={userPage} setList={setUsers} setPage={setUserPage} /> : <div>Loading...</div>}
-				</div>
+				currentUser &&
+				<UserOuterSheet
+					currentUser={currentUser}
+					hackathonId={hackathonId}
+					setAllUsers={setAllUsers}
+					isSheetOpen={isSheetOpen}
+					setIsSheetOpen={setIsSheetOpen}
+				/>
 			}
-		</div>
+			<div className="mx-auto w-full max-w-3xl py-10">
+				<div className="flex justify-center">
+					<div className="font-bold text-3xl">Users</div>
+				</div>
+				<div>
+					<input
+						type="text"
+						placeholder="Search..."
+						className="mb-2 w-75 cursor-text rounded-xl border border-gray-700 bg-gray-900 p-2 shadow-sm transition-all duration-200 hover:bg-gray-800 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+						value={search}
+						onChange={(e) => setSearch(e.target.value)}
+					/>
+				</div>
+				{
+					hackathonId ?
+					<div>
+						<div className="flex w-full justify-between items-center my-5">
+							<div>
+								Admins
+							</div>
+							<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
+							<Button
+							variant={"outline"}
+							className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
+							onClick={() => toast.error("Not yet implemented")}>+</Button>
+						</div>
+						{users ? <Users list={admins} page={adminPage} setPage={setAdminPage} /> : <div>Loading...</div>}
+
+						<div className="flex w-full justify-between items-center my-5">
+							<div>
+								Judges
+							</div>
+							<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
+							<Button
+							variant={"outline"}
+							className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
+							onClick={() => toast.error("Not yet implemented")}>+</Button>
+						</div>
+						{users ? <Users list={judges} page={judgePage} setPage={setJudgePage} /> : <div>Loading...</div>}
+
+						<div className="flex w-full justify-between items-center my-5">
+							<div>
+								Users
+							</div>
+							<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
+							<Button
+							variant={"outline"}
+							className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
+							onClick={() => toast.error("Not yet implemented")}>+</Button>
+						</div>
+						{users ? <Users list={allUsers} page={allUserPage} setPage={setAllUserPage} /> : <div>Loading...</div>}
+					</div>
+					:
+					<div>
+						<div className="flex w-full justify-between items-center my-5">
+							<div>
+								Superadmins
+							</div>
+							<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
+							<Button
+							variant={"outline"}
+							className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
+							onClick={() => toast.error("Not yet implemented")}>+</Button>
+						</div>
+						{users ? <Users list={superadmins} page={superadminPage} setPage={setSuperadminPage} /> : <div>Loading...</div>}
+						<div className="flex w-full justify-between items-center my-5">
+							<div>
+								Users
+							</div>
+							<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
+							<Button
+							variant={"outline"}
+							className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
+							onClick={() => toast.error("Not yet implemented")}>+</Button>
+						</div>
+						{users ? <Users list={users} page={userPage} setPage={setUserPage} /> : <div>Loading...</div>}
+					</div>
+				}
+			</div>
+		</>
 	);
 }
