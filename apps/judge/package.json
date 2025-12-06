@@ -27,7 +27,7 @@
     "next-safe-action": "^8.0.11",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
-    "react-hook-form": "^7.62.0",
+    "react-hook-form": "^7.68.0",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
     "sonner": "^2.0.7",
