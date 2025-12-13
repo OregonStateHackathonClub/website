@@ -2,11 +2,19 @@
 import { createDraft, createSubmissionFromDraft, sendData, updateData, updateDraft } from "./action";
 import { actionClient } from "./safeAction";
 import { formSchema } from "./schema";
+import { auth } from "@repo/auth";
+import { headers } from "next/headers";
+import { prisma } from "@repo/database";
 
 // Action for saving drafts (used during form editing)
 export const saveDraftAction = actionClient
 	.inputSchema(formSchema)
 	.action(async ({ parsedInput }) => {
+		const session = await auth.api.getSession({ headers: await headers() });
+		
+		if (!session) {
+			return { success: false, error: "Unauthorized" };
+		}
 		try {
 			const mapData = {
 				projectTitle: parsedInput.name,
@@ -22,9 +30,29 @@ export const saveDraftAction = actionClient
 				return { success: false, error: "Team ID is required" };
 			}
 
+			const isMember = await prisma.teamMember.findFirst({
+				where: {
+					teamId: parsedInput.teamId,
+					participantId: session.user.id,
+				},
+			});
+
+			if (!isMember) {
+				return { success: false, error: "Unauthorized" };
+			}
+
 			let result;
 			if (parsedInput.draftId) {
 				// Update existing draft
+				const draft = await prisma.draft.findUnique({
+					where: { id: parsedInput.draftId },
+					select: { teamId: true },
+				});
+
+				if (!draft || draft.teamId !== parsedInput.teamId) {
+					return { success: false, error: "Unauthorized" };
+				}
+
 				result = await updateDraft(parsedInput.draftId, mapData);
 			} else {
 				// Create new draft - we need to get hackathonId from team
@@ -58,8 +86,38 @@ export const submitProjectAction = actionClient
 	.inputSchema(formSchema)
 	.action(async ({ parsedInput }) => {
 		try {
+			const session = await auth.api.getSession({ headers: await headers() });
+		
+			if (!session) {
+				return { success: false, error: "Unauthorized" };
+			}
+
+			if (!parsedInput.teamId) {
+				return { success: false, error: "Team ID is required" };
+			}
+
+			const isMember = await prisma.teamMember.findFirst({
+				where: {
+					teamId: parsedInput.teamId,
+					participantId: session.user.id,
+				},
+			});
+
+			if (!isMember) {
+				return { success: false, error: "Unauthorized" };
+			}
+
 			if (!parsedInput.draftId) {
 				return { success: false, error: "Draft ID is required for submission" };
+			}
+
+			const draft = await prisma.draft.findUnique({
+				where: { id: parsedInput.draftId },
+				select: { teamId: true },
+			});
+
+			if (!draft || draft.teamId !== parsedInput.teamId) {
+				return { success: false, error: "Unauthorized" };
 			}
 
 			const result = await createSubmissionFromDraft(parsedInput.draftId);
@@ -81,6 +139,28 @@ export const serverAction = actionClient
 	.inputSchema(formSchema)
 	.action(async ({ parsedInput }) => {
 		try {
+
+			const session = await auth.api.getSession({ headers: await headers() });
+		
+			if (!session) {
+				return { success: false, error: "Unauthorized" };
+			}
+
+			if (!parsedInput.teamId) {
+				return { success: false, error: "Team ID is required" };
+			}
+
+			const isMember = await prisma.teamMember.findFirst({
+				where: {
+					teamId: parsedInput.teamId,
+					participantId: session.user.id,
+				},
+			});
+
+			if (!isMember) {
+				return { success: false, error: "Unauthorized" };
+			}
+
 			const mapData: {
 				projectTitle: string;
 				miniDescription: string;
