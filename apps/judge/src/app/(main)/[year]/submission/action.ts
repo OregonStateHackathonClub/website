@@ -21,15 +21,24 @@ export async function createDraft(
 	const session = await auth.api.getSession({ headers: await headers() });
 		
 	if (!session) {
-		return { success: false, error: "Unauthorized" };
+		return { success: false, error: "Actions session Unauthorized" };
 	}
 	if (!teamId) {
 		return { success: false, error: "Team ID is required" };
 	}
+
+	const participant = await prisma.hackathonParticipant.findFirst({
+		where: { userId: session.user.id },
+	});
+
+	if (!participant) {
+		return { success: false, error: "Not a participant" };
+	}
+
 	const isMember = await prisma.teamMember.findFirst({
 		where: {
 			teamId: teamId,
-			participantId: session.user.id,
+			participantId: participant.id,
 		},
 	});
 	if (!isMember) {
@@ -75,15 +84,24 @@ export async function updateDraft(
 	const session = await auth.api.getSession({ headers: await headers() });
 		
 	if (!session) {
-		return { success: false, error: "Unauthorized" };
+		return { success: false, error: "Actions update draft session Unauthorized" };
 	}
+
+	const participant = await prisma.hackathonParticipant.findFirst({
+		where: { userId: session.user.id },
+	});
+
+	if (!participant) {
+		return { success: false, error: "Not a participant" };
+	}
+
 	const draft = await prisma.draft.findFirst({
 		where: {
 			id: draftId,
 			team: {
 			members: {
 				some: {
-					participantId: session.user.id,
+					participantId: participant.id,
 				},
 			},
 		},
@@ -95,7 +113,7 @@ export async function updateDraft(
 	});
 
 	if (!draft) {
-		return { success: false, error: "Unauthorized" };
+		return { success: false, error: "actions draft Unauthorized" };
 	}
 
 	try {
@@ -129,13 +147,22 @@ export async function createSubmissionFromDraft(
 	if (!session) {
 		return { success: false, error: "Unauthorized" };
 	}
+
+	const participant = await prisma.hackathonParticipant.findFirst({
+		where: { userId: session.user.id },
+	});
+
+	if (!participant) {
+		return { success: false, error: "Not a participant" };
+	}
+
 	const draftcheck = await prisma.draft.findFirst({
 		where: {
 			id: draftId,
 			team: {
 			members: {
 				some: {
-					participantId: session.user.id,
+					participantId: participant.id,
 				},
 			},
 		},
@@ -228,13 +255,21 @@ export async function updateData(
 		return { success: false, error: "Unauthorized" };
 	}
 
+	const participant = await prisma.hackathonParticipant.findFirst({
+		where: { userId: session.user.id },
+	});
+
+	if (!participant) {
+		return { success: false, error: "Not a participant" };
+	}
+
 	const submissioncheck = await prisma.submission.findFirst({
 		where: {
 			id: submissionId,
 			team: {
 			members: {
 				some: {
-					participantId: session.user.id,
+					participantId: participant.id,
 				},
 			},
 		},
@@ -302,10 +337,19 @@ export async function sendData(data: {
 	if (!data.teamId) {
 		return { success: false, error: "Team ID is required" };
 	}
+
+	const participant = await prisma.hackathonParticipant.findFirst({
+		where: { userId: session.user.id },
+	});
+
+	if (!participant) {
+		return { success: false, error: "Not a participant" };
+	}
+
 	const isMember = await prisma.teamMember.findFirst({
 		where: {
 			teamId: data.teamId,
-			participantId: session.user.id,
+			participantId: participant.id,
 		},
 	});
 	if (!isMember) {

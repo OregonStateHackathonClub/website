@@ -13,7 +13,7 @@ export const saveDraftAction = actionClient
 		const session = await auth.api.getSession({ headers: await headers() });
 		
 		if (!session) {
-			return { success: false, error: "Unauthorized" };
+			return { success: false, error: "server actions session Unauthorized" };
 		}
 		try {
 			const mapData = {
@@ -30,15 +30,23 @@ export const saveDraftAction = actionClient
 				return { success: false, error: "Team ID is required" };
 			}
 
+			const participant = await prisma.hackathonParticipant.findFirst({
+				where: { userId: session.user.id },
+			});
+
+			if (!participant) {
+				return { success: false, error: "Not a participant" };
+			}
+
 			const isMember = await prisma.teamMember.findFirst({
 				where: {
 					teamId: parsedInput.teamId,
-					participantId: session.user.id,
+					participantId: participant.id,
 				},
 			});
 
 			if (!isMember) {
-				return { success: false, error: "Unauthorized" };
+				return { success: false, error: "is a member server action Unauthorized" };
 			}
 
 			let result;
@@ -96,10 +104,18 @@ export const submitProjectAction = actionClient
 				return { success: false, error: "Team ID is required" };
 			}
 
+			const participant = await prisma.hackathonParticipant.findFirst({
+				where: { userId: session.user.id },
+			});
+
+			if (!participant) {
+				return { success: false, error: "Not a participant" };
+			}
+
 			const isMember = await prisma.teamMember.findFirst({
 				where: {
 					teamId: parsedInput.teamId,
-					participantId: session.user.id,
+					participantId: participant.id,
 				},
 			});
 
@@ -150,10 +166,18 @@ export const serverAction = actionClient
 				return { success: false, error: "Team ID is required" };
 			}
 
+			const participant = await prisma.hackathonParticipant.findFirst({
+				where: { userId: session.user.id },
+			});
+
+			if (!participant) {
+				return { success: false, error: "Not a participant" };
+			}
+
 			const isMember = await prisma.teamMember.findFirst({
 				where: {
 					teamId: parsedInput.teamId,
-					participantId: session.user.id,
+					participantId: participant.id,
 				},
 			});
 
