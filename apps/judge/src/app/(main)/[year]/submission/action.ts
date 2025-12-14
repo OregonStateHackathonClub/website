@@ -21,7 +21,7 @@ export async function createDraft(
 	const session = await auth.api.getSession({ headers: await headers() });
 		
 	if (!session) {
-		return { success: false, error: "Actions session Unauthorized" };
+		return { success: false, error: "Session unauthorized" };
 	}
 	if (!teamId) {
 		return { success: false, error: "Team ID is required" };
@@ -42,7 +42,7 @@ export async function createDraft(
 		},
 	});
 	if (!isMember) {
-		return { success: false, error: "Unauthorized" };
+		return { success: false, error: "Unauthorized user, not a team member" };
 	}
 
 	try {
@@ -84,7 +84,7 @@ export async function updateDraft(
 	const session = await auth.api.getSession({ headers: await headers() });
 		
 	if (!session) {
-		return { success: false, error: "Actions update draft session Unauthorized" };
+		return { success: false, error: "Unauthorized session" };
 	}
 
 	const participant = await prisma.hackathonParticipant.findFirst({
@@ -113,7 +113,7 @@ export async function updateDraft(
 	});
 
 	if (!draft) {
-		return { success: false, error: "actions draft Unauthorized" };
+		return { success: false, error: "Unauthorized draft" };
 	}
 
 	try {
@@ -145,7 +145,7 @@ export async function createSubmissionFromDraft(
 	const session = await auth.api.getSession({ headers: await headers() });
 		
 	if (!session) {
-		return { success: false, error: "Unauthorized" };
+		return { success: false, error: "Unauthorized session" };
 	}
 
 	const participant = await prisma.hackathonParticipant.findFirst({
@@ -173,7 +173,7 @@ export async function createSubmissionFromDraft(
 		},
 	});
 	if (!draftcheck) {
-		return { success: false, error: "Unauthorized" };
+		return { success: false, error: "Unauthorized draft" };
 	}
 
 	try {
@@ -252,7 +252,7 @@ export async function updateData(
 	const session = await auth.api.getSession({ headers: await headers() });
 		
 	if (!session) {
-		return { success: false, error: "Unauthorized" };
+		return { success: false, error: "Unauthorized session" };
 	}
 
 	const participant = await prisma.hackathonParticipant.findFirst({
@@ -280,7 +280,7 @@ export async function updateData(
 		},
 	});
 	if (!submissioncheck) {
-		return { success: false, error: "Unauthorized" };
+		return { success: false, error: "Unauthorized submission" };
 	}
 
 	try {
@@ -331,7 +331,7 @@ export async function sendData(data: {
 	const session = await auth.api.getSession({ headers: await headers() });
 		
 	if (!session) {
-		return { success: false, error: "Unauthorized" };
+		return { success: false, error: "Unauthorized session" };
 	}
 
 	if (!data.teamId) {
@@ -353,7 +353,7 @@ export async function sendData(data: {
 		},
 	});
 	if (!isMember) {
-		return { success: false, error: "Unauthorized" };
+		return { success: false, error: "Unauthorized team member" };
 	}
 	// Read JSON data from the submission form
 	try {

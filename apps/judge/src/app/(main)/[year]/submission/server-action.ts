@@ -13,7 +13,7 @@ export const saveDraftAction = actionClient
 		const session = await auth.api.getSession({ headers: await headers() });
 		
 		if (!session) {
-			return { success: false, error: "server actions session Unauthorized" };
+			return { success: false, error: "Unauthorized session" };
 		}
 		try {
 			const mapData = {
@@ -46,7 +46,7 @@ export const saveDraftAction = actionClient
 			});
 
 			if (!isMember) {
-				return { success: false, error: "is a member server action Unauthorized" };
+				return { success: false, error: "Unauthorized team member" };
 			}
 
 			let result;
@@ -58,7 +58,7 @@ export const saveDraftAction = actionClient
 				});
 
 				if (!draft || draft.teamId !== parsedInput.teamId) {
-					return { success: false, error: "Unauthorized" };
+					return { success: false, error: "Unauthorized draft" };
 				}
 
 				result = await updateDraft(parsedInput.draftId, mapData);
@@ -97,7 +97,7 @@ export const submitProjectAction = actionClient
 			const session = await auth.api.getSession({ headers: await headers() });
 		
 			if (!session) {
-				return { success: false, error: "Unauthorized" };
+				return { success: false, error: "Unauthorized session" };
 			}
 
 			if (!parsedInput.teamId) {
@@ -120,7 +120,7 @@ export const submitProjectAction = actionClient
 			});
 
 			if (!isMember) {
-				return { success: false, error: "Unauthorized" };
+				return { success: false, error: "Unauthorized team member" };
 			}
 
 			if (!parsedInput.draftId) {
@@ -133,7 +133,7 @@ export const submitProjectAction = actionClient
 			});
 
 			if (!draft || draft.teamId !== parsedInput.teamId) {
-				return { success: false, error: "Unauthorized" };
+				return { success: false, error: "Unauthorized draft" };
 			}
 
 			const result = await createSubmissionFromDraft(parsedInput.draftId);
@@ -159,7 +159,7 @@ export const serverAction = actionClient
 			const session = await auth.api.getSession({ headers: await headers() });
 		
 			if (!session) {
-				return { success: false, error: "Unauthorized" };
+				return { success: false, error: "Unauthorized session" };
 			}
 
 			if (!parsedInput.teamId) {
@@ -182,7 +182,7 @@ export const serverAction = actionClient
 			});
 
 			if (!isMember) {
-				return { success: false, error: "Unauthorized" };
+				return { success: false, error: "Unauthorized team member" };
 			}
 
 			const mapData: {
