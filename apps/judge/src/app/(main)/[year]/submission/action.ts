@@ -21,7 +21,7 @@ export async function createDraft(
 	const session = await auth.api.getSession({ headers: await headers() });
 		
 	if (!session) {
-		return { success: false, error: "Session unauthorized" };
+		return { success: false, error: "Session unauthorized"};
 	}
 	if (!teamId) {
 		return { success: false, error: "Team ID is required" };
