@@ -449,8 +449,7 @@ export default function SponsorsPage() {
                                             className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-osu-orange/10 text-osu-orange border border-osu-orange/20"
                                           >
                                             {track.name}
-                                            {track.prize &&
-                                              ` - ${track.prize}`}
+                                            {track.prize && ` - ${track.prize}`}
                                           </span>
                                         ))}
                                       </div>

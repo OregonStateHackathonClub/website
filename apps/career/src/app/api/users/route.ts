@@ -20,8 +20,7 @@ export async function GET() {
                   include: {
                     submission: {
                       include: {
-                        tracks: true
-                        },
+                        tracks: true,
                       },
                     },
                   },
@@ -30,7 +29,8 @@ export async function GET() {
             },
           },
         },
-      });
+      },
+    });
 
     return NextResponse.json({ success: true, users });
   } catch (error) {
