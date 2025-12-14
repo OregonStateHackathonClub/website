@@ -2,6 +2,8 @@
 
 import { randomUUID } from "node:crypto";
 import { prisma } from "@repo/database";
+import { auth } from "@repo/auth";
+import { headers } from "next/headers";
 
 export async function createDraft(
 	teamId: string,
@@ -16,6 +18,24 @@ export async function createDraft(
 		tracks?: { id: string }[];
 	},
 ) {
+	const session = await auth.api.getSession({ headers: await headers() });
+		
+	if (!session) {
+		return { success: false, error: "Unauthorized" };
+	}
+	if (!teamId) {
+		return { success: false, error: "Team ID is required" };
+	}
+	const isMember = await prisma.teamMember.findFirst({
+		where: {
+			teamId: teamId,
+			participantId: session.user.id,
+		},
+	});
+	if (!isMember) {
+		return { success: false, error: "Unauthorized" };
+	}
+
 	try {
 		const draft = await prisma.draft.create({
 			data: {
@@ -51,6 +71,33 @@ export async function updateDraft(
 		tracks?: { id: string }[]
 	},
 ) {
+
+	const session = await auth.api.getSession({ headers: await headers() });
+		
+	if (!session) {
+		return { success: false, error: "Unauthorized" };
+	}
+	const draft = await prisma.draft.findFirst({
+		where: {
+			id: draftId,
+			team: {
+			members: {
+				some: {
+					participantId: session.user.id,
+				},
+			},
+		},
+	},
+		select: {
+			id: true,
+			teamId: true,
+		},
+	});
+
+	if (!draft) {
+		return { success: false, error: "Unauthorized" };
+	}
+
 	try {
 		const updatedDraft = await prisma.draft.update({
 			where: { id: draftId },
@@ -77,14 +124,37 @@ export async function updateDraft(
 export async function createSubmissionFromDraft(
 	draftId: string,
 ) {
+	const session = await auth.api.getSession({ headers: await headers() });
+		
+	if (!session) {
+		return { success: false, error: "Unauthorized" };
+	}
+	const draftcheck = await prisma.draft.findFirst({
+		where: {
+			id: draftId,
+			team: {
+			members: {
+				some: {
+					participantId: session.user.id,
+				},
+			},
+		},
+	},
+		select: {
+			id: true,
+			teamId: true,
+		},
+	});
+	if (!draftcheck) {
+		return { success: false, error: "Unauthorized" };
+	}
+
 	try {
 		const draft = await prisma.draft.findUnique({
 			where: { id: draftId },
-			include: { tracks: {select: { id: true, name: true },
-    },
- },
+				include: { tracks: {select: { id: true, name: true },},
+ 				},
 		});
-
 		if (!draft) {
 			return { success: false, error: "Draft not found" };
 		}
@@ -152,6 +222,32 @@ export async function updateData(
 		tracks?: { id: string }[];
 	},
 ) {
+	const session = await auth.api.getSession({ headers: await headers() });
+		
+	if (!session) {
+		return { success: false, error: "Unauthorized" };
+	}
+
+	const submissioncheck = await prisma.submission.findFirst({
+		where: {
+			id: submissionId,
+			team: {
+			members: {
+				some: {
+					participantId: session.user.id,
+				},
+			},
+		},
+	},
+		select: {
+			id: true,
+			teamId: true,
+		},
+	});
+	if (!submissioncheck) {
+		return { success: false, error: "Unauthorized" };
+	}
+
 	try {
 		const updateSubmission = await prisma.submission.update({
 			where: { id: submissionId },
@@ -197,6 +293,24 @@ export async function sendData(data: {
 	teamId?: string | null;
 	tracks?: { id: string }[];
 }) {
+	const session = await auth.api.getSession({ headers: await headers() });
+		
+	if (!session) {
+		return { success: false, error: "Unauthorized" };
+	}
+
+	if (!data.teamId) {
+		return { success: false, error: "Team ID is required" };
+	}
+	const isMember = await prisma.teamMember.findFirst({
+		where: {
+			teamId: data.teamId,
+			participantId: session.user.id,
+		},
+	});
+	if (!isMember) {
+		return { success: false, error: "Unauthorized" };
+	}
 	// Read JSON data from the submission form
 	try {
 		// Determine hackathonId from the team when possible
