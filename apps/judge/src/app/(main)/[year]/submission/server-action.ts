@@ -2,19 +2,20 @@
 import { createDraft, createSubmissionFromDraft, sendData, updateData, updateDraft } from "./action";
 import { actionClient } from "./safeAction";
 import { formSchema } from "./schema";
-import { auth } from "@repo/auth";
-import { headers } from "next/headers";
 import { prisma } from "@repo/database";
+import { verifySubmissionUserTeam } from "./auth-actions";
 
 // Action for saving drafts (used during form editing)
 export const saveDraftAction = actionClient
 	.inputSchema(formSchema)
 	.action(async ({ parsedInput }) => {
-		const session = await auth.api.getSession({ headers: await headers() });
-		
-		if (!session) {
-			return { success: false, error: "Unauthorized session" };
+		if (!parsedInput.teamId) {
+			return { success: false, error: "Team ID is required" };
 		}
+
+		const verifyUser = await verifySubmissionUserTeam(parsedInput.teamId);
+		if(!verifyUser) return { success: false, error: "User unauthorized" };
+
 		try {
 			const mapData = {
 				projectTitle: parsedInput.name,
@@ -25,29 +26,6 @@ export const saveDraftAction = actionClient
 				uploadPhotos: parsedInput.photos || [],
 				tracks: parsedInput.tracks?.map((id) => ({ id })) || [],
 			};
-
-			if (!parsedInput.teamId) {
-				return { success: false, error: "Team ID is required" };
-			}
-
-			const participant = await prisma.hackathonParticipant.findFirst({
-				where: { userId: session.user.id },
-			});
-
-			if (!participant) {
-				return { success: false, error: "Not a participant" };
-			}
-
-			const isMember = await prisma.teamMember.findFirst({
-				where: {
-					teamId: parsedInput.teamId,
-					participantId: participant.id,
-				},
-			});
-
-			if (!isMember) {
-				return { success: false, error: "Unauthorized team member" };
-			}
 
 			let result;
 			if (parsedInput.draftId) {
@@ -94,34 +72,12 @@ export const submitProjectAction = actionClient
 	.inputSchema(formSchema)
 	.action(async ({ parsedInput }) => {
 		try {
-			const session = await auth.api.getSession({ headers: await headers() });
-		
-			if (!session) {
-				return { success: false, error: "Unauthorized session" };
-			}
-
 			if (!parsedInput.teamId) {
 				return { success: false, error: "Team ID is required" };
 			}
 
-			const participant = await prisma.hackathonParticipant.findFirst({
-				where: { userId: session.user.id },
-			});
-
-			if (!participant) {
-				return { success: false, error: "Not a participant" };
-			}
-
-			const isMember = await prisma.teamMember.findFirst({
-				where: {
-					teamId: parsedInput.teamId,
-					participantId: participant.id,
-				},
-			});
-
-			if (!isMember) {
-				return { success: false, error: "Unauthorized team member" };
-			}
+			const verifyUser = await verifySubmissionUserTeam(parsedInput.teamId);
+			if(!verifyUser) return { success: false, error: "User unauthorized" };
 
 			if (!parsedInput.draftId) {
 				return { success: false, error: "Draft ID is required for submission" };
@@ -156,34 +112,12 @@ export const serverAction = actionClient
 	.action(async ({ parsedInput }) => {
 		try {
 
-			const session = await auth.api.getSession({ headers: await headers() });
-		
-			if (!session) {
-				return { success: false, error: "Unauthorized session" };
-			}
-
 			if (!parsedInput.teamId) {
 				return { success: false, error: "Team ID is required" };
 			}
 
-			const participant = await prisma.hackathonParticipant.findFirst({
-				where: { userId: session.user.id },
-			});
-
-			if (!participant) {
-				return { success: false, error: "Not a participant" };
-			}
-
-			const isMember = await prisma.teamMember.findFirst({
-				where: {
-					teamId: parsedInput.teamId,
-					participantId: participant.id,
-				},
-			});
-
-			if (!isMember) {
-				return { success: false, error: "Unauthorized team member" };
-			}
+			const verifyUser = await verifySubmissionUserTeam(parsedInput.teamId);
+			if(!verifyUser) return { success: false, error: "User unauthorized" };
 
 			const mapData: {
 				projectTitle: string;
