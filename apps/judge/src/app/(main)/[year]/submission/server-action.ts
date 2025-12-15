@@ -2,11 +2,20 @@
 import { createDraft, createSubmissionFromDraft, sendData, updateData, updateDraft } from "./action";
 import { actionClient } from "./safeAction";
 import { formSchema } from "./schema";
+import { prisma } from "@repo/database";
+import { verifySubmissionUserTeam } from "./auth-actions";
 
 // Action for saving drafts (used during form editing)
 export const saveDraftAction = actionClient
 	.inputSchema(formSchema)
 	.action(async ({ parsedInput }) => {
+		if (!parsedInput.teamId) {
+			return { success: false, error: "Team ID is required" };
+		}
+
+		const verifyUser = await verifySubmissionUserTeam(parsedInput.teamId);
+		if(!verifyUser) return { success: false, error: "User unauthorized" };
+
 		try {
 			const mapData = {
 				projectTitle: parsedInput.name,
@@ -18,13 +27,18 @@ export const saveDraftAction = actionClient
 				tracks: parsedInput.tracks?.map((id) => ({ id })) || [],
 			};
 
-			if (!parsedInput.teamId) {
-				return { success: false, error: "Team ID is required" };
-			}
-
 			let result;
 			if (parsedInput.draftId) {
 				// Update existing draft
+				const draft = await prisma.draft.findUnique({
+					where: { id: parsedInput.draftId },
+					select: { teamId: true },
+				});
+
+				if (!draft || draft.teamId !== parsedInput.teamId) {
+					return { success: false, error: "Unauthorized draft" };
+				}
+
 				result = await updateDraft(parsedInput.draftId, mapData);
 			} else {
 				// Create new draft - we need to get hackathonId from team
@@ -58,8 +72,24 @@ export const submitProjectAction = actionClient
 	.inputSchema(formSchema)
 	.action(async ({ parsedInput }) => {
 		try {
+			if (!parsedInput.teamId) {
+				return { success: false, error: "Team ID is required" };
+			}
+
+			const verifyUser = await verifySubmissionUserTeam(parsedInput.teamId);
+			if(!verifyUser) return { success: false, error: "User unauthorized" };
+
 			if (!parsedInput.draftId) {
 				return { success: false, error: "Draft ID is required for submission" };
+			}
+
+			const draft = await prisma.draft.findUnique({
+				where: { id: parsedInput.draftId },
+				select: { teamId: true },
+			});
+
+			if (!draft || draft.teamId !== parsedInput.teamId) {
+				return { success: false, error: "Unauthorized draft" };
 			}
 
 			const result = await createSubmissionFromDraft(parsedInput.draftId);
@@ -81,6 +111,14 @@ export const serverAction = actionClient
 	.inputSchema(formSchema)
 	.action(async ({ parsedInput }) => {
 		try {
+
+			if (!parsedInput.teamId) {
+				return { success: false, error: "Team ID is required" };
+			}
+
+			const verifyUser = await verifySubmissionUserTeam(parsedInput.teamId);
+			if(!verifyUser) return { success: false, error: "User unauthorized" };
+
 			const mapData: {
 				projectTitle: string;
 				miniDescription: string;
