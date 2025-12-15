@@ -3,17 +3,23 @@ import { auth } from "@repo/auth";
 import { headers } from "next/headers";
 import { prisma } from "@repo/database";
 
-export async function verifySubmissionUserTeam(teamId: string){
+export async function getPaticipant(){
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session) {
-        return false;
+        return null;
     }
     const participant = await prisma.hackathonParticipant.findFirst({
         where: { userId: session.user.id },
     });
     if (!participant) {
-        return false;
+        return null;
     }
+    return participant
+}
+
+export async function verifySubmissionUserTeam(teamId: string){
+    const participant = await getPaticipant();
+    if(!participant) return false;
     const isMember = await prisma.teamMember.findFirst({
         where: {
             teamId: teamId,
@@ -27,19 +33,8 @@ export async function verifySubmissionUserTeam(teamId: string){
 }
 
 export async function verifySubmissionUserDraft(draftId: string){
-    const session = await auth.api.getSession({ headers: await headers() });
-		
-	if (!session) {
-		return false;
-	}
-
-	const participant = await prisma.hackathonParticipant.findFirst({
-		where: { userId: session.user.id },
-	});
-
-	if (!participant) {
-		return { success: false, error: "Not a participant" };
-	}
+   const participant = await getPaticipant();
+    if(!participant) return false;
 
 	const draft = await prisma.draft.findFirst({
 		where: {
@@ -65,19 +60,8 @@ export async function verifySubmissionUserDraft(draftId: string){
 }
 
 export async function verifySubmissionUserSubmission(submissionId: string){
-    const session = await auth.api.getSession({ headers: await headers() });
-		
-	if (!session) {
-		return false;
-	}
-
-	const participant = await prisma.hackathonParticipant.findFirst({
-		where: { userId: session.user.id },
-	});
-
-	if (!participant) {
-		return { success: false, error: "Not a participant" };
-	}
+    const participant = await getPaticipant();
+    if(!participant) return false;
 
 	const draft = await prisma.draft.findFirst({
 		where: {
