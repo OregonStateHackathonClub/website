@@ -2,6 +2,19 @@
 
 import { randomUUID } from "node:crypto";
 import { prisma } from "@repo/database";
+import { 
+	verifySubmissionUserTeam, 
+	verifySubmissionUserDraft,
+	verifySubmissionUserSubmission } from "./auth-actions";
+import {
+	createDraftSchema,
+	updateDraftSchema,
+	createSubmissionFromDraftSchema,
+	completeDraftSchema,
+	updateDataSchema,
+	sendDataSchema,
+} from "./mutator-schemas";
+import { z } from "zod";
 
 export async function createDraft(
 	teamId: string,
@@ -16,6 +29,22 @@ export async function createDraft(
 		tracks?: { id: string }[];
 	},
 ) {
+	// Validate input with Zod
+	try {
+		const validated = createDraftSchema.parse({ teamId, hackathonId, data });
+		teamId = validated.teamId;
+		hackathonId = validated.hackathonId;
+		data = validated.data;
+	} catch (error) {
+		if (error instanceof z.ZodError) {
+			return { success: false, error: error.errors[0]?.message || "Validation failed" };
+		}
+		return { success: false, error: "Invalid input" };
+	}
+
+	const verifyUser = await verifySubmissionUserTeam(teamId);
+	if(!verifyUser) return { success: false, error: "User unauthorized" };
+
 	try {
 		const draft = await prisma.draft.create({
 			data: {
@@ -51,6 +80,21 @@ export async function updateDraft(
 		tracks?: { id: string }[]
 	},
 ) {
+	// Validate input with Zod
+	try {
+		const validated = updateDraftSchema.parse({ draftId, data });
+		draftId = validated.draftId;
+		data = validated.data;
+	} catch (error) {
+		if (error instanceof z.ZodError) {
+			return { success: false, error: error.errors[0]?.message || "Validation failed" };
+		}
+		return { success: false, error: "Invalid input" };
+	}
+
+	const verifyUser = await verifySubmissionUserDraft(draftId);
+	if(!verifyUser) return { success: false, error: "User unauthorized" };
+
 	try {
 		const updatedDraft = await prisma.draft.update({
 			where: { id: draftId },
@@ -77,16 +121,43 @@ export async function updateDraft(
 export async function createSubmissionFromDraft(
 	draftId: string,
 ) {
+	// Validate input with Zod
+	try {
+		const validated = createSubmissionFromDraftSchema.parse({ draftId });
+		draftId = validated.draftId;
+	} catch (error) {
+		if (error instanceof z.ZodError) {
+			return { success: false, error: error.errors[0]?.message || "Validation failed" };
+		}
+		return { success: false, error: "Invalid input" };
+	}
+
+	const verifyUser = await verifySubmissionUserDraft(draftId);
+	if(!verifyUser) return { success: false, error: "User unauthorized" };
+
 	try {
 		const draft = await prisma.draft.findUnique({
 			where: { id: draftId },
-			include: { tracks: {select: { id: true, name: true },
-    },
- },
+				include: { tracks: {select: { id: true, name: true },},
+ 				},
 		});
-
 		if (!draft) {
 			return { success: false, error: "Draft not found" };
+		}
+
+		// Validate draft has all required fields before converting to submission
+		const validationResult = completeDraftSchema.safeParse({
+			name: draft.name,
+			tagline: draft.tagline,
+			description: draft.description,
+		});
+
+		if (!validationResult.success) {
+			const firstError = validationResult.error.errors[0];
+			return { 
+				success: false, 
+				error: `Cannot submit incomplete draft: ${firstError?.message || "Missing required fields"}` 
+			};
 		}
 
 		// Upsert submission: create if doesn't exist, update if it does
@@ -152,6 +223,21 @@ export async function updateData(
 		tracks?: { id: string }[];
 	},
 ) {
+	// Validate input with Zod
+	try {
+		const validated = updateDataSchema.parse({ submissionId, data });
+		submissionId = validated.submissionId;
+		data = validated.data;
+	} catch (error) {
+		if (error instanceof z.ZodError) {
+			return { success: false, error: error.errors[0]?.message || "Validation failed" };
+		}
+		return { success: false, error: "Invalid input" };
+	}
+
+	const verifyUser = await verifySubmissionUserSubmission(submissionId);
+	if(!verifyUser) return { success: false, error: "User unauthorized" };
+
 	try {
 		const updateSubmission = await prisma.submission.update({
 			where: { id: submissionId },
@@ -197,6 +283,23 @@ export async function sendData(data: {
 	teamId?: string | null;
 	tracks?: { id: string }[];
 }) {
+	// Validate input with Zod
+	try {
+		const validated = sendDataSchema.parse(data);
+		data = validated;
+	} catch (error) {
+		if (error instanceof z.ZodError) {
+			return { success: false, error: error.errors[0]?.message || "Validation failed" };
+		}
+		return { success: false, error: "Invalid input" };
+	}
+
+	if (!data.teamId) {
+		return { success: false, error: "Team ID is required" };
+	}
+	const verifyUser = await verifySubmissionUserTeam(data.teamId);
+	if(!verifyUser) return { success: false, error: "User unauthorized" };
+
 	// Read JSON data from the submission form
 	try {
 		// Determine hackathonId from the team when possible
