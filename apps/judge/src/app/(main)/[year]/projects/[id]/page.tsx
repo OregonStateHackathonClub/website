@@ -99,15 +99,16 @@ export default async function ProjectPage(props: {
 
                     <div className="mb-8 flex gap-6">
                         <div className="flex grow flex-col gap-2">
-                                <div className="w-full aspect-video overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900">                                <ImageCarousel
-                                    altText={`${submission.name} showcase`}
-                                    imageUrls={
-                                        submission.images?.length > 0
-                                            ? submission.images
-                                            : ["/placeholder_project.png"]
-                                    }
-                                />
-                            </div>
+                                <div className="w-full aspect-video overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900">
+                                    <ImageCarousel
+                                        altText={`${submission.name} showcase`}
+                                        imageUrls={
+                                            submission.images?.length > 0
+                                                ? submission.images
+                                                : ["/placeholder_project.png"]
+                                        }
+                                    />
+                                </div>
                             <Card className="rounded-2xl border border-neutral-800 bg-neutral-900/60">
                                 <CardHeader>
                                     <CardTitle className="text-lg text-white">
