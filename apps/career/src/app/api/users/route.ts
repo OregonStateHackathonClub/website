@@ -20,11 +20,7 @@ export async function GET() {
                   include: {
                     submission: {
                       include: {
-                        submissionTracks: {
-                          include: {
-                            track: true,
-                          },
-                        },
+                        tracks: true,
                       },
                     },
                   },
@@ -36,7 +32,7 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json({ users });
+    return NextResponse.json({ success: true, users });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
