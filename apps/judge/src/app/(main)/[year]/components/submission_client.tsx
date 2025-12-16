@@ -109,7 +109,8 @@ export default function SubmissionsClient({
 						<span className="inline-flex items-center rounded-full border border-neutral-800 bg-neutral-900/60 px-3 py-1 text-neutral-300 text-s tracking-wide">
 							Oregon State University
 						</span>
-						<h1 className="bg-gradient-to-r from-white via-orange-100 to-orange-500 bg-clip-text text-4xl font-extrabold tracking-tight text-transparent drop-shadow-sm sm:text-5xl md:text-6xl">							BeaverHacks {year}
+						<h1 className="bg-gradient-to-r from-white via-orange-100 to-orange-500 bg-clip-text text-4xl font-extrabold tracking-tight text-transparent drop-shadow-sm sm:text-5xl md:text-6xl">
+							BeaverHacks {year}
 						</h1>
 						<p className="max-w-2xl text-neutral-300 text-sm sm:text-base">
 							Explore projects, filter by track, and discover this year’s
