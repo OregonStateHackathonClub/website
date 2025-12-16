@@ -1,0 +1,176 @@
+/* BeaverHacks 2026 CRT Terminal Theme */
+
+@theme {
+  /* primary colors */
+  --color-amber-bright: #ffaa00;
+  --color-amber-normal: #cc8800;
+  --color-amber-dim: #996600;
+  --color-amber-muted: #664400;
+
+  /* background colors */
+  --color-screen-dark: #121212;
+  --color-screen-overlay: #1c1c1c;
+
+  /* typography */
+  --font-primary: var(--font-vt323), monospace;
+  --font-secondary: var(--font-ibm-plex-mono), monospace;
+}
+
+:root {
+  /* text Shadows */
+  --text-glow-base:
+    0 0 10px rgba(255, 170, 0, 0.8), 0 0 20px rgba(255, 136, 0, 0.4);
+  --text-glow-hover:
+    0 0 15px rgba(255, 170, 0, 0.9), 0 0 30px rgba(255, 136, 0, 0.6);
+  --text-glow-intense:
+    0 0 20px rgba(255, 170, 0, 1), 0 0 40px rgba(255, 136, 0, 1),
+    0 0 60px rgba(255, 136, 0, 0.7);
+
+  /* screen Effects */
+  --screen-shadow:
+    inset 0 0 120px rgba(0, 0, 0, 0.9), 0 0 40px rgba(255, 136, 0, 0.08);
+  --scanline: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 1px,
+    rgba(0, 0, 0, 0.3) 1px,
+    rgba(0, 0, 0, 0.3) 2px
+  );
+  --vignette: radial-gradient(
+    ellipse at center,
+    rgba(255, 170, 0, 0.05) 0%,
+    transparent 60%
+  );
+
+  /* override shadcn variables */
+  --background: #0a0600;
+  --foreground: #cc8800;
+  --card: #1a0f00;
+  --card-foreground: #cc8800;
+  --popover: #1a0f00;
+  --popover-foreground: #cc8800;
+  --primary: #ffaa00;
+  --primary-foreground: #0a0600;
+  --secondary: #1a0f00;
+  --secondary-foreground: #cc8800;
+  --muted: #1a0f00;
+  --muted-foreground: #996600;
+  --accent: #1a0f00;
+  --accent-foreground: #ffaa00;
+  --destructive: #ff4400;
+  --border: #996600;
+  --input: #996600;
+  --ring: #ffaa00;
+}
+
+/* text glow */
+@utility text-glow-base {
+  text-shadow: var(--text-glow-base);
+}
+
+@utility text-glow-hover {
+  text-shadow: var(--text-glow-hover);
+}
+
+@utility text-glow-intense {
+  text-shadow: var(--text-glow-intense);
+}
+
+/* CRT screen effect */
+@utility crt-screen {
+  background-color: var(--color-screen-dark);
+  border-radius: 0.5rem;
+  position: relative;
+}
+
+.crt-scanlines::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--scanline);
+  pointer-events: none;
+  z-index: 10;
+  border-radius: inherit;
+}
+
+.crt-vignette::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--vignette);
+  pointer-events: none;
+  z-index: 11;
+  border-radius: inherit;
+}
+
+/* page transition */
+@keyframes flicker-out {
+  0% {
+    opacity: 1;
+  }
+  15% {
+    opacity: 0.4;
+  }
+  30% {
+    opacity: 0.8;
+  }
+  45% {
+    opacity: 0.2;
+  }
+  60% {
+    opacity: 0.6;
+  }
+  75% {
+    opacity: 0.1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@utility animate-flicker-out {
+  animation: flicker-out 150ms ease-out forwards;
+}
+
+@utility animate-fade-in {
+  animation: fade-in 100ms ease-in forwards;
+}
+
+/* blinking cursor */
+@keyframes blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@utility animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+.scrollbar-hide {
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* selection */
+::selection {
+  background: var(--color-amber-bright);
+  color: var(--color-screen-dark);
+}
