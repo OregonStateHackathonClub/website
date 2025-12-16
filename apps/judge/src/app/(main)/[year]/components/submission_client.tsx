@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Filter } from "lucide-react";
-import { MultiSelect, MultiSelectOption } from "@/components/multi-select";
+import { MultiSelect} from "@/components/multi-select";
 
 import SubmissionCard from "@/components/submissionCard";
 import Image from "next/image";
