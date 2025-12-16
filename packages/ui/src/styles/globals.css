@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "../../../../apps/beaverhacks/src/styles/theme.css";
 @source "../../../apps/**/*.{ts,tsx}";
 @source "../../../components/**/*.{ts,tsx}";
 @source "../**/*.{ts,tsx}";
