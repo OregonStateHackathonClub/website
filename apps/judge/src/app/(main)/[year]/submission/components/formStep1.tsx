@@ -278,7 +278,7 @@ export default function StepOne({ form, availableTracks }: { form: FormType; ava
                                             ref={inputRef}
                                             type="file"
                                             multiple
-                                            accept="image/png,image/jpeg,image/webp,application/pdf"
+                                            accept="image/png,image/jpeg,image/webp"
                                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                             disabled={isUploading}
                                             onChange={(e) =>
