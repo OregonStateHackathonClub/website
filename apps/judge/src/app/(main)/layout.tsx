@@ -6,6 +6,9 @@ import { auth } from "@repo/auth";
 import { headers } from "next/headers";
 import { prisma } from "@repo/database";
 
+// Force dynamic rendering since this layout requires database access
+export const dynamic = 'force-dynamic';
+
 export default async function Layout({ children }: { children: React.ReactNode }) {
     const currentHackathonId = await getCurrentHackathonId();
 

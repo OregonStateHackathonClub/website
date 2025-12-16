@@ -22,7 +22,7 @@ export function FancyCarousel({ imageUrls, altText }: FancyCarouselProps) {
 
         // Initialize Carousel
         // The Carousel class handles the mounting to the container.
-        type CarouselCtor = new (el: HTMLElement, options?: any) => { destroy: () => void };
+        type CarouselCtor = new (el: HTMLElement, options?: Record<string, unknown>) => { destroy: () => void };
         const CarouselClass = Carousel as unknown as CarouselCtor;
 
         const instance = new CarouselClass(container, {

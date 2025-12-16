@@ -2,6 +2,9 @@ import { headers } from "next/headers";
 import { unauthorized } from "next/navigation";
 import { auth } from "@repo/auth";
 
+// Force dynamic rendering since this layout requires auth
+export const dynamic = 'force-dynamic';
+
 export default async function Layout({
 	children,
 }: {

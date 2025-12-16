@@ -2,29 +2,44 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "@repo/database";
 
-// --- Environment Variable Validation ---
-const githubClientId = process.env.GITHUB_CLIENT_ID;
-const githubClientSecret = process.env.GITHUB_CLIENT_SECRET;
+// Lazy initialization to avoid requiring env vars at build time
+let _auth: ReturnType<typeof betterAuth> | null = null;
 
-if (!githubClientId || !githubClientSecret) {
-  throw new Error(
-    "Missing GitHub OAuth credentials in .env.local or deployment environment",
-  );
-}
-// ------------------------------------
+function getAuth() {
+  if (_auth) return _auth;
 
-export const auth = betterAuth({
-  socialProviders: {
-    github: {
-      clientId: githubClientId,
-      clientSecret: githubClientSecret,
+  // --- Environment Variable Validation ---
+  const githubClientId = process.env.GITHUB_CLIENT_ID;
+  const githubClientSecret = process.env.GITHUB_CLIENT_SECRET;
+
+  if (!githubClientId || !githubClientSecret) {
+    throw new Error(
+      "Missing GitHub OAuth credentials in .env.local or deployment environment",
+    );
+  }
+  // ------------------------------------
+
+  _auth = betterAuth({
+    socialProviders: {
+      github: {
+        clientId: githubClientId,
+        clientSecret: githubClientSecret,
+      },
     },
-  },
-  database: prismaAdapter(prisma, {
-    provider: "postgresql",
-  }),
-  emailAndPassword: {
-    enabled: true,
+    database: prismaAdapter(prisma, {
+      provider: "postgresql",
+    }),
+    emailAndPassword: {
+      enabled: true,
+    },
+  });
+
+  return _auth;
+}
+
+export const auth = new Proxy({} as ReturnType<typeof betterAuth>, {
+  get(target, prop) {
+    return getAuth()[prop as keyof ReturnType<typeof betterAuth>];
   },
 });
 
