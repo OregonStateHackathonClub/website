@@ -143,6 +143,14 @@ export default function UserInnerSheet({ user, hackathonId, setUser }: { user: U
         }
     }
 
+    function getDescription() {
+        const options = ["Meow.", "the Destroyer!", "just vibin..", "hardened criminal",
+            "01100001011001000110000101101101\n011000100110111101100010011010010110001101101000",
+            "the last code-bender", "nature's chosen", "fallen angel", "the 4th", "the fastest man alive",
+            "gone but not forgotten", "a fan favorite", "Pika Pika!", "undercover spy", "ascended one"]
+        return options[Math.floor(Math.random() * options.length)]
+    }
+
     return (
         user &&
 
@@ -150,7 +158,7 @@ export default function UserInnerSheet({ user, hackathonId, setUser }: { user: U
             <SheetHeader>
                 <SheetTitle>{user.name}</SheetTitle>
                 <SheetDescription>
-                    Description -- Work In Progress
+                    {getDescription()}
                 </SheetDescription>
             </SheetHeader>
             <div className="flex justify-between gap-2.5">
