@@ -11,6 +11,13 @@ interface TrackInput {
     hackathonId: string;
 }
 
+interface RubricInput {
+    name: string;
+    weight: number;
+    maxScore: number;
+    hackathonId: string;
+}
+
 export async function createTrack(formData: FormData) {
     const session = await auth.api.getSession({
         headers: await headers(),
@@ -42,4 +49,41 @@ export async function createTrack(formData: FormData) {
     });
 
     revalidatePath(`/console/${trackData.hackathonId}/tracks`);
+}
+
+export async function createRubric(formData: FormData) {
+    // Authentication and authorization checks
+     const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+
+    if (!session?.user) {
+        throw new Error("Unauthorized: Must be logged in");
+    }
+
+    const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { role: true }
+    });
+
+    if (user?.role !== "ADMIN") {
+        throw new Error("Unauthorized: Admin access required");
+    }
+
+    const rubricGrade = await prisma.track.findUnique({
+        where: {id: trackId},
+        include: {
+            rubric: {
+                include: {
+                    criteria: {
+                        include: {
+                            grade: true
+                        }
+                    }
+                }
+            }
+        }
+    })
+
+
 }
