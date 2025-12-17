@@ -1,5 +1,5 @@
 "use client";
-import { createJudge, removeJudge, setJudgeType, setSuperadmin, UserSearchResult } from "@/app/actions";
+import { createJudge, removeHackathonParticipant, removeJudge, removeUser, setJudgeType, setSuperadmin, UserSearchResult } from "@/app/actions";
 import React from "react";
 import { Button } from "@repo/ui/components/button";
 import { SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@repo/ui/components/sheet";
@@ -8,13 +8,14 @@ import { Switch } from "@repo/ui/components/switch";
 import { Label } from "@repo/ui/components/label";
 import { toast } from "sonner";
 
-export default function UserInnerSheet({ user, hackathonId, setUser }: { user: UserSearchResult, hackathonId: string, setUser: React.Dispatch<React.SetStateAction<UserSearchResult>>}) {
-    function getParticipant(user: UserSearchResult) {
+export default function UserInnerSheet({ user, hackathonId, setUser }: { user: UserSearchResult, hackathonId: string, setUser: React.Dispatch<React.SetStateAction<UserSearchResult | null>> }) {
+
+    function getParticipant() {
         return user.hackathonParticipants.find( (p) => p.hackathonId === hackathonId );
     }
 
-    async function addJudgeRole(user: UserSearchResult, role: JudgeRole) {
-        const participant = getParticipant(user)
+    async function addJudgeRole(role: JudgeRole) {
+        const participant = getParticipant()
         if (!participant) return
 
         let updatedUser: UserSearchResult = {
@@ -57,8 +58,8 @@ export default function UserInnerSheet({ user, hackathonId, setUser }: { user: U
         setUser(updatedUser);
     }
 
-    async function deleteJudge(user: UserSearchResult) {
-        const participant = getParticipant(user)
+    async function deleteJudge() {
+        const participant = getParticipant()
         if (!participant) return
 
         const updatedUser: UserSearchResult = {
@@ -78,8 +79,68 @@ export default function UserInnerSheet({ user, hackathonId, setUser }: { user: U
             return false
         }
         
-        await removeJudge(participant.judge.id)
-        return true
+        const res = await removeJudge(participant.judge.id)
+
+        if (res) {
+            toast.message("Successfully deleted judge")
+            return true
+        } else {
+            toast.error("Failed to  delete judge")
+            return false
+        }
+    }
+
+    async function deleteHackathonParticipant() {
+        const participant = getParticipant()
+        if (!participant) return
+
+        try {
+            setUser(prev => ({
+                ...prev!,
+                hackathonParticipants: prev!.hackathonParticipants.map(p =>
+                    p.id === participant.id ? { ...p, judge: null } : p
+                )
+            }));
+
+            const res =  await removeHackathonParticipant(participant.id)
+    
+            if (res) {
+                toast.message("Successfully deleted hackathon participant")
+                setUser(prev => ({
+                    ...prev!,
+                    hackathonParticipants: prev!.hackathonParticipants.filter(p => p.id !== participant.id)
+                }));
+                return true
+            } else {
+                throw new Error("Failed to delete hackathon participant");
+            }
+            
+        } catch (err) {
+            toast.error((err as Error).message);
+            setUser(user);
+            return false
+        }
+    }
+
+    async function deleteUser() {
+        if (!user) return false
+        const tempUser = user
+        try {
+            setUser(null)
+            const res = await removeUser(tempUser.id)
+    
+            if (!res) {
+                throw new Error("Failed to delete user");
+            }
+
+            toast.message("Successfully deleted user")
+            return true
+
+        } catch (err) {
+            toast.error((err as Error).message);
+            setUser(tempUser)
+            return false
+        }
     }
 
     return (
@@ -115,44 +176,43 @@ export default function UserInnerSheet({ user, hackathonId, setUser }: { user: U
             </div>
             { hackathonId &&
                 <>
-                    { getParticipant(user)?.judge ?
+                    { getParticipant()?.judge ?
                         <>
                             <div className="flex justify-between gap-2.5">
                                 <Label htmlFor={`${user.id}-judge-type`} className="w-15 flex justify-end flex-1" >Judge</Label>
                                 <Switch
                                     id={`${user.id}-judge-type`}
-                                    checked={ getParticipant(user)?.judge?.role === JudgeRole.MANAGER }
+                                    checked={ getParticipant()?.judge?.role === JudgeRole.MANAGER }
                                     onCheckedChange={async (checked) => {
                                         const role = checked ? JudgeRole.MANAGER : JudgeRole.JUDGE
 
-                                        addJudgeRole(user, role)
+                                        addJudgeRole(role)
                                     }} />
                                 <Label htmlFor={`${user.id}-judge-type`} className="flex-1" >Admin</Label>
                             </div>
                             <div className="flex justify-center">
-                                <Button variant={"destructive"} className="w-60" onClick={() => deleteJudge(user)}>
+                                <Button variant={"destructive"} className="w-60" onClick={() => deleteJudge()}>
                                     Delete Judge
                                 </Button>
                             </div>
                         </>
                     :
                         <div className="flex justify-center">
-                            <Button variant={"outline"} className="w-60" onClick={() => addJudgeRole(user, JudgeRole.JUDGE)}>
+                            <Button variant={"outline"} className="w-60" onClick={() => addJudgeRole(JudgeRole.JUDGE)}>
                                 Promote to Judge
                             </Button>
                         </div>
                     }
                     <div className="flex justify-center">
-                        <Button variant={"destructive"} className="w-60">
+                        <Button variant={"destructive"} className="w-60" onClick={() => deleteHackathonParticipant()}>
                             Delete Hackathon Participant
                         </Button>
                     </div>
                 </>
-
             }
 
             <div className="flex justify-center">
-                <Button variant={"destructive"} className="w-60">
+                <Button variant={"destructive"} className="w-60" onClick={() => deleteUser()}>
                     Delete User
                 </Button>
             </div>

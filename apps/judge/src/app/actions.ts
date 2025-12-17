@@ -494,8 +494,18 @@ export async function setSuperadmin(
 export async function removeUser(
 	id: string,
 ): Promise<boolean> {
-	// Require superadmin
-	return false;
+	try {
+    const user = await prisma.user.findUnique({ where: { id } })
+
+    if (!user) return false
+
+    if (!isAdmin()) return false;
+
+    await prisma.user.delete({ where: { id } })
+    return true
+  } catch {
+    return false
+  }
 }
 
 export type UserSearchResult = {
@@ -672,10 +682,7 @@ export async function createJudge(participantId: string, role: JudgeRole = Judge
 }
 
 export async function removeJudge(judgeId: string) {
-  // allow if they are an admin for the given hackathon
-  
   try {
-
     const judge = await prisma.judge.findUnique({
       where: { id: judgeId },
       include: {
@@ -692,6 +699,22 @@ export async function removeJudge(judgeId: string) {
         id: judgeId
       }
     })
+
+    return true
+  } catch {
+    return false
+  }
+}
+
+export async function removeHackathonParticipant(id: string) {
+  try {
+    const hackathon_participant = await prisma.hackathonParticipant.findUnique({ where: { id } })
+
+    if (!hackathon_participant) return false
+
+    if (!(isManager(hackathon_participant.hackathonId) || isAdmin())) return false;
+
+    await prisma.hackathonParticipant.delete({ where: { id } })
 
     return true
   } catch {
