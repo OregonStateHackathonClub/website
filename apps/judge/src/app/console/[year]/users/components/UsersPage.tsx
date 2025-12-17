@@ -139,7 +139,7 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 											</DropdownMenuTrigger>
 											<DropdownMenuContent>
 												<DropdownMenuItem onClick={() => copyString(user.id)}> Copy User ID</DropdownMenuItem>
-												{ list == judges &&
+												{ list === judges &&
 													<DropdownMenuItem onClick={() => toast.error("Not yet implemented")}> Regenerate Invite Link</DropdownMenuItem>
 												}
 											</DropdownMenuContent>

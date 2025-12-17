@@ -16,7 +16,6 @@ export default function UserOuterSheet({ currentUser, hackathonId, setAllUsers, 
     }, [currentUser]);
 
     useEffect(() => {
-        
         if (user && (!hackathonId || getParticipant(user))) {
             setAllUsers((prev: UserSearchResult[]) => 
                 prev.map(u => (u.id === user.id ? user : u))
