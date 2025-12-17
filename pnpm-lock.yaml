@@ -486,6 +486,9 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4.1.11
         version: 4.1.16
+      '@tailwindcss/typography':
+        specifier: ^0.5.19
+        version: 0.5.19(tailwindcss@4.1.16)
       '@turbo/gen':
         specifier: ^2.5.5
         version: 2.5.8(@types/node@20.19.23)(typescript@5.9.3)
