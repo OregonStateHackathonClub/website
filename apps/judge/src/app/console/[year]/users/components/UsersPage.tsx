@@ -61,29 +61,8 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 		try {
 			await navigator.clipboard.writeText(toCopy);
 			toast.success("Copied to clipboard");
-		} catch (err) {
+		} catch {
 			toast.error("Failed to copy text");
-		}
-	}
-
-	function getParticipant(user: UserSearchResult) {
-		const participant = user.hackathonParticipants.find( (p) => p.hackathonId === hackathonId );
-		return participant
-	}
-
-	async function deleteUser(judgeProfileId: string) {
-		const res = await removeUser(judgeProfileId);
-		if (!res) {
-			toast.error("Failed to delete user.");
-		}
-	}
-
-	async function modifySuperadmin(superAdminValue: boolean, judgeProfileId: string) {
-		const res = await setSuperadmin(superAdminValue, judgeProfileId)
-		if (res) {
-			fetchUsers();
-		} else {
-			toast.error(`Failed to ${superAdminValue ? "add" : "remove"} superadmin.`);
 		}
 	}
 	
