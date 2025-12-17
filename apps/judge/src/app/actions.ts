@@ -5,7 +5,7 @@ import { auth } from "@repo/auth";
 import { headers } from "next/headers";
 
 
-export async function isSuperadmin(): Promise<boolean> {
+export async function isAdmin(): Promise<boolean> {
   const session = await auth.api.getSession({ headers: await headers() });
 
   if (!session) {
@@ -23,6 +23,35 @@ export async function isSuperadmin(): Promise<boolean> {
   }
 
   return user.role == UserRole.ADMIN
+}
+
+export async function isManager(hackathonId: string): Promise<boolean> {
+  const session = await auth.api.getSession({ headers: await headers() });
+
+  if (!session) {
+    return false;
+  }
+
+  const hackathon_participant = await prisma.hackathonParticipant.findFirst({
+    where: {
+      userId: session.user.id,
+      hackathonId,
+    },
+    select: {
+      judge: {
+        select: {
+          role: true,
+          id: true
+        }
+      }
+    }
+  });
+
+  if (!hackathon_participant) {
+    return false;
+  }
+
+  return hackathon_participant.judge?.role == JudgeRole.MANAGER
 }
 
 // Return true if user is logged in and a part of the given team. Otherwise, returns false
@@ -446,7 +475,7 @@ export async function setSuperadmin(
 	userId: string,
 ): Promise<boolean> {
 
-  if (!isSuperadmin())
+  if (!isAdmin())
     return false
 
   await prisma.user.update({
@@ -485,7 +514,7 @@ export type UserSearchResult = {
 };
 
 export async function userSearch(search: string, hackathonId: string = "", role: UserRole | JudgeRole | null = null): Promise <UserSearchResult[] | false> {
-	if (!isSuperadmin()) return false;
+	if (!isAdmin()) return false;
   const users = await prisma.user.findMany({
     where: {
       AND: [
@@ -572,7 +601,7 @@ export async function userSearch(search: string, hackathonId: string = "", role:
 }
 
 export async function getJudgeType(userId: string, hackathonId: string): Promise<JudgeRole | false> {
-  if (!isSuperadmin()) return false;
+  if (!isAdmin()) return false;
 
   try {
     const judge = await prisma.judge.findFirst({
@@ -593,7 +622,7 @@ export async function getJudgeType(userId: string, hackathonId: string): Promise
 }
 
 export async function setJudgeType(judgeId: string, role: JudgeRole) {
-  if (!isSuperadmin()) return false;
+  if (!isAdmin()) return false;
 
   try {
     const judge = await prisma.judge.update({
@@ -612,7 +641,7 @@ export async function setJudgeType(judgeId: string, role: JudgeRole) {
 }
 
 export async function createJudge(participantId: string, role: JudgeRole = JudgeRole.JUDGE) {
-  if (!isSuperadmin()) return false;
+  if (!isAdmin()) return false;
 
   try {
 
@@ -637,6 +666,34 @@ export async function createJudge(participantId: string, role: JudgeRole = Judge
     })
 
     return judge
+  } catch {
+    return false
+  }
+}
+
+export async function removeJudge(judgeId: string) {
+  // allow if they are an admin for the given hackathon
+  
+  try {
+
+    const judge = await prisma.judge.findUnique({
+      where: { id: judgeId },
+      include: {
+        hackathon_participant: true
+      }
+    })
+
+    if (!judge) return false
+
+    if (!(isManager(judge?.hackathon_participant.hackathonId) || isAdmin())) return false;
+
+    await prisma.judge.delete({
+      where: {
+        id: judgeId
+      }
+    })
+
+    return true
   } catch {
     return false
   }

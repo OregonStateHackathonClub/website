@@ -18,26 +18,32 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 	
 	const [allUsers, setAllUsers] = useState<UserSearchResult[]>([]);
 
-	const [superadminPage, setSuperadminPage] = useState(1);
 	const [adminPage, setAdminPage] = useState(1);
+	const [managerPage, setManagerPage] = useState(1);
 	const [judgePage, setJudgePage] = useState(1);
 	const [userPage, setUserPage] = useState(1);
-	const [allUserPage, setAllUserPage] = useState(1);
 
-	const superadmins = allUsers.filter(u => u.role === UserRole.ADMIN);
+	const admins = allUsers.filter(u => u.role === UserRole.ADMIN);
 	const judges = allUsers.filter(u =>
 		u.hackathonParticipants.some(p => p.judge?.role === JudgeRole.JUDGE)
 	);
-	const admins = allUsers.filter(u =>
+	const managers = allUsers.filter(u =>
 		u.hackathonParticipants.some(p => p.judge?.role === JudgeRole.MANAGER)
 	);
-	const users = allUsers.filter(u => u.role === UserRole.USER);
+	const users = hackathonId
+		? allUsers.filter(u =>
+			!u.hackathonParticipants.some(p =>
+				p.judge?.role === JudgeRole.JUDGE ||
+				p.judge?.role === JudgeRole.MANAGER
+			)
+		)
+		: allUsers.filter(u => u.role === UserRole.USER);
 
 	useEffect(() => {
 		const handler = setTimeout(() => {
 			setDebouncedSearch(search);
 		}, 400); // 400ms debounce
-		
+
 		return () => clearTimeout(handler);
 	}, [search]);
 
@@ -244,7 +250,7 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 					<div>
 						<div className="flex w-full justify-between items-center my-5">
 							<div>
-								Admins
+								Managers
 							</div>
 							<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
 							<Button
@@ -252,7 +258,7 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 							className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
 							onClick={() => toast.error("Not yet implemented")}>+</Button>
 						</div>
-						{users ? <Users list={admins} page={adminPage} setPage={setAdminPage} /> : <div>Loading...</div>}
+						{users ? <Users list={managers} page={managerPage} setPage={setManagerPage} /> : <div>Loading...</div>}
 
 						<div className="flex w-full justify-between items-center my-5">
 							<div>
@@ -276,13 +282,13 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 							className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
 							onClick={() => toast.error("Not yet implemented")}>+</Button>
 						</div>
-						{users ? <Users list={allUsers} page={allUserPage} setPage={setAllUserPage} /> : <div>Loading...</div>}
+						{users ? <Users list={users} page={userPage} setPage={setUserPage} /> : <div>Loading...</div>}
 					</div>
 					:
 					<div>
 						<div className="flex w-full justify-between items-center my-5">
 							<div>
-								Superadmins
+								Admins
 							</div>
 							<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
 							<Button
@@ -290,7 +296,7 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 							className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
 							onClick={() => toast.error("Not yet implemented")}>+</Button>
 						</div>
-						{users ? <Users list={superadmins} page={superadminPage} setPage={setSuperadminPage} /> : <div>Loading...</div>}
+						{users ? <Users list={admins} page={adminPage} setPage={setAdminPage} /> : <div>Loading...</div>}
 						<div className="flex w-full justify-between items-center my-5">
 							<div>
 								Users

@@ -1,11 +1,15 @@
 "use client";
 import { UserSearchResult } from "@/app/actions";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Sheet } from "@repo/ui/components/sheet";
 import UserInnerSheet from "./UserInnerSheet";
 
 export default function UserOuterSheet({ currentUser, hackathonId, setAllUsers, isSheetOpen, setIsSheetOpen}: { currentUser: UserSearchResult, hackathonId: string, setAllUsers: React.Dispatch<React.SetStateAction<UserSearchResult[]>>, isSheetOpen: boolean, setIsSheetOpen: React.Dispatch<React.SetStateAction<boolean>> }) {
 	const [user, setUser] = useState<UserSearchResult>(currentUser);
+
+    useEffect(() => {
+        setUser(currentUser)
+        }, [currentUser]);
 
     function updateUsers(user: UserSearchResult) {
         setAllUsers((prev: UserSearchResult[]) => 
