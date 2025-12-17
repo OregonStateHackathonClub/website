@@ -634,7 +634,7 @@ export async function setJudgeType(judgeId: string, role: JudgeRole) {
       }
     })
 
-    return true
+    return !!judge
   } catch {
     return false
   }

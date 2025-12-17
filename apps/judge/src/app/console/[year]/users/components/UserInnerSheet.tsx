@@ -6,6 +6,7 @@ import { SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@repo/u
 import { JudgeRole, UserRole } from "@prisma/client";
 import { Switch } from "@repo/ui/components/switch";
 import { Label } from "@repo/ui/components/label";
+import { toast } from "sonner";
 
 export default function UserInnerSheet({ user, hackathonId, setUser }: { user: UserSearchResult, hackathonId: string, setUser: React.Dispatch<React.SetStateAction<UserSearchResult>>}) {
     function getParticipant(user: UserSearchResult) {
@@ -16,7 +17,7 @@ export default function UserInnerSheet({ user, hackathonId, setUser }: { user: U
         const participant = getParticipant(user)
         if (!participant) return
 
-        const updatedUser: UserSearchResult = {
+        let updatedUser: UserSearchResult = {
             ...user,
             hackathonParticipants: user.hackathonParticipants.map(p =>
                 p.id === participant.id
@@ -29,14 +30,31 @@ export default function UserInnerSheet({ user, hackathonId, setUser }: { user: U
         };
         setUser(updatedUser);
 
-        if (!participant?.judge) {
+        if (participant?.judge) {
+            setJudgeType(participant.judge.id, role)
+        } else {
             const judge = await createJudge(participant.id, role)
 
-            if (judge) participant.judge = judge
-            else return false
+            if (judge)
+            {
+                participant.judge = judge
+                updatedUser = {
+                    ...user,
+                    hackathonParticipants: user.hackathonParticipants.map(p =>
+                        p.id === participant.id
+                            ? { 
+                                ...p, 
+                                judge: p.judge ? { ...p.judge, role } : { role, id: "" } // temporary id if judge doesn't exist yet
+                            } 
+                            : p
+                    )
+                };
+            } else {
+                toast.error("Failed to create judge")
+                return false
+            }
         }
-        
-        await setJudgeType(participant.judge.id, role)
+        setUser(updatedUser);
     }
 
     async function deleteJudge(user: UserSearchResult) {
