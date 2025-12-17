@@ -1,5 +1,5 @@
 "use client";
-import { removeUser, setSuperadmin, userSearch, UserSearchResult } from "@/app/actions";
+import { userSearch, UserSearchResult } from "@/app/actions";
 import React, { useCallback, useEffect, useState } from "react";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@repo/ui/components/pagination";
 import { Button } from "@repo/ui/components/button";
