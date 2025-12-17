@@ -1,8 +1,7 @@
-import { useRef, useEffect } from "react";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
-
-import { AsciiEffect } from "three/addons/effects/AsciiEffect.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { AsciiEffect } from "three/addons/effects/AsciiEffect.js";
 import { SVGLoader } from "three/addons/loaders/SVGLoader.js";
 
 export const Ascii = () => {
@@ -83,7 +82,7 @@ export const Ascii = () => {
       func: () => {
         if (effect && effect.domElement) {
           const fadeProgress = scalePercent(10, 80);
-          const easedProgress = 1 - Math.pow(1 - fadeProgress, 2);
+          const easedProgress = 1 - (1 - fadeProgress) ** 2;
           const opacity = lerp(1, 0, easedProgress);
           effect.domElement.style.opacity = opacity.toString();
         }

@@ -1,9 +1,9 @@
 "use client";
 
-import { useRef } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { useTexture, shaderMaterial } from '@react-three/drei';
-import * as THREE from 'three';
+import { shaderMaterial, useTexture } from "@react-three/drei";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { useRef } from "react";
+import * as THREE from "three";
 
 // 1. Define the shader material
 const PixelatedBeaverMaterial = shaderMaterial(
@@ -13,7 +13,7 @@ const PixelatedBeaverMaterial = shaderMaterial(
     uTexture: new THREE.Texture(),
     uPixelSize: 6.0,
     uLiquidStrength: 0.12,
-    uColor: new THREE.Color('#B19EEF'), // The color tint
+    uColor: new THREE.Color("#B19EEF"), // The color tint
   },
   // Vertex Shader (positions vertices)
   `
@@ -58,17 +58,17 @@ const PixelatedBeaverMaterial = shaderMaterial(
       // Tint the texture with our color
       gl_FragColor = vec4(uColor, 1.0) * textureColor;
     }
-  `
+  `,
 );
 
 // 2. Create the React component for the shader
 function PixelScene(props: any) {
   const materialRef = useRef<any>();
-  
+
   // Load your beaver image as a texture
   // Make sure this image is in your /public folder!
-  const texture = useTexture('/beaverhacks_white.png');
-  
+  const texture = useTexture("/beaverhacks_white.png");
+
   // Animate the 'uTime' uniform on every frame
   useFrame((state, delta) => {
     if (materialRef.current) {

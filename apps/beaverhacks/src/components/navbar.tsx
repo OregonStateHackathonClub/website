@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { Button } from "@repo/ui/components/button";
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@repo/ui/components/button";
+import { useEffect, useState } from "react";
 
 type NavbarProps = {
   aboutRef: React.RefObject<HTMLDivElement | null>;

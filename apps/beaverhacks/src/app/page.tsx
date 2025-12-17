@@ -1,11 +1,10 @@
 "use client";
 
-import { Navbar } from "@/components/navbar";
-import { useRef, useState, useEffect } from "react";
-
+import { useEffect, useRef, useState } from "react";
 import AboutPage from "@/components/landing/about";
-import SponsorPage from "@/components/landing/sponsors";
 import FaqPage from "@/components/landing/faq";
+import SponsorPage from "@/components/landing/sponsors";
+import { Navbar } from "@/components/navbar";
 
 const Home = () => {
   const about = useRef<HTMLDivElement>(null);

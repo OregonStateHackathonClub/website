@@ -1,10 +1,10 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import { ApplicationStatus, type Prisma } from "@repo/database";
 import { Button } from "@repo/ui/components/button";
 import { Checkbox } from "@repo/ui/components/checkbox";
-import { ArrowUpDown, File, CheckCircle, XCircle } from "lucide-react";
-import { ApplicationStatus, Prisma } from "@repo/database";
+import type { ColumnDef } from "@tanstack/react-table";
+import { ArrowUpDown, CheckCircle, File, XCircle } from "lucide-react";
 import { useState } from "react";
 
 export type Application = Prisma.ApplicationGetPayload<{

@@ -1,15 +1,14 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 @plugin "@tailwindcss/typography";
 @source "../../../apps/**/*.{ts,tsx}";
 @source "../../../components/**/*.{ts,tsx}";
 @source "../**/*.{ts,tsx}";
 
-@import "tw-animate-css";
-
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --color-osu-orange: #D73F09;
+  --color-osu-orange: #d73f09;
 }
 
 @theme inline {

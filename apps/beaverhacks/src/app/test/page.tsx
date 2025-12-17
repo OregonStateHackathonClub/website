@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Image from "next/image";
-
 import { cn } from "@repo/ui/lib/utils";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 import { Ascii } from "@/components/ascii";
 
 const Test = () => {
