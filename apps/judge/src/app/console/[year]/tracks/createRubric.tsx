@@ -26,7 +26,7 @@ function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <Button type="submit" disabled={pending}>
+    <Button type="submit" form="rubric-form" disabled={pending}>
       {pending ? "Saving..." : "Save changes"}
     </Button>
   );
@@ -52,7 +52,7 @@ export function RubricDialog({
   };
 
   async function handleSubmit(formData: FormData) {
-    // await createTrack(formData);
+    await createRubric(formData);
     setOpen(false); // Close dialog after successful submission
   }
 
@@ -71,6 +71,7 @@ export function RubricDialog({
           </DialogDescription>
         </DialogHeader>
         <form
+          id="rubric-form"
           action={handleSubmit}
           className="space-y-4 overflow-y-auto flex-1"
         >
@@ -125,10 +126,20 @@ export function RubricDialog({
             </Card>
           ))}
 
-          <Button type="button" onClick={addCriterion}>
-            Add Criterion
-          </Button>
+          <div className="flex justify-center pb-5">
+            <Button type="button" onClick={addCriterion}>
+              Add Criterion
+            </Button>
+          </div>
         </form>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button type="button" variant="outline">
+              Cancel
+            </Button>
+          </DialogClose>
+          <SubmitButton />
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

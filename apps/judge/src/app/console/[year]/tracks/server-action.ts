@@ -70,20 +70,34 @@ export async function createRubric(formData: FormData) {
         throw new Error("Unauthorized: Admin access required");
     }
 
-    const rubricGrade = await prisma.track.findUnique({
-        where: {id: trackId},
-        include: {
-            rubric: {
-                include: {
-                    criteria: {
-                        include: {
-                            grade: true
-                        }
-                    }
-                }
+    const trackId = formData.get("trackId") as string;
+    const rubricName = formData.get("rubricName") as string;
+
+    const criteria: Array<{name: string; weight: number; maxScore: number;}> = [];
+    let index = 0
+
+    while (formData.get(`criteria[${index}].name`)) {
+        criteria.push({
+            name: formData.get(`criteria[${index}].name`) as string,
+            weight: parseFloat(formData.get(`criteria[${index}].weight`) as string),
+            maxScore: parseInt(formData.get(`criteria[${index}].maxScore`) as string, 10)
+        })
+        index++;
+    }
+
+    const rubricGrade = await prisma.rubric.create({
+        data: {
+            name: rubricName,
+            trackId: trackId,
+            criteria: {
+                create: criteria.map(c=> ({
+                    name: c.name,
+                    weight: c.weight,
+                    maxScore: c.maxScore
+                }))
             }
         }
     })
 
-
+    revalidatePath(`/console/${formData.get("hackathonId")}/tracks`);
 }
