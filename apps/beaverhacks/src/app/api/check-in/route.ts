@@ -1,7 +1,6 @@
-import { headers } from "next/headers";
-import { prisma } from "@repo/database";
 import { auth } from "@repo/auth";
-import { ApplicationStatus } from "@repo/database";
+import { type ApplicationStatus, prisma } from "@repo/database";
+import { headers } from "next/headers";
 
 export async function POST(request: Request): Promise<Response> {
   const session = await auth.api.getSession({

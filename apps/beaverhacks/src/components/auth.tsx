@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { signIn, signUp } from "@repo/auth/client";
+import { Button } from "@repo/ui/components/button";
 import {
   Card,
   CardContent,
@@ -10,11 +9,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/card";
-import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
-import { FaGithub } from "react-icons/fa";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { FaGithub } from "react-icons/fa";
 
 export const AuthPage = () => {
   const [isSignUp, setIsSignUp] = useState(false);

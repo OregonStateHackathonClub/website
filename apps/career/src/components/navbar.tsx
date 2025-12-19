@@ -1,12 +1,12 @@
 "use client";
 
+import { Button } from "@repo/ui/components/button";
+import { LogOut } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { LogOut } from "lucide-react";
-import { Button } from "@repo/ui/components/button";
+import { useEffect, useState } from "react";
 import { ModeToggle } from "@/components/mode-toggle";
 
 export const Navbar = () => {

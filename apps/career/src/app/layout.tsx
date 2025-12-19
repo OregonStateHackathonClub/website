@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
 import { GeistSans } from "@repo/ui/fonts";
+import type { Metadata } from "next";
 
 import "@repo/ui/globals.css";
 import { ThemeProvider } from "@/components/theme-provider";

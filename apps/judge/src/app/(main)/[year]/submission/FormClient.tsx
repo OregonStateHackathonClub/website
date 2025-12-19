@@ -1,10 +1,10 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Form } from "@repo/ui/components/form";
 import { use, useMemo, useState } from "react";
 import { type Resolver, useForm } from "react-hook-form";
 import type * as z from "zod";
 import SubmissionCard from "@/components/submissionCard";
-import { Form } from "@repo/ui/components/form";
 import { MultiStepViewer } from "./components/multiStepViewer";
 import { formSchema } from "./schema";
 
@@ -29,7 +29,7 @@ export default function FormClient({
   availableTracks,
 }: {
   initialData: Promise<InitialFormData>;
-  availableTracks: Promise<{ id: string; name: string; }[]>;
+  availableTracks: Promise<{ id: string; name: string }[]>;
 }) {
   // Unwrap server-fetched data using React's use() hook with Suspense
   const data = use(initialData);
@@ -63,7 +63,6 @@ export default function FormClient({
   const selectedTrackIds = form.watch("tracks") || [];
   const selectedTracks = tracks.filter((t) => selectedTrackIds.includes(t.id));
 
-
   // Note: Form submission is now handled entirely through the MultiStepViewer component
   // This ensures proper draft workflow and prevents direct submission bypassing
 
@@ -85,7 +84,7 @@ export default function FormClient({
           />
         </form>
       </Form>
-      <div className="min-w-76">
+      <div className="w-80 min-w-80 shrink-0 lg:w-96 lg:min-w-96 max-h-[600px] overflow-y-auto p-1 scrollbar-thin">
         <SubmissionCard
           submission={{
             id: "preview",

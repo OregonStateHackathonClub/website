@@ -1,7 +1,7 @@
-import React from "react";
-import { Clock, MapPin, Calendar, Users } from "lucide-react";
-import { Countdown } from "@/components/countdown";
+import { Calendar, Clock, MapPin, Users } from "lucide-react";
 import Image from "next/image";
+import React from "react";
+import { Countdown } from "@/components/countdown";
 
 function AboutPage() {
   return (

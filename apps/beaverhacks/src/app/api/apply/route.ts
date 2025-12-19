@@ -1,9 +1,8 @@
+import { auth } from "@repo/auth";
+import { prisma, type ShirtSize } from "@repo/database";
+import { uploadFile } from "@repo/storage";
 import { headers } from "next/headers";
 import { sendEmail } from "@/lib/email";
-import { prisma } from "@repo/database";
-import { uploadFile } from "@repo/storage";
-import { ShirtSize } from "@repo/database";
-import { auth } from "@repo/auth";
 
 export async function POST(request: Request): Promise<Response> {
   const applicationsOpen = false;
