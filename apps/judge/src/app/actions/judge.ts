@@ -1,3 +1,4 @@
+"use server"
 import { JudgeRole, prisma, Prisma } from "@repo/database";
 import { isAdmin, isManager } from "./auth";
 

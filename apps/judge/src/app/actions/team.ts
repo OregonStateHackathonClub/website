@@ -1,3 +1,4 @@
+"use server"
 import { prisma, Prisma } from "@repo/database";
 import { auth } from "@repo/auth";
 import { headers } from "next/headers";
