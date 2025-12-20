@@ -1,6 +1,6 @@
 "use client";
 import { userSearch, UserSearchResult } from "@/app/actions/user";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@repo/ui/components/pagination";
 import { Button } from "@repo/ui/components/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, } from "@repo/ui/components/dropdown-menu";
@@ -23,21 +23,31 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 	const [judgePage, setJudgePage] = useState(1);
 	const [userPage, setUserPage] = useState(1);
 
-	const admins = allUsers.filter(u => u.role === UserRole.ADMIN);
-	const judges = allUsers.filter(u =>
+	const filteredUsers = useMemo(() => {
+		if (!debouncedSearch) return allUsers;
+		const q = debouncedSearch.toLowerCase();
+
+		return allUsers.filter(u =>
+			u.name.toLowerCase().includes(q) ||
+			u.email.toLowerCase().includes(q)
+		);
+	}, [allUsers, debouncedSearch]);
+
+	const admins = filteredUsers.filter(u => u.role === UserRole.ADMIN);
+	const judges = filteredUsers.filter(u =>
 		u.hackathonParticipants.some(p => p.judge?.role === JudgeRole.JUDGE)
 	);
-	const managers = allUsers.filter(u =>
+	const managers = filteredUsers.filter(u =>
 		u.hackathonParticipants.some(p => p.judge?.role === JudgeRole.MANAGER)
 	);
 	const users = hackathonId
-		? allUsers.filter(u =>
+		? filteredUsers.filter(u =>
 			!u.hackathonParticipants.some(p =>
 				p.judge?.role === JudgeRole.JUDGE ||
 				p.judge?.role === JudgeRole.MANAGER
 			)
 		)
-		: allUsers.filter(u => u.role === UserRole.USER);
+		: filteredUsers.filter(u => u.role === UserRole.USER);
 
 	const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -52,20 +62,18 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 
 	return () => {
 		if (debounceRef.current) {
-		clearTimeout(debounceRef.current);
+			clearTimeout(debounceRef.current);
 		}
 	};
 	}, [search]);
 
-
-	const fetchUsers = useCallback(async () => {
-		const allUsersResult = await userSearch(debouncedSearch, hackathonId);
-		if (allUsersResult) setAllUsers(allUsersResult);
-	}, [debouncedSearch, hackathonId]);
-
 	useEffect(() => {
+		const fetchUsers = async () => {
+			const allUsersResult = await userSearch("", hackathonId);
+			if (allUsersResult) setAllUsers(allUsersResult);
+		}
 		fetchUsers();
-	}, [fetchUsers]);
+	}, [hackathonId]);
 
 	async function copyString(toCopy: string) {
 		try {
