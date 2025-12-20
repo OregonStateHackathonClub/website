@@ -148,7 +148,6 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 				<PaginationContent>
 					<PaginationItem>
 						<PaginationPrevious
-							href="#"
 							className="hover:bg-gray-800 hover:text-white"
 							onClick={() => setPage((p) => Math.max(1, p - 1))}
 						/>
@@ -189,7 +188,6 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 
 					<PaginationItem>
 						<PaginationNext
-							href="#"
 							className="hover:bg-gray-800 hover:text-white"
 							onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
 						/>
