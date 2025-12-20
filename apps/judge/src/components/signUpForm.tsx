@@ -3,7 +3,7 @@
 import { Github, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
-import { createHackathonParticipant } from "@/app/actions";
+import { createHackathonParticipant } from "@/app/actions/hackathonParticipant";
 import { Button } from "@repo/ui/components/button";
 import {
 	Card,

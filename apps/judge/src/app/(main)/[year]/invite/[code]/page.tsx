@@ -1,5 +1,5 @@
 import { toast } from "sonner";
-import { getTeamIdFromInvite } from "@/app/actions";
+import { getTeamIdFromInvite } from "@/app/actions/team";
 import { prisma } from "@repo/database";
 import InvitePageClient from "./inviteCodeClient";
 

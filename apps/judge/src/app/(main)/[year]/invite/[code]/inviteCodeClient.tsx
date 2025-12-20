@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { joinTeam } from "@/app/actions";
+import { joinTeam } from "@/app/actions/team";
 import { authClient } from "@repo/auth/client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";

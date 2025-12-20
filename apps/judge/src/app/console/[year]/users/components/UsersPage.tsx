@@ -1,5 +1,5 @@
 "use client";
-import { userSearch, UserSearchResult } from "@/app/actions";
+import { userSearch, UserSearchResult } from "@/app/actions/user";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@repo/ui/components/pagination";
 import { Button } from "@repo/ui/components/button";

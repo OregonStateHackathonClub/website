@@ -8,14 +8,14 @@ import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { isTeamMember } from "@/app/actions/auth"; 
 import {
 	getInviteCode,
 	getTeamInfo,
-	isTeamMember,
 	removeUserFromTeam,
 	resetInviteCode,
 	updateTeam,
-} from "@/app/actions";
+} from "@/app/actions/team";
 import { Button } from "@repo/ui/components/button";
 import { Checkbox } from "@repo/ui/components/checkbox";
 import {

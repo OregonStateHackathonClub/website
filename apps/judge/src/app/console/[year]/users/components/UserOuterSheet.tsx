@@ -1,5 +1,5 @@
 "use client";
-import { UserSearchResult } from "@/app/actions";
+import { UserSearchResult } from "@/app/actions/user";
 import React, { useEffect, useState } from "react";
 import { Sheet } from "@repo/ui/components/sheet";
 import UserInnerSheet from "./UserInnerSheet";

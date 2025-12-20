@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { isTeamMember } from "@/app/actions";
+import { isTeamMember } from "@/app/actions/auth";
 import TeamPageClient from "./TeamPageClient";
 
 async function TeamLoader({ year, teamId }: { year: string; teamId: string }) {

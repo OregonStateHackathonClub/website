@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "@repo/ui/components/form";
 import { useForm } from "react-hook-form";
-import { createTeam } from "@/app/actions";
+import { createTeam } from "@/app/actions/team";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { authClient } from "@repo/auth/client";

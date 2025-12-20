@@ -1,5 +1,7 @@
 "use client";
-import { createJudge, removeHackathonParticipant, removeJudge, removeUser, setJudgeType, setSuperadmin, UserSearchResult } from "@/app/actions";
+import { UserSearchResult, removeUser, setAdmin } from "@/app/actions/user"
+import { removeHackathonParticipant } from "@/app/actions/hackathonParticipant"
+import { createJudge, removeJudge, setJudgeType } from "@/app/actions/judge";
 import React from "react";
 import { Button } from "@repo/ui/components/button";
 import { SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@repo/ui/components/sheet";
@@ -167,7 +169,7 @@ export default function UserInnerSheet({ user, hackathonId, setUser }: { user: U
                     id={`${user.id}-superadmin`}
                     checked={user.role === UserRole.ADMIN}
                     onCheckedChange={async (checked) => {
-                        setSuperadmin(checked, user.id);
+                        setAdmin(checked, user.id);
 
                         setUser(prev => {
                             if (!prev) return prev
