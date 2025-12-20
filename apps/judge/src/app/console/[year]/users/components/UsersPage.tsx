@@ -1,6 +1,6 @@
 "use client";
 import { userSearch, UserSearchResult } from "@/app/actions";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@repo/ui/components/pagination";
 import { Button } from "@repo/ui/components/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, } from "@repo/ui/components/dropdown-menu";
@@ -39,12 +39,22 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 		)
 		: allUsers.filter(u => u.role === UserRole.USER);
 
-	useEffect(() => {
-		const handler = setTimeout(() => {
-			setDebouncedSearch(search);
-		}, 400); // 400ms debounce
+	const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-		return () => clearTimeout(handler);
+	useEffect(() => {
+	if (debounceRef.current) {
+		clearTimeout(debounceRef.current);
+	}
+
+	debounceRef.current = setTimeout(() => {
+		setDebouncedSearch(search);
+	}, 400);
+
+	return () => {
+		if (debounceRef.current) {
+		clearTimeout(debounceRef.current);
+		}
+	};
 	}, [search]);
 
 
@@ -69,12 +79,10 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 	function Users({
 		list,
 		page,
-		// setList,
 		setPage,
 	}: {
 		list: UserSearchResult[];
 		page: number;
-		// setList: React.Dispatch<React.SetStateAction<UserSearchResult[]>>;
 		setPage: React.Dispatch<React.SetStateAction<number>>;
 	}) {
 		const entriesPerPage = 25;
