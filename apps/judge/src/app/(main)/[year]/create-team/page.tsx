@@ -29,7 +29,7 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { createTeam } from "@/app/actions";
+import { createTeam } from "@/app/actions/team";
 
 const formSchema = z.object({
   name: z

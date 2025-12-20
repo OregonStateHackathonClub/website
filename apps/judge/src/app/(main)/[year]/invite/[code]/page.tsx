@@ -1,6 +1,6 @@
 import { prisma } from "@repo/database";
 import { toast } from "sonner";
-import { getTeamIdFromInvite } from "@/app/actions";
+import { getTeamIdFromInvite } from "@/app/actions/team";
 import InvitePageClient from "./inviteCodeClient";
 
 export default async function Page({
