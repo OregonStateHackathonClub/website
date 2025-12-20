@@ -1,6 +1,6 @@
 "use client";
 import { userSearch, UserSearchResult } from "@/app/actions/user";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@repo/ui/components/pagination";
 import { Button } from "@repo/ui/components/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, } from "@repo/ui/components/dropdown-menu";
