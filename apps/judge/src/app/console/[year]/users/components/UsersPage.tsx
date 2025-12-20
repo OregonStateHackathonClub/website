@@ -77,7 +77,7 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 		// setList: React.Dispatch<React.SetStateAction<UserSearchResult[]>>;
 		setPage: React.Dispatch<React.SetStateAction<number>>;
 	}) {
-		const entriesPerPage = 5;
+		const entriesPerPage = 25;
 		const totalPages = Math.ceil(list.length / entriesPerPage);
 
 		const startIndex = (page - 1) * entriesPerPage;
