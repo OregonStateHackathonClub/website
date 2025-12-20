@@ -1,5 +1,5 @@
 "use server"
-import { JudgeRole, prisma, Prisma } from "@repo/database";
+import { JudgeRole, prisma } from "@repo/database";
 import { isAdmin, isManager } from "./auth";
 
 export async function getJudgeType(userId: string, hackathonId: string): Promise<JudgeRole | false> {
