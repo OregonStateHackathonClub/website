@@ -1,10 +1,9 @@
-import { redirect } from "next/navigation";
-import { headers } from "next/headers";
-
-import { prisma } from "@repo/database";
 import { auth } from "@repo/auth";
-import { ApplicationForm } from "@/components/form";
+import { prisma } from "@repo/database";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { AuthPage } from "@/components/auth";
+import { ApplicationForm } from "@/components/form";
 
 const Apply = async () => {
   const session = await auth.api.getSession({

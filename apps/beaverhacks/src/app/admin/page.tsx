@@ -1,8 +1,8 @@
-import { prisma } from "@repo/database";
 import { auth } from "@repo/auth";
+import { prisma } from "@repo/database";
 import { headers } from "next/headers";
 
-import { Application, columns } from "./columns";
+import { type Application, columns } from "./columns";
 import { DataTable } from "./data-table";
 
 const getApplicants = async (): Promise<Application[]> => {

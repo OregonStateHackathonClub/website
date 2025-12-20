@@ -1,13 +1,11 @@
-import { redirect } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
-import { headers } from "next/headers";
-
 import { auth } from "@repo/auth";
 import { prisma } from "@repo/database";
-
-import { AuthPage } from "@/components/auth";
 import { Button } from "@repo/ui/components/button";
+import { headers } from "next/headers";
+import Image from "next/image";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { AuthPage } from "@/components/auth";
 
 async function logout() {
   "use server";

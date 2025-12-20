@@ -13,7 +13,10 @@
   "aliases": {
     "components": "@repo/ui/components",
     "utils": "@repo/ui/lib/utils",
-    "lib": "@repo/ui/lib",
-    "ui": "@repo/ui/components"
+    "ui": "@repo/ui/components",
+    "lib": "@repo/ui/lib"
+  },
+  "registries": {
+    "@react-bits": "https://reactbits.dev/r/{name}.json"
   }
 }

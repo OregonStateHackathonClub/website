@@ -1,6 +1,6 @@
+import { auth } from "@repo/auth";
 import { headers } from "next/headers";
 import { unauthorized } from "next/navigation";
-import { auth } from "@repo/auth";
 
 export default async function Layout({
   children,
