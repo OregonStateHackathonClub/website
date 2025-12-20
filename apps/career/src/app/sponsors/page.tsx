@@ -1,18 +1,33 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { Search, Github, ExternalLink, ImageIcon } from "lucide-react";
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectValue,
-} from "@repo/ui/components/select";
-
-import { Navbar } from "@/components/navbar";
-import { Input } from "@repo/ui/components/input";
+import type {
+  Application,
+  Hackathon,
+  HackathonParticipant,
+  Submission,
+  Team,
+  TeamMember,
+  Track,
+  User,
+} from "@repo/database";
 import { Button } from "@repo/ui/components/button";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@repo/ui/components/carousel";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@repo/ui/components/dialog";
+import { Input } from "@repo/ui/components/input";
 import {
   Pagination,
   PaginationContent,
@@ -23,31 +38,15 @@ import {
   PaginationPrevious,
 } from "@repo/ui/components/pagination";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-} from "@repo/ui/components/dialog";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@repo/ui/components/carousel";
-import {
-  User,
-  Application,
-  HackathonParticipant,
-  TeamMember,
-  Team,
-  Submission,
-  Track,
-  Hackathon,
-} from "@repo/database";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@repo/ui/components/select";
+import { ExternalLink, Github, ImageIcon, Search } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Navbar } from "@/components/navbar";
 
 // Ensure Submission type includes images if not already inferred correctly
 type TeamWithSubmission = Team & {

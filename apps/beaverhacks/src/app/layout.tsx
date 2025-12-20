@@ -1,8 +1,8 @@
+import { GeistSans } from "@repo/ui/fonts";
+import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Analytics } from "@vercel/analytics/react";
-import { GeistSans } from "@repo/ui/fonts";
 
 import "@repo/ui/globals.css";
 

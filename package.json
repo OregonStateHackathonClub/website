@@ -11,9 +11,9 @@
     "db:migrate": "pnpm --filter @repo/database db:migrate",
     "db:studio": "pnpm --filter @repo/database db:studio",
     "db:format": "pnpm --filter @repo/database db:format"
-
   },
   "devDependencies": {
+    "@biomejs/biome": "2.3.9",
     "@repo/typescript-config": "workspace:*",
     "prettier": "^3.6.2",
     "typescript": "^5.9.2"

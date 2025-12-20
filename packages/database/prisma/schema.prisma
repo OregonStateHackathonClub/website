@@ -271,7 +271,7 @@ model Rubric{
 
 model RubricCriteria{
   id          String   @id @default(cuid())
-  rubricId    String   @unique
+  rubricId    String  
   name        String
   weight      Float
   maxScore    Int
