@@ -1,14 +1,5 @@
 // admin only
 // see the tracks, create new tracks, add rubrics to tracks (each track can have one rubric)
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@repo/ui/components/table";
 import { Navbar } from "@/components/navbar";
 import { prisma } from "@repo/database";
 import { createTrack } from "./server-action";
@@ -32,42 +23,59 @@ export default async function Page(props: {
     },
   });
   return (
-    <div className="flex min-h-screen w-full flex-col bg-white">
+    <div className="flex min-h-screen w-full flex-col bg-neutral-50">
       <Navbar />
-      <div className="flex-1 p-10 text-black">
-        <h1 className="mb-6 text-center font-bold text-4xl text-black-900">
-          Tracks
-        </h1>
-        <Table>
-          <TableCaption>
-            Create or view current tracks, and add rubrics to tracks.
-          </TableCaption>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[200px]">Name</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead className="w-[150px]">Prize</TableHead>
-              <TableHead className="w-[120px]">Rubric</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+      <div className="mx-auto w-full max-w-5xl px-6 py-12">
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="font-medium text-2xl text-neutral-900 tracking-tight">
+              Tracks
+            </h1>
+            <p className="ml-1 mt-1 text-neutral-500 text-sm">
+              {tracks.length} {tracks.length === 1 ? "track" : "tracks"}
+            </p>
+          </div>
+          <TrackDialog yearParam={yearParam} createTrack={createTrack} />
+        </div>
+
+        {tracks.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-neutral-300 bg-white py-16 text-center">
+            <p className="text-neutral-500 text-sm">No tracks yet</p>
+            <p className="mt-1 text-neutral-400 text-xs">
+              Create your first track to get started
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
             {tracks.map((track) => (
-              <TableRow key={track.id}>
-                <TableCell className="font-medium">{track.name}</TableCell>
-                <TableCell>{track.description}</TableCell>
-                <TableCell>{track.prize || "N/A"}</TableCell>
-                <TableCell>
+              <div
+                key={track.id}
+                className="group rounded-lg border border-neutral-200 bg-white p-6 transition-shadow hover:shadow-sm"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 space-y-1">
+                    <h3 className="font-medium text-neutral-900 text-sm">
+                      {track.name}
+                    </h3>
+                    <p className="text-neutral-600 text-sm leading-relaxed">
+                      {track.description}
+                    </p>
+                    {track.prize && (
+                      <p className="text-neutral-500 text-xs">
+                        Prize: {track.prize}
+                      </p>
+                    )}
+                  </div>
                   <RubricDialog
                     trackId={track.id}
                     trackName={track.name}
                     createRubric={createRubric}
                   />
-                </TableCell>
-              </TableRow>
+                </div>
+              </div>
             ))}
-          </TableBody>
-        </Table>
-        <TrackDialog yearParam={yearParam} createTrack={createTrack} />
+          </div>
+        )}
       </div>
     </div>
   );
