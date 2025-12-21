@@ -59,7 +59,7 @@ export function RubricDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" className="border-black text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 transition-colors">
           Edit
         </Button>
       </DialogTrigger>

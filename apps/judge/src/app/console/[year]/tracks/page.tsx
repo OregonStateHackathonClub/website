@@ -24,8 +24,13 @@ export default async function Page(props: {
   });
   return (
     <div className="flex min-h-screen w-full flex-col bg-neutral-50">
-      <Navbar />
-      <div className="mx-auto w-full max-w-5xl px-6 py-12">
+      <Navbar 
+      currentHackathonId={yearParam}
+      userTeamId={null}
+      teamSubmissionId={null}
+
+      />
+      <div className="mx-auto w-full max-w-5xl px-6 py-12 pt-24">
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="font-medium text-2xl text-neutral-900 tracking-tight">

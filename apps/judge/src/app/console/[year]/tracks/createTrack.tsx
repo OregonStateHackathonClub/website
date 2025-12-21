@@ -42,7 +42,7 @@ export function TrackDialog({ yearParam, createTrack }: TrackDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Create a track</Button>
+        <Button variant="outline" className="border-black text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 transition-colors">Create a track</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <form action={handleSubmit} className="space-y-4">
