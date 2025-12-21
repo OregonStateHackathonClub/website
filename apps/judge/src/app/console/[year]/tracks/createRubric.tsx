@@ -65,7 +65,7 @@ export function RubricDialog({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] max-h-[90vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Create a rubric</DialogTitle>
+          <DialogTitle>Create a rubric for {trackName}</DialogTitle>
           <DialogDescription>
             Design a rubric for this track. Save when done.
           </DialogDescription>

@@ -11,13 +11,6 @@ interface TrackInput {
   hackathonId: string;
 }
 
-interface RubricInput {
-    name: string;
-    weight: number;
-    maxScore: number;
-    hackathonId: string;
-}
-
 export async function createTrack(formData: FormData) {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -85,7 +78,7 @@ export async function createRubric(formData: FormData) {
         index++;
     }
 
-    const rubricGrade = await prisma.rubric.create({
+    await prisma.rubric.create({
         data: {
             name: rubricName,
             trackId: trackId,
