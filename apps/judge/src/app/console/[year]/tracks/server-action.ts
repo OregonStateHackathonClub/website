@@ -43,3 +43,54 @@ export async function createTrack(formData: FormData) {
 
   revalidatePath(`/console/${trackData.hackathonId}/tracks`);
 }
+
+export async function createRubric(formData: FormData) {
+    // Authentication and authorization checks
+     const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+
+    if (!session?.user) {
+        throw new Error("Unauthorized: Must be logged in");
+    }
+
+    const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { role: true }
+    });
+
+    if (user?.role !== "ADMIN") {
+        throw new Error("Unauthorized: Admin access required");
+    }
+
+    const trackId = formData.get("trackId") as string;
+    const rubricName = formData.get("rubricName") as string;
+
+    const criteria: Array<{name: string; weight: number; maxScore: number;}> = [];
+    let index = 0
+
+    while (formData.get(`criteria[${index}].name`)) {
+        criteria.push({
+            name: formData.get(`criteria[${index}].name`) as string,
+            weight: parseFloat(formData.get(`criteria[${index}].weight`) as string),
+            maxScore: parseInt(formData.get(`criteria[${index}].maxScore`) as string, 10)
+        })
+        index++;
+    }
+
+    await prisma.rubric.create({
+        data: {
+            name: rubricName,
+            trackId: trackId,
+            criteria: {
+                create: criteria.map(c=> ({
+                    name: c.name,
+                    weight: c.weight,
+                    maxScore: c.maxScore
+                }))
+            }
+        }
+    })
+
+    revalidatePath(`/console/${formData.get("hackathonId")}/tracks`);
+}
