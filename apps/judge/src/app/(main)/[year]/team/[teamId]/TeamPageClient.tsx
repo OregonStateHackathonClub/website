@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { authClient } from "@repo/auth/client";
 import { Button } from "@repo/ui/components/button";
-// Import the Card components
 import {
   Card,
   CardContent,
@@ -34,14 +33,14 @@ import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { isTeamMember } from "@/app/actions/auth"; 
 import {
   getInviteCode,
   getTeamInfo,
-  isTeamMember,
-  removeUserToTeams,
+  removeUserFromTeam,
   resetInviteCode,
   updateTeam,
-} from "@/app/actions";
+} from "@/app/actions/team";
 
 const formSchema = z.object({
   name: z.string().min(4),
@@ -148,7 +147,7 @@ export default function TeamPageClient({
   };
 
   const removeUser = async (teamMemberId: string) => {
-    const result = await removeUserToTeams(teamMemberId, teamId);
+    const result = await removeUserFromTeam(teamMemberId, teamId);
     if (result) {
       setTeam((prevTeam) => {
         if (!prevTeam) return prevTeam;

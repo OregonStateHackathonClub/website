@@ -13,6 +13,7 @@ export default function LoginLogoutButton() {
       <Button
         onClick={async () => {
           await signOut();
+          window.location.href = "/";
         }}
         className="hover:cursor-pointer bg-orange-500 hover:bg-orange-300 text-white hover:text-black"
       >
