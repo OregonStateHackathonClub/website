@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { JudgeRole, UserRole } from "@prisma/client";
 import { ChevronDown } from "lucide-react";
 import UserOuterSheet from "./UserOuterSheet";
+import InfoTooltip from "./InfoTooltip";
 
 export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 	const [search, setSearch] = useState("");
@@ -245,6 +246,15 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 							<div>
 								Managers
 							</div>
+							<InfoTooltip>
+								<strong>Managers can:</strong>
+								<ul className="list-disc list-inside">
+									<li>Add/Remove judges from this hackathon</li>
+									<li>Modify this hackathon's information</li>
+									<li>Add/Modify/Remove teams & hackathon participants from this hackathon</li>
+									<li>Judge hackathon submissions</li>
+								</ul>
+							</InfoTooltip>
 							<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
 							<Button
 							variant={"outline"}
@@ -257,6 +267,13 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 							<div>
 								Judges
 							</div>
+							<InfoTooltip>
+								<strong>Judges can:</strong>
+								<ul className="list-disc list-inside">
+									<li>Judge hackathon submissions</li>
+									<li>Modify their own judging rubric</li>
+								</ul>
+							</InfoTooltip>
 							<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
 							<Button
 							variant={"outline"}
@@ -283,6 +300,14 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 							<div>
 								Admins
 							</div>
+							<InfoTooltip>
+								<strong>Admins can:</strong>
+								<ul className="list-disc list-inside">
+									<li>Add/Modify/Remove Hackathons</li>
+									<li>Add/Remove admins, managers, and judges</li>
+									<li>Modify/Delete Users</li>
+								</ul>
+							</InfoTooltip>
 							<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
 							<Button
 							variant={"outline"}
