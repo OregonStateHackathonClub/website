@@ -24,9 +24,8 @@ export function useMultiStepForm({
   const [currentStep, setCurrentStep] = useState(1);
   const resetSteps = () => setCurrentStep(1);
   const goToNext = async () => {
-    const currentStepData = initialSteps[currentStep];
     if (onStepValidation) {
-      const isValid = await onStepValidation(currentStepData);
+      const isValid = await onStepValidation(currentStep);
       if (!isValid) return false;
     }
     if (currentStep < steps.length) {

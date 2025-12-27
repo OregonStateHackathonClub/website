@@ -8,6 +8,7 @@ import type { UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 import type z from "zod";
 import type { formSchema } from "../schema";
+import { step1Schema, step2Schema, step3Schema } from "../schema";
 import { saveDraftAction, submitProjectAction } from "../server-action";
 import StepOne from "./formStep1";
 import StepTwo from "./formStep2";
@@ -61,8 +62,39 @@ export function MultiStepViewer({
       : currentStep === 2
         ? ["mainDescription"]
         : currentStep === 3
-          ? ["github", "youtube", "photos"]
+          ? ["github", "photos"]
           : [];
+  }
+
+  // Zod validation function for step-specific required fields
+  function validateStepFields(currentStep: number): boolean {
+    const values = form.getValues();
+    
+    if (currentStep === 1) {
+      const result = step1Schema.safeParse({
+        name: values.name,
+        description: values.description,
+        tracks: values.tracks,
+      });
+      return result.success;
+    }
+    
+    if (currentStep === 2) {
+      const result = step2Schema.safeParse({
+        mainDescription: values.mainDescription,
+      });
+      return result.success;
+    }
+    
+    if (currentStep === 3) {
+      const result = step3Schema.safeParse({
+        github: values.github,
+        photos: values.photos,
+      });
+      return result.success;
+    }
+    
+    return true;
   }
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
@@ -70,8 +102,8 @@ export function MultiStepViewer({
   const { currentStep, isLastStep, goToNext, goToPrevious } = useMultiStepForm({
     initialSteps: steps,
     onStepValidation: async (currentStep) => {
-      const isValid = await form.trigger(fieldsToValidate(currentStep));
-      return isValid;
+      // Use our custom validation function
+      return validateStepFields(currentStep);
     },
   });
   const current = stepFormElements[currentStep];
@@ -193,34 +225,48 @@ export function MultiStepViewer({
             type="button"
             className="ml-auto hover:cursor-pointer"
             onClick={async () => {
-              // List the field names for the current stepS
-              const valid = await form.trigger(fieldsToValidate(currentStep));
-
-              if (valid) {
-                goToNext();
-                const result = await saveDraftAction({
-                  ...form.getValues(),
-                  draftId,
-                });
-
-                if (result.data?.success) {
-                  if (result.data.draft?.draft?.id) {
-                    setDraftId(result.data.draft.draft.id);
-                    setLastSaved(new Date());
-                  }
-                } else {
-                  // Handle server, validation, or custom errors from the action
-                  const errorMessage =
-                    result.serverError ||
-                    JSON.stringify(result.validationErrors) ||
-                    result.data?.error ||
-                    "An unknown error occurred.";
-                  toast(
-                    `There was an error saving your progress: ${errorMessage}`,
-                  );
-                }
+              // First check our custom step validation
+              const stepValid = validateStepFields(currentStep);
+              
+              if (!stepValid) {
+                toast.error(
+                  "Please fill out all required fields before continuing.",
+                );
+                return;
               }
-              // If not valid, errors will show automatically via <FormMessage />
+
+              // Also trigger form validation to show field-level errors if any
+              const formValid = await form.trigger(fieldsToValidate(currentStep));
+              
+              if (!formValid) {
+                toast.error(
+                  "Please fix the errors in the form before continuing.",
+                );
+                return;
+              }
+
+              goToNext();
+              const result = await saveDraftAction({
+                ...form.getValues(),
+                draftId,
+              });
+
+              if (result.data?.success) {
+                if (result.data.draft?.draft?.id) {
+                  setDraftId(result.data.draft.draft.id);
+                  setLastSaved(new Date());
+                }
+              } else {
+                // Handle server, validation, or custom errors from the action
+                const errorMessage =
+                  result.serverError ||
+                  JSON.stringify(result.validationErrors) ||
+                  result.data?.error ||
+                  "An unknown error occurred.";
+                toast(
+                  `There was an error saving your progress: ${errorMessage}`,
+                );
+              }
             }}
           >
             Next
