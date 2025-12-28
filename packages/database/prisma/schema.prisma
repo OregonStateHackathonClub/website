@@ -128,6 +128,8 @@ model Hackathon {
   tracks       Track[]
   submissions  Submission[]
 
+  judges       JudgeAssignment[]
+  sponsors     Sponsor[]
   @@map("hackathon")
 }
 
@@ -354,4 +356,18 @@ model Score {
 
   @@unique([submissionId, judgeId])
   @@map("score")
+}
+
+model Sponsor {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  logoUrl     String
+  hackathonId String
+  websiteUrl  String?
+
+  hackathon   Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@map("sponsor")
 }
