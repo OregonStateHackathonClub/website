@@ -9,12 +9,12 @@ export default async function SponsorsPage(props: {
 
   const sponsors = await prisma.sponsor.findMany({
     where: { hackathonId },
-    orderBy: { createdAt: "asc" },
+    orderBy: { id: "asc" },
   });
 
   if (sponsors.length === 0) {
     return (
-      <div className="container py-12 text-center">
+      <div className="mx-auto max-w-7xl px-4 py-12 text-center">
         <h1 className="text-3xl font-bold">Our Sponsors</h1>
         <p className="mt-4 text-muted-foreground">Sponsors coming soon!</p>
       </div>
@@ -22,7 +22,7 @@ export default async function SponsorsPage(props: {
   }
 
   return (
-    <div className="container py-12">
+    <div className="mx-auto max-w-7xl px-4 py-12">
       <div className="mb-12 text-center">
         <h1 className="text-4xl font-bold tracking-tight">Our Sponsors</h1>
         <p className="mt-4 text-lg text-muted-foreground">
