@@ -13,6 +13,8 @@ import remarkGfm from "remark-gfm";
 import type * as z from "zod";
 import { Separator } from "@/components/ui/separator";
 import type { formSchema } from "../schema";
+import Link from "next/link"; // Import Link
+import { ExternalLink } from "lucide-react"; // Import ExternalLink icon
 
 type FormType = UseFormReturn<z.infer<typeof formSchema>>;
 
@@ -23,7 +25,7 @@ export default function StepTwo({ form }: { form: FormType }) {
   return (
     <div className="text-zinc-800 dark:text-zinc-100">
       <h1 className="font-bold text-3xl text-zinc-800 dark:text-zinc-100">
-        Main Description
+        Main Description (Markdown Supported)
       </h1>
       <div className="w-full py-3">
         <Separator />
@@ -36,7 +38,6 @@ export default function StepTwo({ form }: { form: FormType }) {
           name="mainDescription"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="ml-1">Main Description*</FormLabel>
               <FormControl>
                 <Textarea
                   {...field}
@@ -61,7 +62,17 @@ export default function StepTwo({ form }: { form: FormType }) {
       )}
 
       {/* Toggle Switch */}
-      <div className="mt-6 flex justify-center">
+      <div className="mt-6 flex items-center justify-center gap-4 relative"> {/* Added relative here */}
+        <Link
+          href="https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="absolute left-0 flex items-center gap-1 rounded-full bg-zinc-200 px-2 py-1 text-xs font-medium text-zinc-600 transition-colors hover:bg-zinc-300 dark:bg-neutral-800 dark:text-zinc-400 dark:hover:bg-neutral-700 shadow-inner"
+        >
+          <ExternalLink className="h-3 w-3" /> {/* Reduced icon size */}
+          <span>Markdown Guide</span>
+        </Link>
+
         <div
           className="relative flex h-10 w-64 cursor-pointer items-center rounded-full bg-zinc-200 p-1 dark:bg-neutral-800 shadow-inner"
           onClick={() => setShowPreview(!showPreview)}
