@@ -32,8 +32,13 @@ export default async function SponsorsPage(props: {
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {sponsors.map((sponsor) => (
-          <Card key={sponsor.id} className="overflow-hidden transition-all hover:shadow-lg">
-            <div className="flex h-48 items-center justify-center bg-white p-6">
+          <Card 
+            key={sponsor.id} 
+            // 1. p-0: Remove any default padding from the card root so the image hits the edge
+            // 2. border-0: Optional, if you want the image to define the top edge completely
+            className="overflow-hidden transition-all hover:shadow-lg p-0" 
+          >
+            <div className="flex h-48 w-full items-center justify-center bg-white p-6">
               {sponsor.logoUrl ? (
                 <img
                   src={sponsor.logoUrl}
@@ -41,13 +46,17 @@ export default async function SponsorsPage(props: {
                   className="max-h-full max-w-full object-contain"
                 />
               ) : (
-                <div className="text-xl font-bold text-gray-400">{sponsor.name}</div>
+                <div className="flex h-full w-full items-center justify-center text-xl font-bold text-gray-400">
+                  {sponsor.name}
+                </div>
               )}
             </div>
-            <CardHeader>
+            
+            {/* Add padding back to the header and content since we removed it from the root */}
+            <CardHeader className="p-6 pb-2">
               <CardTitle>{sponsor.name}</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-6 pt-0">
               <p className="mb-4 text-sm text-muted-foreground">
                 {sponsor.description}
               </p>
