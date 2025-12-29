@@ -25,7 +25,7 @@ export default function StepTwo({ form }: { form: FormType }) {
   return (
     <div className="text-zinc-800 dark:text-zinc-100">
       <h1 className="font-bold text-3xl text-zinc-800 dark:text-zinc-100">
-        Main Description (Markdown Supported)
+        Main Description
       </h1>
       <div className="w-full py-3">
         <Separator />
@@ -62,14 +62,17 @@ export default function StepTwo({ form }: { form: FormType }) {
       )}
 
       {/* Toggle Switch */}
-      <div className="mt-6 flex items-center justify-center gap-4 relative"> {/* Added relative here */}
+      <div className="mt-6 flex items-center justify-center gap-4 relative">
+        <div className="absolute left-0 -top-6 text-xs text-zinc-500 dark:text-zinc-400">
+          (Markdown Supported)
+        </div>
         <Link
           href="https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax"
           target="_blank"
           rel="noopener noreferrer"
           className="absolute left-0 flex items-center gap-1 rounded-full bg-zinc-200 px-2 py-1 text-xs font-medium text-zinc-600 transition-colors hover:bg-zinc-300 dark:bg-neutral-800 dark:text-zinc-400 dark:hover:bg-neutral-700 shadow-inner"
         >
-          <ExternalLink className="h-3 w-3" /> {/* Reduced icon size */}
+          <ExternalLink className="h-3 w-3" />
           <span>Markdown Guide</span>
         </Link>
 
