@@ -1,6 +1,7 @@
 "use server"
 import { JudgeRole, prisma, UserRole } from "@repo/database";
 import { isAdmin } from "./auth";
+import { JudgeResult } from "./judge";
 
 export type UserSearchResult = {
   id: string;
@@ -10,10 +11,7 @@ export type UserSearchResult = {
   hackathonParticipants: {
     id: string;
     hackathonId: string;
-    judge: {
-      role: JudgeRole;
-      id: string;
-    } | null;
+    judge: JudgeResult;
   }[];
 };
 

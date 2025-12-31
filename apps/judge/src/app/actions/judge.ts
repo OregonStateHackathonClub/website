@@ -2,6 +2,32 @@
 import { JudgeRole, prisma } from "@repo/database";
 import { isAdmin, isManager } from "./auth";
 
+export type JudgeResult = {
+  role: JudgeRole;
+  id: string;
+} | null;
+
+export async function getJudge(userId: string, hackathonId: string): Promise<JudgeResult | false> {
+  if (!isAdmin()) return false;
+
+  try {
+    const judge = await prisma.judge.findFirst({
+      where: {
+        hackathon_participant: {
+          userId: userId,
+          hackathonId: hackathonId
+        }
+      }
+    })
+
+    if (!judge) return false
+    
+    return judge
+  } catch {
+    return false
+  }
+}
+
 export async function getJudgeType(userId: string, hackathonId: string): Promise<JudgeRole | false> {
   if (!isAdmin()) return false;
 
