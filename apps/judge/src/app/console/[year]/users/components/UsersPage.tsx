@@ -188,7 +188,7 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 								<strong>Managers can:</strong>
 								<ul className="list-disc list-inside">
 									<li>Add/Remove judges from this hackathon</li>
-									<li>Modify this hackathon's information</li>
+									<li>Modify this hackathon&apos;s information</li>
 									<li>Add/Modify/Remove teams & hackathon participants from this hackathon</li>
 									<li>Judge hackathon submissions</li>
 								</ul>
