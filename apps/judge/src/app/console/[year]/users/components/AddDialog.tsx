@@ -7,7 +7,7 @@ import Pages from "./Pages";
 import { Checkbox } from "@repo/ui/components/checkbox";
 import { createHackathonParticipant } from "@/app/actions/hackathonParticipant";
 import { toast } from "sonner";
-import { JudgeRole, UserRole } from "@prisma/client";
+import { JudgeRole } from "@prisma/client";
 import { createJudge, setJudgeType } from "@/app/actions/judge";
 
 type userId = string
