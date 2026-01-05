@@ -61,13 +61,45 @@ export default function Page() {
       <div className="crt-screen crt-scanlines crt-vignette w-full max-w-7xl h-full max-h-[900px] flex flex-col border border-amber-muted/25 p-3 md:p-4">
         {/* Header bar */}
         <div className="shrink-0 flex items-center justify-between border-b border-amber-muted/30 pb-2 mb-3">
-          <div className="flex items-center gap-2">
-            <span className="text-amber-bright font-primary text-sm md:text-base">
-              ◆ BEAVERHACKS
-            </span>
-            <span className="text-amber-muted text-xs hidden sm:inline">
-              // Oregon State Hackathon
-            </span>
+          <div className="flex items-center gap-3">
+            <pre className="text-amber-bright text-glow-base font-primary text-[2px] leading-[1.5px] hidden sm:block">
+              {`            .:-%@@@@@#:::
+         *%@@@@@@@@+  #@@@@@@#**=
+       @@@@@@@@@@@@@@*#@@@@@@@@@@@@+
+    =@@@@@@+++#@@@@@@@@@@@@@@@@@@@@@@%=
+   +@@@@@@=   %@@@@@@@@@@@@@@@@@@@@@@@@@-
+   =@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@.
+    =@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@.
+     =@@@@@@@@@@@@@@ -@@@@@@@@@@@@@@@@@@@@@@
+      +**%@@@@@@@**.=@@@@@#*.-+@@@@@@@@@@@@@#
+      +##       .##@@@@%: #@@@@@@@@@@@@@@@@@@:
+       *%        +@@@@.-@@@@@@@@@@@@@@@@@@@@@%
+                  =@+ %@@@@@@@@@@@@@@@@@@@@@@@
+                     @@@@@@@@@@@@@@@@@@@@@@@@@
+     ------         @@@@@@@@@@@@@@@@@@@@@@@@@@
+   %@@@@@@@@@#=    =@@@@@@@@@@@@@@@@@@@@@@@@@*
+ :@@@@@@@@@@@@@@@= =@@@@@@@@@@@@@@@@@@@@@@@@@:
+.%@@@@@@@@@@@@@@@@@: .%@@@@@@@@@@@@@@@@@@@@@%.
+:@@@@@@@@@@@@@@@@@@@@+  :@@@@@@@@@@@@@@@@@@@*
+:@@@@@@@@@@@@@#@@@@@@@@%:  .#@@@@@@@@@@@%#.
+:@@@@@@@@@@@#  =@@@@@@@@%@%*    :-----    =
+ *@@@@@@@%  @@@@@@@@@*   @@@@@@@@@@@@@@@@@
+  =======*@@@@@@@+ :=@@@@@@@@@@@@@@@@@@@%
+                %@@@@@@@@@@@@@@@@@@@@@@%
+                            -@@@@@@@@@:
+    .============@@@@@@@@@*#@@@@@@@+
+        *@@@@@@@@@@    @@@@@@@@@@@
+          -*@@@@@@@@@#-@@@@@@@#*
+              ::-@@@@@@@@@::.`}
+            </pre>
+            <div className="flex flex-col justify-center">
+              <span className="text-amber-bright text-glow-base font-primary text-sm md:text-base tracking-wide">
+                BEAVERHACKS
+              </span>
+              <span className="text-amber-muted text-[9px] md:text-[10px] hidden sm:block">
+                Oregon State Hackathon
+              </span>
+            </div>
           </div>
           <div className="flex items-center gap-3 text-xs">
             <span className="text-amber-dim hidden md:inline">
