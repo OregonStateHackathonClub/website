@@ -15,8 +15,9 @@ const PROCESSES = [
 ];
 
 export const SystemStats = () => {
-  const [cpuHistory, setCpuHistory] = useState<number[]>(generateCpuHistory);
+  const [cpuHistory, setCpuHistory] = useState<number[]>(() => Array(30).fill(25));
   const [cpuUsage, setCpuUsage] = useState(25);
+  const [coreUsages, setCoreUsages] = useState([32, 18, 45, 27]);
   const [memUsage, setMemUsage] = useState(42);
   const [swapUsage, setSwapUsage] = useState(12);
   const [diskUsage] = useState(67);
@@ -31,6 +32,11 @@ export const SystemStats = () => {
       const newCpu = Math.max(5, Math.min(95, cpuUsage + (Math.random() - 0.5) * 20));
       setCpuUsage(newCpu);
       setCpuHistory((prev) => [...prev.slice(1), newCpu]);
+
+      // Update core usages
+      setCoreUsages((prev) =>
+        prev.map((val) => Math.max(10, Math.min(60, val + Math.floor((Math.random() - 0.5) * 20))))
+      );
 
       // Update memory (slower changes)
       setMemUsage((prev) => Math.max(30, Math.min(80, prev + (Math.random() - 0.5) * 5)));
@@ -158,12 +164,10 @@ export const SystemStats = () => {
           </div>
           <ProgressBar value={cpuUsage} />
           <div className="grid grid-cols-4 gap-1 text-[9px] text-amber-muted">
-            {[0, 1, 2, 3].map((core) => (
+            {coreUsages.map((usage, core) => (
               <div key={core} className="text-center">
                 <div className="text-amber-dim">C{core}</div>
-                <div className="text-amber-normal">
-                  {Math.floor(Math.random() * 50 + 10)}%
-                </div>
+                <div className="text-amber-normal">{usage}%</div>
               </div>
             ))}
           </div>
