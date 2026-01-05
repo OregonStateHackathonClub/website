@@ -47,8 +47,8 @@ const FAQ_DATA = [
 ];
 
 export const Faq = () => (
-  <div className="font-secondary text-sm md:text-base h-full flex flex-col">
-    <div className="flex-1 min-h-0">
+  <div className="font-secondary text-sm md:text-base h-full flex flex-col overflow-hidden">
+    <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide">
       <div className="flex justify-between text-amber-dim mb-4 text-xs md:text-sm">
         <span>FAQ(1)</span>
         <span>BEAVERHACKS MANUAL</span>

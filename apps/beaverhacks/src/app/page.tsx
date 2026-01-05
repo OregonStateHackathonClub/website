@@ -5,6 +5,9 @@ import { Navbar, type Page } from "@/components/navbar";
 import { Home } from "@/components/home";
 import { Sponsors } from "@/components/sponsors";
 import { Faq } from "@/components/faq";
+import { StatusBar } from "@/components/status-bar";
+import { SystemStats } from "@/components/system-stats";
+import { Panel } from "@/components/panel";
 
 export default function Page() {
   const [currentPage, setCurrentPage] = useState<Page>("home");
@@ -54,22 +57,162 @@ export default function Page() {
   };
 
   return (
-    <main className="h-screen bg-screen-dark flex items-center justify-center p-4 md:p-8">
-      <div className="crt-screen crt-scanlines crt-vignette w-full max-w-4xl max-h-full aspect-square flex flex-col border border-amber-muted/25 px-12 py-8">
-        <Navbar active={currentPage} onNavigate={handleNavigate} />
-        <div className="flex-1 min-h-0 pt-1">
-          <div
-            className={`h-full ${
-              animationPhase === "out"
-                ? "animate-flicker-out"
-                : animationPhase === "in"
-                  ? "animate-fade-in"
-                  : ""
-            }`}
-          >
-            {renderContent()}
+    <main className="h-screen bg-screen-dark flex items-center justify-center p-2 md:p-4 lg:p-6">
+      <div className="crt-screen crt-scanlines crt-vignette w-full max-w-7xl h-full max-h-[900px] flex flex-col border border-amber-muted/25 p-3 md:p-4">
+        {/* Header bar */}
+        <div className="shrink-0 flex items-center justify-between border-b border-amber-muted/30 pb-2 mb-3">
+          <div className="flex items-center gap-2">
+            <span className="text-amber-bright font-primary text-sm md:text-base">
+              ◆ BEAVERHACKS
+            </span>
+            <span className="text-amber-muted text-xs hidden sm:inline">
+              // Oregon State Hackathon
+            </span>
+          </div>
+          <div className="flex items-center gap-3 text-xs">
+            <span className="text-amber-dim hidden md:inline">
+              <span className="text-amber-muted">PID:</span> 2026
+            </span>
+            <span className="text-amber-dim hidden md:inline">
+              <span className="text-amber-muted">TTY:</span> pts/0
+            </span>
+            <div className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-red-500/80" />
+              <span className="w-2 h-2 rounded-full bg-yellow-500/80" />
+              <span className="w-2 h-2 rounded-full bg-green-500/80" />
+            </div>
           </div>
         </div>
+
+        {/* Main content area */}
+        <div className="flex-1 min-h-0 flex gap-3">
+          {/* Left sidebar - System Stats */}
+          <div className="hidden lg:block w-56 xl:w-64 shrink-0 overflow-y-auto scrollbar-hide">
+            <SystemStats />
+          </div>
+
+          {/* Main terminal area */}
+          <div className="flex-1 min-w-0 flex flex-col">
+            <Panel
+              title="Terminal"
+              icon=">"
+              className="flex-1 min-h-0"
+              contentClassName="flex flex-col overflow-hidden"
+            >
+              <Navbar active={currentPage} onNavigate={handleNavigate} />
+              <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide">
+                <div
+                  className={`h-full ${
+                    animationPhase === "out"
+                      ? "animate-flicker-out"
+                      : animationPhase === "in"
+                        ? "animate-fade-in"
+                        : ""
+                  }`}
+                >
+                  {renderContent()}
+                </div>
+              </div>
+            </Panel>
+          </div>
+
+          {/* Right sidebar - Event info */}
+          <div className="hidden xl:flex w-52 shrink-0 flex-col gap-2">
+            <Panel title="Event Info" icon="󰃭">
+              <div className="space-y-2 text-[10px] md:text-xs font-secondary">
+                <div className="flex justify-between">
+                  <span className="text-amber-dim">Date</span>
+                  <span className="text-amber-normal">Apr 17-18, 2026</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-amber-dim">Duration</span>
+                  <span className="text-amber-normal">24 Hours</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-amber-dim">Location</span>
+                  <span className="text-amber-normal">Kelley EC</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-amber-dim">Hackers</span>
+                  <span className="text-amber-bright">500+</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-amber-dim">Prizes</span>
+                  <span className="text-amber-bright">$10,000+</span>
+                </div>
+              </div>
+            </Panel>
+
+            <Panel title="Sponsors" icon="">
+              <div className="space-y-1 text-[10px] font-secondary text-amber-muted">
+                <div className="text-amber-dim">Loading sponsors...</div>
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {["░░░░", "░░░", "░░░░░", "░░░"].map((s, i) => (
+                    <span key={i} className="text-amber-muted/50">
+                      {s}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </Panel>
+
+            <Panel title="Quick Links" icon="">
+              <div className="space-y-1 text-[10px] font-secondary">
+                <a
+                  href="/apply"
+                  className="block text-amber-normal hover:text-amber-bright hover:text-glow-base transition-all"
+                >
+                  → Register Now
+                </a>
+                <a
+                  href="https://discord.gg/hQaF72fwAr"
+                  className="block text-amber-dim hover:text-amber-normal transition-all"
+                >
+                  → Discord Server
+                </a>
+                <a
+                  href="https://instagram.com/beaverhacks"
+                  className="block text-amber-dim hover:text-amber-normal transition-all"
+                >
+                  → Instagram
+                </a>
+                <a
+                  href="https://github.com/OregonStateHackathonClub"
+                  className="block text-amber-dim hover:text-amber-normal transition-all"
+                >
+                  → GitHub
+                </a>
+              </div>
+            </Panel>
+
+            <Panel title="Logs" icon="" className="flex-1 min-h-0">
+              <div className="text-[9px] font-secondary text-amber-muted space-y-0.5">
+                <div>
+                  <span className="text-amber-dim">[INFO]</span> System
+                  initialized
+                </div>
+                <div>
+                  <span className="text-green-500">[OK]</span> Connection
+                  established
+                </div>
+                <div>
+                  <span className="text-amber-dim">[INFO]</span> Loading
+                  assets...
+                </div>
+                <div>
+                  <span className="text-green-500">[OK]</span> Ready
+                </div>
+                <div className="animate-pulse">
+                  <span className="text-amber-bright">[WAIT]</span> Awaiting
+                  hackers...
+                </div>
+              </div>
+            </Panel>
+          </div>
+        </div>
+
+        {/* Status Bar */}
+        <StatusBar />
       </div>
     </main>
   );

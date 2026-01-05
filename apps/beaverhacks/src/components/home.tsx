@@ -168,7 +168,7 @@ export const Home = ({ onNavigateAction }: HomeProps) => {
   return (
     <div
       ref={containerRef}
-      className="h-full overflow-hidden font-secondary"
+      className="h-full overflow-y-auto scrollbar-hide font-secondary"
       onClick={handleClick}
     >
       <div className="flex flex-col gap-2">
