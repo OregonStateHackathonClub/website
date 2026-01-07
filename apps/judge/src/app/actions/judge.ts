@@ -8,7 +8,7 @@ export type JudgeResult = {
 } | null;
 
 export async function getJudge(userId: string, hackathonId: string): Promise<JudgeResult | false> {
-  if (!isAdmin()) return false;
+  if (!await isAdmin()) return false;
 
   try {
     const judge = await prisma.judge.findFirst({
@@ -29,7 +29,7 @@ export async function getJudge(userId: string, hackathonId: string): Promise<Jud
 }
 
 export async function getJudgeType(userId: string, hackathonId: string): Promise<JudgeRole | false> {
-  if (!isAdmin()) return false;
+  if (!await isAdmin()) return false;
 
   try {
     const judge = await prisma.judge.findFirst({
@@ -50,7 +50,7 @@ export async function getJudgeType(userId: string, hackathonId: string): Promise
 }
 
 export async function setJudgeType(judgeId: string, role: JudgeRole) {
-  if (!isAdmin()) return false;
+  if (!await isAdmin()) return false;
 
   try {
     const judge = await prisma.judge.update({
@@ -69,7 +69,7 @@ export async function setJudgeType(judgeId: string, role: JudgeRole) {
 }
 
 export async function createJudge(participantId: string, role: JudgeRole = JudgeRole.JUDGE) {
-  if (!isAdmin()) return false;
+  if (!await isAdmin()) return false;
 
   try {
 
@@ -110,7 +110,7 @@ export async function removeJudge(judgeId: string) {
 
     if (!judge) return false
 
-    if (!(isManager(judge?.hackathon_participant.hackathonId) || isAdmin())) return false;
+    if (!(await isManager(judge?.hackathon_participant.hackathonId) || isAdmin())) return false;
 
     await prisma.judge.delete({
       where: {

@@ -34,7 +34,7 @@ export async function createHackathonParticipant(userId: string = "", hackathonI
 
     if (userId === "") {
       userId = session.user.id;
-    } else if (!(isManager(hackathonId) || isAdmin())) {
+    } else if (!(await isManager(hackathonId) || await isAdmin())) {
       return false
     }
 
@@ -58,7 +58,7 @@ export async function removeHackathonParticipant(id: string) {
 
     if (!hackathon_participant) return false
 
-    if (!(isManager(hackathon_participant.hackathonId) || isAdmin())) return false;
+    if (!(await isManager(hackathon_participant.hackathonId) || await isAdmin())) return false;
 
     await prisma.hackathonParticipant.delete({ where: { id } })
 

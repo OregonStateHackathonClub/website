@@ -16,7 +16,7 @@ export type UserSearchResult = {
 };
 
 export async function userSearch(search: string, hackathonId: string = "", role: UserRole | JudgeRole | null = null): Promise <UserSearchResult[] | false> {
-	if (!isAdmin()) return false;
+	if (!await isAdmin()) return false;
   const users = await prisma.user.findMany({
     where: {
       AND: [
@@ -110,7 +110,7 @@ export async function removeUser(
 
     if (!user) return false
 
-    if (!isAdmin()) return false;
+    if (!await isAdmin()) return false;
 
     await prisma.user.delete({ where: { id } })
     return true
@@ -124,7 +124,7 @@ export async function setAdmin(
     userId: string,
 ): Promise<boolean> {
 
-  if (!isAdmin())
+  if (!await isAdmin())
     return false
 
   await prisma.user.update({
