@@ -1,8 +1,6 @@
 "use server";
-import { auth } from "@repo/auth";
 import { prisma } from "@repo/database";
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import { isAdmin } from "@/app/actions/auth";
 
 interface TrackInput {

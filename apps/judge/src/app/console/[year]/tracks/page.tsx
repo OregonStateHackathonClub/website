@@ -1,6 +1,5 @@
 // admin only
 // see the tracks, create new tracks, add rubrics to tracks (each track can have one rubric)
-import { Navbar } from "@/components/navbar";
 import { prisma } from "@repo/database";
 import { createTrack } from "./server-action";
 import { TrackDialog } from "./components/createTrack";
