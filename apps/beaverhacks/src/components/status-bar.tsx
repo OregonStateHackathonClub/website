@@ -30,10 +30,15 @@ const formatTime = (date: Date) => {
 };
 
 export const StatusBar = () => {
-  const [countdown, setCountdown] = useState(getTimeUntilHack);
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [mounted, setMounted] = useState(false);
+  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, hacking: false });
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
 
   useEffect(() => {
+    setMounted(true);
+    setCountdown(getTimeUntilHack());
+    setCurrentTime(new Date());
+
     const timer = setInterval(() => {
       setCountdown(getTimeUntilHack());
       setCurrentTime(new Date());
@@ -116,7 +121,7 @@ export const StatusBar = () => {
           <div className="flex items-center">
             <span className="text-amber-bright/90 rotate-180"></span>
             <span className="bg-amber-bright/90 text-screen-dark px-2 py-0.5 font-bold font-primary text-[10px]">
-              {formatTime(currentTime)}
+              {currentTime ? formatTime(currentTime) : "--:--:--"}
             </span>
           </div>
         </div>
