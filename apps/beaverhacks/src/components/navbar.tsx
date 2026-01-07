@@ -20,7 +20,7 @@ export const Navbar = ({ active, onNavigate }: NavbarProps) => {
       <div className="flex items-stretch font-secondary text-[10px] md:text-xs border-b border-amber-muted/30">
         {/* Tabs */}
         <div className="flex items-stretch">
-          {navItems.map((item, index) => {
+          {navItems.map((item) => {
             const isActive = active === item.id;
             return (
               <button

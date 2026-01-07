@@ -30,12 +30,10 @@ const formatTime = (date: Date) => {
 };
 
 export const StatusBar = () => {
-  const [mounted, setMounted] = useState(false);
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, hacking: false });
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
 
   useEffect(() => {
-    setMounted(true);
     setCountdown(getTimeUntilHack());
     setCurrentTime(new Date());
 

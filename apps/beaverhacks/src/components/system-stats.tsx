@@ -3,9 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Panel } from "./panel";
 
-// Generate fake but realistic-looking data
-const generateCpuHistory = () => Array.from({ length: 30 }, () => Math.random() * 40 + 10);
-
 const PROCESSES = [
   { pid: "1337", name: "hackd", cpu: "12.4", mem: "2.1" },
   { pid: "0042", name: "beaverd", cpu: "8.2", mem: "4.3" },

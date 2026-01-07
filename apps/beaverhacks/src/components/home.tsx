@@ -52,9 +52,9 @@ const MOTD = () => (
         Welcome to <span className="text-amber-bright">BeaverHacks 2026</span>{" "}
         Terminal v1.0.0
       </p>
-      <p>Oregon State University's Premier Hackathon</p>
+      <p>Oregon State University&apos;s Premier Hackathon</p>
       <p className="text-amber-muted">
-        Type '<span className="text-amber-normal">help</span>' for available
+        Type &apos;<span className="text-amber-normal">help</span>&apos; for available
         commands
       </p>
     </div>
@@ -372,7 +372,7 @@ export const Home = ({ onNavigateAction }: HomeProps) => {
             command: cmd,
             output: (
               <div className="text-xs py-1 pl-2 border-l-2 border-amber-dim/50">
-                <p className="text-amber-normal italic">"{fortune}"</p>
+                <p className="text-amber-normal italic">&ldquo;{fortune}&rdquo;</p>
               </div>
             ),
             timestamp,
@@ -398,7 +398,7 @@ export const Home = ({ onNavigateAction }: HomeProps) => {
                   bash: {trimmed}: command not found
                 </p>
                 <p className="text-amber-muted">
-                  Type '<span className="text-amber-normal">help</span>' for
+                  Type &apos;<span className="text-amber-normal">help</span>&apos; for
                   available commands
                 </p>
               </div>
