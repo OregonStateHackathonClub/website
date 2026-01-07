@@ -23,7 +23,7 @@ interface TrackDialogProps {
 
 function SubmitButton() {
   const { pending } = useFormStatus();
-  
+
   return (
     <Button type="submit" disabled={pending}>
       {pending ? "Saving..." : "Save changes"}
@@ -42,7 +42,12 @@ export function TrackDialog({ yearParam, createTrack }: TrackDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="border-black text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 transition-colors">Create a track</Button>
+        <Button
+          variant="outline"
+          className="border-zinc-600 text-zinc-200 hover:bg-zinc-800 hover:text-white transition-colors"
+        >
+          Create a track
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <form action={handleSubmit} className="space-y-4">
@@ -64,7 +69,7 @@ export function TrackDialog({ yearParam, createTrack }: TrackDialogProps) {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="prize-1">Prize</Label>
-              <Input id="prize-1" name="prize"/>
+              <Input id="prize-1" name="prize" />
             </div>
           </div>
           <DialogFooter>

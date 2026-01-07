@@ -21,7 +21,7 @@ export async function isAdmin(): Promise<boolean> {
     return false;
   }
 
-  return user.role === UserRole.ADMIN
+  return user.role === UserRole.ADMIN;
 }
 
 export async function isManager(hackathonId: string): Promise<boolean> {
@@ -40,17 +40,17 @@ export async function isManager(hackathonId: string): Promise<boolean> {
       judge: {
         select: {
           role: true,
-          id: true
-        }
-      }
-    }
+          id: true,
+        },
+      },
+    },
   });
 
   if (!hackathon_participant) {
     return false;
   }
 
-  return hackathon_participant.judge?.role === JudgeRole.MANAGER
+  return hackathon_participant.judge?.role === JudgeRole.MANAGER;
 }
 
 export async function isTeamMember(teamId: string): Promise<boolean> {

@@ -4,11 +4,11 @@
 import UsersPage from "./components/UsersPage";
 
 export default async function Page({
-	params,
+  params,
 }: {
-	params: Promise<{ year: string;}>;
+  params: Promise<{ year: string }>;
 }) {
-	const { year } = await params;
+  const { year } = await params;
 
-	return <UsersPage hackathonId={year == "~" ? "" : year} />
+  return <UsersPage hackathonId={year == "~" ? "" : year} />;
 }

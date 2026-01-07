@@ -3,8 +3,8 @@
 import { Navbar } from "@/components/navbar";
 import { prisma } from "@repo/database";
 import { createTrack } from "./server-action";
-import { TrackDialog } from "./createTrack";
-import { RubricDialog } from "./createRubric";
+import { TrackDialog } from "./components/createTrack";
+import { RubricDialog } from "./components/createRubric";
 import { createRubric } from "./server-action";
 
 export default async function Page(props: {
@@ -20,23 +20,31 @@ export default async function Page(props: {
       name: true,
       description: true,
       prize: true,
+      rubrics: {
+        select: {
+          id: true,
+          name: true,
+          criteria: {
+            select: {
+              id: true,
+              name: true,
+              weight: true,
+              maxScore: true,
+            },
+          },
+        },
+      },
     },
   });
   return (
-    <div className="flex min-h-screen w-full flex-col bg-neutral-50">
-      <Navbar 
-      currentHackathonId={yearParam}
-      userTeamId={null}
-      teamSubmissionId={null}
-
-      />
+    <div className="flex min-h-screen w-full flex-col">
       <div className="mx-auto w-full max-w-5xl px-6 py-12 pt-24">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="font-medium text-2xl text-neutral-900 tracking-tight">
+            <h1 className="font-medium text-2xl text-white tracking-tight">
               Tracks
             </h1>
-            <p className="ml-1 mt-1 text-neutral-500 text-sm">
+            <p className="ml-1 mt-1 text-zinc-400 text-sm">
               {tracks.length} {tracks.length === 1 ? "track" : "tracks"}
             </p>
           </div>
@@ -44,9 +52,9 @@ export default async function Page(props: {
         </div>
 
         {tracks.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-neutral-300 bg-white py-16 text-center">
-            <p className="text-neutral-500 text-sm">No tracks yet</p>
-            <p className="mt-1 text-neutral-400 text-xs">
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-zinc-700 bg-zinc-800/50 py-16 text-center">
+            <p className="text-zinc-400 text-sm">No tracks yet</p>
+            <p className="mt-1 text-zinc-500 text-xs">
               Create your first track to get started
             </p>
           </div>
@@ -55,18 +63,18 @@ export default async function Page(props: {
             {tracks.map((track) => (
               <div
                 key={track.id}
-                className="group rounded-lg border border-neutral-200 bg-white p-6 transition-shadow hover:shadow-sm"
+                className="group rounded-lg border border-zinc-700 bg-zinc-800/50 p-6 transition-shadow hover:shadow-sm hover:bg-zinc-800"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 space-y-1">
-                    <h3 className="font-medium text-neutral-900 text-sm">
+                    <h3 className="font-medium text-white text-sm">
                       {track.name}
                     </h3>
-                    <p className="text-neutral-600 text-sm leading-relaxed">
+                    <p className="text-zinc-300 text-sm leading-relaxed">
                       {track.description}
                     </p>
                     {track.prize && (
-                      <p className="text-neutral-500 text-xs">
+                      <p className="text-zinc-400 text-xs">
                         Prize: {track.prize}
                       </p>
                     )}
@@ -75,6 +83,7 @@ export default async function Page(props: {
                     trackId={track.id}
                     trackName={track.name}
                     createRubric={createRubric}
+                    existingRubric={track.rubrics}
                   />
                 </div>
               </div>

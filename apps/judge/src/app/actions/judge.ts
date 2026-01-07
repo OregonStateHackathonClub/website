@@ -1,8 +1,11 @@
-"use server"
+"use server";
 import { JudgeRole, prisma } from "@repo/database";
 import { isAdmin, isManager } from "./auth";
 
-export async function getJudgeType(userId: string, hackathonId: string): Promise<JudgeRole | false> {
+export async function getJudgeType(
+  userId: string,
+  hackathonId: string,
+): Promise<JudgeRole | false> {
   if (!isAdmin()) return false;
 
   try {
@@ -10,16 +13,16 @@ export async function getJudgeType(userId: string, hackathonId: string): Promise
       where: {
         hackathon_participant: {
           userId: userId,
-          hackathonId: hackathonId
-        }
-      }
-    })
+          hackathonId: hackathonId,
+        },
+      },
+    });
 
-    if (!judge) return false
-    
-    return judge.role
+    if (!judge) return false;
+
+    return judge.role;
   } catch {
-    return false
+    return false;
   }
 }
 
@@ -29,30 +32,32 @@ export async function setJudgeType(judgeId: string, role: JudgeRole) {
   try {
     const judge = await prisma.judge.update({
       where: {
-        id: judgeId
+        id: judgeId,
       },
       data: {
-        role: role
-      }
-    })
+        role: role,
+      },
+    });
 
-    return !!judge
+    return !!judge;
   } catch {
-    return false
+    return false;
   }
 }
 
-export async function createJudge(participantId: string, role: JudgeRole = JudgeRole.JUDGE) {
+export async function createJudge(
+  participantId: string,
+  role: JudgeRole = JudgeRole.JUDGE,
+) {
   if (!isAdmin()) return false;
 
   try {
-
     const participant = await prisma.hackathonParticipant.findUnique({
       where: { id: participantId },
-      include: { user: true, judge: true }
-    })
+      include: { user: true, judge: true },
+    });
 
-    if (!participant) return false
+    if (!participant) return false;
 
     if (participant.judge) {
       return participant.judge;
@@ -63,13 +68,13 @@ export async function createJudge(participantId: string, role: JudgeRole = Judge
         name: participant.user.name,
         email: participant.user.email,
         hackathon_participant_id: participant.id,
-        role: role
+        role: role,
       },
-    })
+    });
 
-    return judge
+    return judge;
   } catch {
-    return false
+    return false;
   }
 }
 
@@ -78,22 +83,23 @@ export async function removeJudge(judgeId: string) {
     const judge = await prisma.judge.findUnique({
       where: { id: judgeId },
       include: {
-        hackathon_participant: true
-      }
-    })
+        hackathon_participant: true,
+      },
+    });
 
-    if (!judge) return false
+    if (!judge) return false;
 
-    if (!(isManager(judge?.hackathon_participant.hackathonId) || isAdmin())) return false;
+    if (!(isManager(judge?.hackathon_participant.hackathonId) || isAdmin()))
+      return false;
 
     await prisma.judge.delete({
       where: {
-        id: judgeId
-      }
-    })
+        id: judgeId,
+      },
+    });
 
-    return true
+    return true;
   } catch {
-    return false
+    return false;
   }
 }

@@ -20,6 +20,16 @@ interface RubricDialogProps {
   trackId: string;
   trackName: string;
   createRubric: (formData: FormData) => Promise<void>;
+  existingRubric?: {
+    id: string;
+    name: string;
+    criteria: {
+      id: string;
+      name: string;
+      weight: number;
+      maxScore: number;
+    }[];
+  } | null;
 }
 
 function SubmitButton() {
@@ -36,12 +46,21 @@ export function RubricDialog({
   trackId,
   trackName,
   createRubric,
+  existingRubric,
 }: RubricDialogProps) {
   const [open, setOpen] = useState(false);
 
   const [criteria, setCriteria] = useState<
     { name: string; weight: string; maxScore: string }[]
-  >([{ name: "", weight: "", maxScore: "" }]);
+  >(
+    existingRubric?.criteria.map((c) => ({
+      name: c.name,
+      weight: c.weight.toString(),
+      maxScore: c.maxScore.toString(),
+    })) || [{ name: "", weight: "", maxScore: "" }],
+  );
+
+  const [rubricName, setRubricName] = useState(existingRubric?.name || "");
 
   const addCriterion = () => {
     setCriteria([...criteria, { name: "", weight: "", maxScore: "" }]);
@@ -59,8 +78,12 @@ export function RubricDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="border-black text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 transition-colors">
-          Edit
+        <Button
+          variant="outline"
+          size="sm"
+          className="border-zinc-600 text-zinc-200 hover:bg-zinc-800 hover:text-white transition-colors"
+        >
+          {existingRubric ? "Edit" : "Create Rubric"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] max-h-[90vh] flex flex-col">
@@ -76,7 +99,12 @@ export function RubricDialog({
           className="space-y-4 overflow-y-auto flex-1"
         >
           <input type="hidden" name="trackId" value={trackId} />
-          <Input name="rubricName" placeholder="Rubric Name" />
+          <Input
+            name="rubricName"
+            placeholder="Rubric Name"
+            value={rubricName}
+            onChange={(e) => setRubricName(e.target.value)}
+          />
 
           {criteria.map((criterion, index) => (
             <Card key={index} className="p-4 space-y-2">
