@@ -4,31 +4,48 @@ import { isAdmin, isManager } from "./auth";
 import { auth } from "@repo/auth";
 import { headers } from "next/headers";
 
-export async function createHackathonParticipant(): Promise<boolean> {
+// TODO: TEMPORARY - FIND HACKATHON IN A BETTER WAY
+async function findHackathonId() {
+  const hackathon = await prisma.hackathon.findFirst({
+    select: { id: true },
+  });
+  return hackathon?.id
+}
+
+export type HackathonParticipant = {
+    id: string;
+    userId: string;
+    hackathonId: string;
+    joinedAt: Date;
+}
+
+export async function createHackathonParticipant(userId: string = "", hackathonId: string = ""): Promise<HackathonParticipant | false> {
   try {
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session) {
       return false;
     }
 
-    const userId = session.user.id;
-
-    const hackathon = await prisma.hackathon.findFirst({
-      select: { id: true },
-    });
-
-    if (!hackathon) {
-      return false;
+    if (hackathonId === "") {
+      const foundHackathon = await findHackathonId()
+      if (!foundHackathon) return false
+      hackathonId = foundHackathon
     }
 
-    await prisma.hackathonParticipant.create({
+    if (userId === "") {
+      userId = session.user.id;
+    } else if (!(await isManager(hackathonId) || await isAdmin())) {
+      return false
+    }
+
+    const hackathonParticipant = await prisma.hackathonParticipant.create({
       data: {
         user: { connect: { id: userId } },
-        hackathon: { connect: { id: hackathon.id } },
+        hackathon: { connect: { id: hackathonId } },
       },
     });
 
-    return true;
+    return hackathonParticipant;
   } catch (error) {
     console.error("Error creating hackathon participant:", error);
     return false;
@@ -41,7 +58,7 @@ export async function removeHackathonParticipant(id: string) {
 
     if (!hackathon_participant) return false
 
-    if (!(isManager(hackathon_participant.hackathonId) || isAdmin())) return false;
+    if (!(await isManager(hackathon_participant.hackathonId) || await isAdmin())) return false;
 
     await prisma.hackathonParticipant.delete({ where: { id } })
 

@@ -5,37 +5,6 @@ import { type Prisma, prisma } from "@repo/database";
 import { headers } from "next/headers";
 import { isTeamMember } from "./auth";
 
-export async function createHackathonParticipant(): Promise<boolean> {
-  try {
-    const session = await auth.api.getSession({ headers: await headers() });
-    if (!session) {
-      return false;
-    }
-
-    const userId = session.user.id;
-
-    const hackathon = await prisma.hackathon.findFirst({
-      select: { id: true },
-    });
-
-    if (!hackathon) {
-      return false;
-    }
-
-    await prisma.hackathonParticipant.create({
-      data: {
-        user: { connect: { id: userId } },
-        hackathon: { connect: { id: hackathon.id } },
-      },
-    });
-
-    return true;
-  } catch (error) {
-    console.error("Error creating hackathon participant:", error);
-    return false;
-  }
-}
-
 // Return teamId if successful. false if unsucessful
 export async function createTeam(
   teamData: Omit<Prisma.TeamCreateInput, "creatorId">,

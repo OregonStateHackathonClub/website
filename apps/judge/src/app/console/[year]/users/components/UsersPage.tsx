@@ -1,13 +1,15 @@
 "use client";
 import { userSearch, UserSearchResult } from "@/app/actions/user";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@repo/ui/components/pagination";
 import { Button } from "@repo/ui/components/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, } from "@repo/ui/components/dropdown-menu";
 import { toast } from "sonner";
 import { JudgeRole, UserRole } from "@prisma/client";
 import { ChevronDown } from "lucide-react";
 import UserOuterSheet from "./UserOuterSheet";
+import InfoTooltip from "./InfoTooltip";
+import Pages from "./Pages";
+import AddDialog from "./AddDialog";
 
 export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 	const [search, setSearch] = useState("");
@@ -150,69 +152,6 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 		);
 	}
 
-	function Pages({
-		totalPages,
-		page,
-		setPage,
-	}: {
-		totalPages: number;
-		page: number;
-		setPage: React.Dispatch<React.SetStateAction<number>>;
-	}) {
-		return (
-			<Pagination className="pt-2">
-				<PaginationContent>
-					<PaginationItem>
-						<PaginationPrevious
-							className="hover:bg-gray-800 hover:text-white"
-							onClick={() => setPage((p) => Math.max(1, p - 1))}
-						/>
-					</PaginationItem>
-					{Array.from({ length: totalPages }, (_, i) => i + 1)
-						.filter((pageNum) => {
-							if (pageNum === 1 || pageNum === totalPages) return true;
-							if (Math.abs(pageNum - page) <= 2) return true;
-							return false;
-						})
-						.map((pageNum, idx, arr) => {
-							const prev = arr[idx - 1];
-							const showEllipsis = prev && pageNum - prev > 1;
-
-							return (
-								<React.Fragment key={pageNum}>
-									{showEllipsis && (
-										<PaginationItem>
-											<PaginationEllipsis />
-										</PaginationItem>
-									)}
-									<PaginationItem>
-										<PaginationLink
-											onClick={() => setPage(pageNum)}
-											className={`hover:bg-gray-800 hover:text-white ${
-												page === pageNum
-													? "border-gray-700 bg-gray-900 text-white"
-													: ""
-											}`}
-											isActive={page === pageNum}
-										>
-											{pageNum}
-										</PaginationLink>
-									</PaginationItem>
-								</React.Fragment>
-							);
-						})}
-
-					<PaginationItem>
-						<PaginationNext
-							className="hover:bg-gray-800 hover:text-white"
-							onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-						/>
-					</PaginationItem>
-				</PaginationContent>
-			</Pagination>
-		);
-	}
-
 	return (
 		<>
 			{
@@ -245,11 +184,17 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 							<div>
 								Managers
 							</div>
+							<InfoTooltip>
+								<strong>Managers can:</strong>
+								<ul className="list-disc list-inside">
+									<li>Add/Remove judges from this hackathon</li>
+									<li>Modify this hackathon&apos;s information</li>
+									<li>Add/Modify/Remove teams & hackathon participants from this hackathon</li>
+									<li>Judge hackathon submissions</li>
+								</ul>
+							</InfoTooltip>
 							<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
-							<Button
-							variant={"outline"}
-							className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
-							onClick={() => toast.error("Not yet implemented")}>+</Button>
+							<AddDialog role={JudgeRole.MANAGER} hackathonId={hackathonId} search={search} setSearch={setSearch} filteredUsers={filteredUsers} setAllUsers={setAllUsers} />
 						</div>
 						{users ? <Users list={managers} page={managerPage} setPage={setManagerPage} /> : <div>Loading...</div>}
 
@@ -257,11 +202,15 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 							<div>
 								Judges
 							</div>
+							<InfoTooltip>
+								<strong>Judges can:</strong>
+								<ul className="list-disc list-inside">
+									<li>Judge hackathon submissions</li>
+									<li>Modify their own judging rubric</li>
+								</ul>
+							</InfoTooltip>
 							<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
-							<Button
-							variant={"outline"}
-							className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
-							onClick={() => toast.error("Not yet implemented")}>+</Button>
+							<AddDialog role={JudgeRole.JUDGE} hackathonId={hackathonId} search={search} setSearch={setSearch} filteredUsers={filteredUsers} setAllUsers={setAllUsers} />
 						</div>
 						{users ? <Users list={judges} page={judgePage} setPage={setJudgePage} /> : <div>Loading...</div>}
 
@@ -270,10 +219,7 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 								Users
 							</div>
 							<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
-							<Button
-							variant={"outline"}
-							className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
-							onClick={() => toast.error("Not yet implemented")}>+</Button>
+							<AddDialog role={null} hackathonId={hackathonId} search={search} setSearch={setSearch} filteredUsers={filteredUsers} setAllUsers={setAllUsers} />
 						</div>
 						{users ? <Users list={users} page={userPage} setPage={setUserPage} /> : <div>Loading...</div>}
 					</div>
@@ -283,11 +229,15 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 							<div>
 								Admins
 							</div>
+							<InfoTooltip>
+								<strong>Admins can:</strong>
+								<ul className="list-disc list-inside">
+									<li>Add/Modify/Remove Hackathons</li>
+									<li>Add/Remove admins, managers, and judges</li>
+									<li>Modify/Delete Users</li>
+								</ul>
+							</InfoTooltip>
 							<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
-							<Button
-							variant={"outline"}
-							className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
-							onClick={() => toast.error("Not yet implemented")}>+</Button>
 						</div>
 						{users ? <Users list={admins} page={adminPage} setPage={setAdminPage} /> : <div>Loading...</div>}
 						<div className="flex w-full justify-between items-center my-5">
@@ -295,10 +245,6 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
 								Users
 							</div>
 							<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
-							<Button
-							variant={"outline"}
-							className="w-9 h-9 p-0 m-0 rounded-full border-gray-800 bg-gray-900 text-gray-100 hover:bg-gray-800 hover:text-gray-100"
-							onClick={() => toast.error("Not yet implemented")}>+</Button>
 						</div>
 						{users ? <Users list={users} page={userPage} setPage={setUserPage} /> : <div>Loading...</div>}
 					</div>
