@@ -10,21 +10,21 @@ import { toast } from "sonner";
 import { JudgeRole } from "@prisma/client";
 import { createJudge, setJudgeType } from "@/app/actions/judge";
 
-type userId = string
+type UserId = string
 
 export default function AddDialog({ role, hackathonId, search, setSearch, filteredUsers, setAllUsers }: { role: null | JudgeRole, hackathonId: string, search: string, setSearch: React.Dispatch<React.SetStateAction<string>>, filteredUsers: UserSearchResult[], setAllUsers: React.Dispatch<React.SetStateAction<UserSearchResult[]>> }) {
-    const [selected, setSelected] = useState<userId[]>([])
+    const [selected, setSelected] = useState<UserId[]>([])
     const [page, setPage] = useState(1)
 
     let validTargets
 
     if (role === null) {
         validTargets = filteredUsers.filter(u =>
-            u.hackathonParticipants.some(p => p.hackathonId !== hackathonId)
+            !u.hackathonParticipants.some(p => p.hackathonId === hackathonId)
         );
     } else {
         validTargets = filteredUsers.filter(u =>
-            u.hackathonParticipants.some(p => p.judge?.role !== role)
+            u.hackathonParticipants.some(p => p.hackathonId === hackathonId && p.judge?.role !== role)
         );
     }
 
@@ -34,12 +34,12 @@ export default function AddDialog({ role, hackathonId, search, setSearch, filter
         const totalSelected = selected.length
         let selectedCount = selected.length
 
-        const makeRole = async (id: userId) => {
-            const currentUser = filteredUsers.find(u => u.id == id);
+        const makeRole = async (id: UserId) => {
+            const currentUser = filteredUsers.find(u => u.id === id);
             if (!currentUser) return
             let currentHackathonParticipant = currentUser.hackathonParticipants.find((p) => p.hackathonId === hackathonId );
             if (!currentHackathonParticipant) {
-                const fullHackathonParticipant = await createHackathonParticipant()
+                const fullHackathonParticipant = await createHackathonParticipant(currentUser.id, hackathonId)
                 if (!fullHackathonParticipant) return
                 currentHackathonParticipant = {
                     id: fullHackathonParticipant.id,
