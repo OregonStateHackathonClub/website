@@ -21,6 +21,7 @@ const COMMANDS = [
   "whoami",
   "date",
   "fortune",
+  "credits",
 ];
 
 const FORTUNES = [
@@ -198,6 +199,10 @@ const HelpOutput = () => (
               <span className="text-amber-normal w-20 inline-block">clear</span>{" "}
               Clear terminal
             </p>
+            <p>
+              <span className="text-amber-normal w-20 inline-block">credits</span>{" "}
+              Meet the team
+            </p>
           </div>
         </div>
         <div>
@@ -217,6 +222,35 @@ const HelpOutput = () => (
         </div>
       </div>
     </div>
+  </div>
+);
+
+const TeamOutput = () => (
+  <div className="text-[10px] md:text-xs py-1 font-secondary">
+    <pre className="text-amber-bright">{`
+╭─ LEADERSHIP ─────────────────────────────────────╮`}</pre>
+    <pre className="text-amber-normal">{`│  Havel Kondah        President                   │
+│  Owen Krause         Vice President              │
+│  Violette Davis      Marketing Director          │
+│  Caleb Chia          Production Director         │
+│  Joshua Chilango     Financial Director          │`}</pre>
+    <pre className="text-amber-bright">{`╰──────────────────────────────────────────────────╯
+
+╭─ MARKETING ──────────────────────────────────────╮`}</pre>
+    <pre className="text-amber-normal">{`│  Ally Chen     Alyssa       Ben                  │
+│  Claire        Kiarra       Zakia                │`}</pre>
+    <pre className="text-amber-bright">{`╰──────────────────────────────────────────────────╯
+
+╭─ EVENTS ─────────────────────────────────────────╮`}</pre>
+    <pre className="text-amber-normal">{`│  Ireland       Joshua                            │`}</pre>
+    <pre className="text-amber-bright">{`╰──────────────────────────────────────────────────╯
+
+╭─ DEVELOPERS ─────────────────────────────────────╮`}</pre>
+    <pre className="text-amber-normal">{`│  Lukas Sueffert      Lead                        │
+│  Noam Yaffe          Lead                        │
+│  Aadarsh      Brandon      Faith                 │
+│  Kishore      Pedro        Stanley               │`}</pre>
+    <pre className="text-amber-bright">{`╰──────────────────────────────────────────────────╯`}</pre>
   </div>
 );
 
@@ -343,6 +377,12 @@ export const Home = ({ onNavigateAction }: HomeProps) => {
             ),
             timestamp,
           },
+        ]);
+        break;
+      case "credits":
+        setHistory((prev) => [
+          ...prev,
+          { command: cmd, output: <TeamOutput />, timestamp },
         ]);
         break;
       case "":
