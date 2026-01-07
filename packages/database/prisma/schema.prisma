@@ -127,7 +127,6 @@ model Hackathon {
   teams        Team[]
   tracks       Track[]
   submissions  Submission[]
-  judges       JudgeAssignment[]
 
   @@map("hackathon")
 }
@@ -236,6 +235,7 @@ model Submission {
   scores           Score[]
   tracks           Track[]
   grade            RubricGrade[]
+  judges           JudgeAssignment[]
 
   @@map("submission")
 }
@@ -327,14 +327,14 @@ model Judge {
 model JudgeAssignment {
   id          String   @id @default(cuid())
   judgeId     String
-  hackathonId String
+  submissionId String
   assignedAt  DateTime @default(now())
 
   // Relations
   judge     Judge     @relation(fields: [judgeId], references: [id], onDelete: Cascade)
-  hackathon Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
 
-  @@unique([judgeId, hackathonId])
+  @@unique([submissionId])
   @@map("judge_assignment")
 }
 
