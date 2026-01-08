@@ -21,8 +21,8 @@ importers:
   apps/beaverhacks:
     dependencies:
       '@hookform/resolvers':
-        specifier: ^3.9.1
-        version: 3.10.0(react-hook-form@7.65.0(react@19.2.0))
+        specifier: ^5.2.2
+        version: 5.2.2(react-hook-form@7.68.0(react@19.2.0))
       '@prisma/client':
         specifier: ^6.18.0
         version: 6.18.0(prisma@6.18.0(typescript@5.3.3))(typescript@5.3.3)
@@ -63,8 +63,8 @@ importers:
         specifier: ^19.0.0
         version: 19.2.0(react@19.2.0)
       react-hook-form:
-        specifier: ^7.53.2
-        version: 7.65.0(react@19.2.0)
+        specifier: ^7.68.0
+        version: 7.68.0(react@19.2.0)
       react-icons:
         specifier: ^5.3.0
         version: 5.5.0(react@19.2.0)
@@ -725,11 +725,6 @@ packages:
 
   '@hexagon/base64@1.1.28':
     resolution: {integrity: sha512-lhqDEAvWixy3bZ+UOYbPwUbBkwBq5C1LAJ/xPC8Oi+lL54oyakv/npbA0aU2hgCsx/1NUd4IBvV03+aUBWxerw==}
-
-  '@hookform/resolvers@3.10.0':
-    resolution: {integrity: sha512-79Dv+3mDF7i+2ajj7SkypSKHhl1cbln1OGavqrsF7p6mbUv11xpqpacPsGDCTRvCSjEEIez2ef1NveSVL3b0Ag==}
-    peerDependencies:
-      react-hook-form: ^7.0.0
 
   '@hookform/resolvers@5.2.2':
     resolution: {integrity: sha512-A/IxlMLShx3KjV/HeTcTfaMxdwy690+L/ZADoeaTltLx+CVuzkeVIPuybK3jrRfw7YZnmdKsVVHAlEPIAEUNlA==}
@@ -3958,12 +3953,6 @@ packages:
     peerDependencies:
       react: ^19.2.1
 
-  react-hook-form@7.65.0:
-    resolution: {integrity: sha512-xtOzDz063WcXvGWaHgLNrNzlsdFgtUWcb32E6WFaGTd7kPZG3EeDusjdZfUsPwKCKVXy1ZlntifaHZ4l8pAsmw==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      react: ^16.8.0 || ^17 || ^18 || ^19
-
   react-hook-form@7.68.0:
     resolution: {integrity: sha512-oNN3fjrZ/Xo40SWlHf1yCjlMK417JxoSJVUXQjGdvdRCU07NTFei1i1f8ApUAts+IVh14e4EdakeLEA+BEAs/Q==}
     engines: {node: '>=18.0.0'}
@@ -4869,9 +4858,10 @@ snapshots:
 
   '@hexagon/base64@1.1.28': {}
 
-  '@hookform/resolvers@3.10.0(react-hook-form@7.65.0(react@19.2.0))':
+  '@hookform/resolvers@5.2.2(react-hook-form@7.68.0(react@19.2.0))':
     dependencies:
-      react-hook-form: 7.65.0(react@19.2.0)
+      '@standard-schema/utils': 0.3.0
+      react-hook-form: 7.68.0(react@19.2.0)
 
   '@hookform/resolvers@5.2.2(react-hook-form@7.68.0(react@19.2.1))':
     dependencies:
@@ -8737,7 +8727,7 @@ snapshots:
       react: 19.2.1
       scheduler: 0.27.0
 
-  react-hook-form@7.65.0(react@19.2.0):
+  react-hook-form@7.68.0(react@19.2.0):
     dependencies:
       react: 19.2.0
 
