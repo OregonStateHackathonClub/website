@@ -54,11 +54,11 @@ const MOTD = () => (
       </p>
       <p>Oregon State University&apos;s Premier Hackathon</p>
       <p className="text-amber-muted">
-        Type &apos;<span className="text-amber-normal">help</span>&apos; for available
-        commands
+        Type &apos;<span className="text-amber-normal">help</span>&apos; for
+        available commands
       </p>
     </div>
-    <div className="mt-2 pl-1 text-amber-muted border-l-2 border-amber-muted/30 ml-1 pl-2">
+    <div className="mt-2 text-amber-muted border-l-2 border-amber-muted/30 ml-1 pl-2">
       <p>
         <span className="text-amber-dim">Date:</span> April 17-18, 2026
       </p>
@@ -76,7 +76,7 @@ const MOTD = () => (
 
 const BeavfetchOutput = () => (
   <div className="flex gap-4 md:gap-6 items-start py-1">
-    <pre className="text-amber-bright text-glow-base font-primary text-[6px] md:text-[8px] leading-[1] shrink-0">
+    <pre className="text-amber-bright text-glow-base font-primary text-[6px] md:text-[8px] leading-none shrink-0">
       <Ascii />
     </pre>
     <div className="text-[10px] md:text-xs font-secondary min-w-0">
@@ -200,7 +200,9 @@ const HelpOutput = () => (
               Clear terminal
             </p>
             <p>
-              <span className="text-amber-normal w-20 inline-block">credits</span>{" "}
+              <span className="text-amber-normal w-20 inline-block">
+                credits
+              </span>{" "}
               Meet the team
             </p>
           </div>
@@ -372,7 +374,9 @@ export const Home = ({ onNavigateAction }: HomeProps) => {
             command: cmd,
             output: (
               <div className="text-xs py-1 pl-2 border-l-2 border-amber-dim/50">
-                <p className="text-amber-normal italic">&ldquo;{fortune}&rdquo;</p>
+                <p className="text-amber-normal italic">
+                  &ldquo;{fortune}&rdquo;
+                </p>
               </div>
             ),
             timestamp,
@@ -398,8 +402,8 @@ export const Home = ({ onNavigateAction }: HomeProps) => {
                   bash: {trimmed}: command not found
                 </p>
                 <p className="text-amber-muted">
-                  Type &apos;<span className="text-amber-normal">help</span>&apos; for
-                  available commands
+                  Type &apos;<span className="text-amber-normal">help</span>
+                  &apos; for available commands
                 </p>
               </div>
             ),

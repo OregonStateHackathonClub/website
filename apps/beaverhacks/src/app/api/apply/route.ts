@@ -55,13 +55,13 @@ export async function POST(request: Request): Promise<Response> {
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #F97316; margin-top: 20px;">BeaverHacks Registration Confirmed!</h2>
-          
+
           <p>Hello ${user.name},</p>
-          
+
           <p>Thank you for registering for BeaverHacks! Your application has been successfully submitted.</p>
-          
+
           <!-- Rest of your email template -->
-          
+
           <p style="margin-top: 30px;">See you at the hackathon!</p>
           <p>The BeaverHacks Team</p>
         </div>

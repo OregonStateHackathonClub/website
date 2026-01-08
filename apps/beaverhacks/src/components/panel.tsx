@@ -10,7 +10,13 @@ type PanelProps = {
   contentClassName?: string;
 };
 
-export const Panel = ({ title, icon, children, className = "", contentClassName = "" }: PanelProps) => {
+export const Panel = ({
+  title,
+  icon,
+  children,
+  className = "",
+  contentClassName = "",
+}: PanelProps) => {
   return (
     <div
       className={`border border-amber-muted/30 bg-screen-dark/50 flex flex-col ${className}`}

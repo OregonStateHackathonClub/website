@@ -29,7 +29,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`dark ${vt323.variable} ${ibmPlexMono.variable}`}>
+    <html
+      lang="en"
+      className={`dark ${vt323.variable} ${ibmPlexMono.variable}`}
+    >
       <body className="font-bh-secondary">
         {children}
         <Analytics />

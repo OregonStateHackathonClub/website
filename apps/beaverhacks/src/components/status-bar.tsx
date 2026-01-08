@@ -30,7 +30,13 @@ const formatTime = (date: Date) => {
 };
 
 export const StatusBar = () => {
-  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, hacking: false });
+  const [countdown, setCountdown] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+    hacking: false,
+  });
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
 
   useEffect(() => {
@@ -86,17 +92,15 @@ export const StatusBar = () => {
           ) : (
             <div className="flex items-center gap-1">
               <span className="text-amber-dim hidden sm:inline"></span>
-              <span className="text-amber-muted text-[10px]">HACK BEGINS IN</span>
+              <span className="text-amber-muted text-[10px]">
+                HACK BEGINS IN
+              </span>
               <span className="text-amber-bright text-glow-base font-primary tracking-wide text-sm md:text-base ml-1">
                 {pad(countdown.days)}
-                <span className="text-amber-dim">d</span>
-                {" "}
-                {pad(countdown.hours)}
-                <span className="text-amber-dim">h</span>
-                {" "}
+                <span className="text-amber-dim">d</span> {pad(countdown.hours)}
+                <span className="text-amber-dim">h</span>{" "}
                 {pad(countdown.minutes)}
-                <span className="text-amber-dim">m</span>
-                {" "}
+                <span className="text-amber-dim">m</span>{" "}
                 {pad(countdown.seconds)}
                 <span className="text-amber-dim">s</span>
               </span>
@@ -108,8 +112,12 @@ export const StatusBar = () => {
         <div className="flex items-center gap-2 md:gap-4">
           {/* Line/Col */}
           <div className="hidden md:flex items-center gap-2 text-amber-dim">
-            <span>Ln <span className="text-amber-normal">1</span></span>
-            <span>Col <span className="text-amber-normal">1</span></span>
+            <span>
+              Ln <span className="text-amber-normal">1</span>
+            </span>
+            <span>
+              Col <span className="text-amber-normal">1</span>
+            </span>
           </div>
 
           {/* Encoding */}

@@ -88,12 +88,12 @@ export const Faq = () => {
                   </span>
 
                   {/* Tag */}
-                  <span className="shrink-0 text-amber-dim">
-                    *{faq.tag}*
-                  </span>
+                  <span className="shrink-0 text-amber-dim">*{faq.tag}*</span>
 
                   {/* Question */}
-                  <span className={`${isExpanded ? "text-amber-bright" : "text-amber-normal group-hover:text-amber-bright"} transition-all`}>
+                  <span
+                    className={`${isExpanded ? "text-amber-bright" : "text-amber-normal group-hover:text-amber-bright"} transition-all`}
+                  >
                     {faq.question}
                   </span>
                 </button>
@@ -118,11 +118,11 @@ export const Faq = () => {
         {/* Footer */}
         <div className="mt-6 pt-4 border-t border-amber-muted/20">
           <div className="flex gap-2 text-amber-muted">
-            <span className="text-amber-muted/30 w-6 text-right shrink-0">99</span>
-            <span className="w-4 shrink-0" />
-            <span className="text-amber-dim">
-              vim: tw=78 ts=8 ft=help norl
+            <span className="text-amber-muted/30 w-6 text-right shrink-0">
+              99
             </span>
+            <span className="w-4 shrink-0" />
+            <span className="text-amber-dim">vim: tw=78 ts=8 ft=help norl</span>
           </div>
         </div>
       </div>
@@ -130,7 +130,9 @@ export const Faq = () => {
       {/* Status line */}
       <div className="shrink-0 flex items-center justify-between border-t border-amber-muted/30 pt-2 mt-2 text-[9px] md:text-[10px]">
         <div className="flex items-center gap-2">
-          <span className="bg-amber-bright/90 text-screen-dark px-1.5 font-bold">HELP</span>
+          <span className="bg-amber-bright/90 text-screen-dark px-1.5 font-bold">
+            HELP
+          </span>
           <span className="text-amber-bright/90"></span>
           <span className="text-amber-dim">faq.txt</span>
         </div>

@@ -12,7 +12,9 @@ const PROCESSES = [
 ];
 
 export const SystemStats = () => {
-  const [cpuHistory, setCpuHistory] = useState<number[]>(() => Array(30).fill(25));
+  const [cpuHistory, setCpuHistory] = useState<number[]>(() =>
+    Array(30).fill(25),
+  );
   const [cpuUsage, setCpuUsage] = useState(25);
   const [coreUsages, setCoreUsages] = useState([32, 18, 45, 27]);
   const [memUsage, setMemUsage] = useState(42);
@@ -26,18 +28,30 @@ export const SystemStats = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       // Update CPU
-      const newCpu = Math.max(5, Math.min(95, cpuUsage + (Math.random() - 0.5) * 20));
+      const newCpu = Math.max(
+        5,
+        Math.min(95, cpuUsage + (Math.random() - 0.5) * 20),
+      );
       setCpuUsage(newCpu);
       setCpuHistory((prev) => [...prev.slice(1), newCpu]);
 
       // Update core usages
       setCoreUsages((prev) =>
-        prev.map((val) => Math.max(10, Math.min(60, val + Math.floor((Math.random() - 0.5) * 20))))
+        prev.map((val) =>
+          Math.max(
+            10,
+            Math.min(60, val + Math.floor((Math.random() - 0.5) * 20)),
+          ),
+        ),
       );
 
       // Update memory (slower changes)
-      setMemUsage((prev) => Math.max(30, Math.min(80, prev + (Math.random() - 0.5) * 5)));
-      setSwapUsage((prev) => Math.max(5, Math.min(30, prev + (Math.random() - 0.5) * 3)));
+      setMemUsage((prev) =>
+        Math.max(30, Math.min(80, prev + (Math.random() - 0.5) * 5)),
+      );
+      setSwapUsage((prev) =>
+        Math.max(5, Math.min(30, prev + (Math.random() - 0.5) * 3)),
+      );
 
       // Update network
       setNetIn(Math.floor(Math.random() * 500 + 50));
@@ -157,7 +171,9 @@ export const SystemStats = () => {
           />
           <div className="flex justify-between items-center">
             <span className="text-amber-dim">Usage</span>
-            <span className="text-amber-bright font-mono">{cpuUsage.toFixed(1)}%</span>
+            <span className="text-amber-bright font-mono">
+              {cpuUsage.toFixed(1)}%
+            </span>
           </div>
           <ProgressBar value={cpuUsage} />
           <div className="grid grid-cols-4 gap-1 text-[9px] text-amber-muted">
@@ -251,7 +267,9 @@ export const SystemStats = () => {
         <div className="space-y-1 text-[10px]">
           <div className="flex justify-between">
             <span className="text-amber-dim">Uptime</span>
-            <span className="text-amber-bright font-mono">{formatUptime(uptime)}</span>
+            <span className="text-amber-bright font-mono">
+              {formatUptime(uptime)}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-amber-dim">Kernel</span>

@@ -26,19 +26,23 @@ export const Navbar = ({ active, onNavigate }: NavbarProps) => {
               <button
                 key={item.id}
                 onClick={() => onNavigate(item.id)}
-                className={`group flex items-center gap-1.5 px-3 py-1.5 transition-all border-b-2 -mb-[2px] ${
+                className={`group flex items-center gap-1.5 px-3 py-1.5 transition-all border-b-2 -mb-0.5 ${
                   isActive
                     ? "bg-amber-muted/20 border-amber-bright text-amber-bright"
                     : "border-transparent text-amber-dim hover:text-amber-normal hover:bg-amber-muted/10"
                 }`}
               >
-                <span className={`text-[10px] ${isActive ? "text-amber-bright" : "text-amber-muted group-hover:text-amber-dim"}`}>
+                <span
+                  className={`text-[10px] ${isActive ? "text-amber-bright" : "text-amber-muted group-hover:text-amber-dim"}`}
+                >
                   {item.icon}
                 </span>
                 <span className="hidden sm:inline">{item.file}</span>
                 <span className="sm:hidden">{item.label}</span>
                 {isActive && (
-                  <span className="text-amber-muted text-[8px] hidden md:inline">●</span>
+                  <span className="text-amber-muted text-[8px] hidden md:inline">
+                    ●
+                  </span>
                 )}
               </button>
             );
@@ -48,7 +52,8 @@ export const Navbar = ({ active, onNavigate }: NavbarProps) => {
         {/* Spacer with vim-style buffer info */}
         <div className="flex-1 flex items-center justify-end px-2 text-amber-muted/50">
           <span className="hidden lg:inline">
-            {navItems.findIndex((item) => item.id === active) + 1}/{navItems.length}
+            {navItems.findIndex((item) => item.id === active) + 1}/
+            {navItems.length}
           </span>
         </div>
 
@@ -69,7 +74,9 @@ export const Navbar = ({ active, onNavigate }: NavbarProps) => {
         <span className="text-amber-muted/50">/</span>
         <span className="text-amber-dim">beaverhacks</span>
         <span className="text-amber-muted/50">/</span>
-        <span className="text-amber-normal">{navItems.find((item) => item.id === active)?.file}</span>
+        <span className="text-amber-normal">
+          {navItems.find((item) => item.id === active)?.file}
+        </span>
         <span className="text-amber-muted/50 hidden sm:inline">
           [+] utf-8 unix
         </span>
