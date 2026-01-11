@@ -234,92 +234,94 @@ export async function getTeamInfo(teamId: string) {
 }
 
 export async function removeUserFromTeam(
-    teamMemberId: string,
-    teamId: string,
+  teamMemberId: string,
+  teamId: string,
 ): Promise<boolean> {
-    try {
-        const session = await auth.api.getSession({ headers: await headers() });
-        
-        const team = await prisma.team.findUnique({
-            where: {
-                id: teamId,
-            }
-        });
-        
-        const target_teamMember = await prisma.teamMember.findUnique({
-            where: { id: teamMemberId },
-            include: { participant: true }
-        });
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
 
-        const participant = await prisma.hackathonParticipant.findFirst({
-            where: {
-                userId: session?.user.id,
-                hackathonId: team?.hackathonId
-            },
-        });
+    const team = await prisma.team.findUnique({
+      where: {
+        id: teamId,
+      },
+    });
 
-        if ( !team || !target_teamMember || !participant ||
-            (team.creatorId !== participant.id &&
-                target_teamMember?.participant.id !== participant.id)
-        ) {
-            // Cope
-            console.error("Failed to remove user from team")
-            return false;
-        }
-        await prisma.team.update({
-            where: { id: teamId },
-            data: {
-                members: {
-                    delete: { id: target_teamMember.id },
-                },
-            },
-        });
+    const target_teamMember = await prisma.teamMember.findUnique({
+      where: { id: teamMemberId },
+      include: { participant: true },
+    });
 
-        const newTeam = await prisma.team.findUnique({
-            where: {
-                id: teamId,
-            },
-            select: {
-                members: true,
-            },
-        });
+    const participant = await prisma.hackathonParticipant.findFirst({
+      where: {
+        userId: session?.user.id,
+        hackathonId: team?.hackathonId,
+      },
+    });
 
-        if (newTeam == null) {
-            // Cry like a baby
-            return false;
-        }
-
-        // Delete team if no members left
-        if (newTeam.members.length === 0) {
-            await prisma.invite.deleteMany({
-                where: {
-                    teamId: teamId,
-                },
-            });
-
-            await prisma.team.delete({
-                where: {
-                    id: teamId,
-                },
-            });
-            // Replace leader if necessary
-        }
-        else if (team.creatorId === target_teamMember.id) {
-            await prisma.team.update({
-                data: {
-                    creatorId: newTeam.members[0].id,
-                },
-                where: {
-                    id: teamId,
-                },
-            });
-        }
-
-        return true;
-    } catch (error) {
-        console.error(error);
-        return false;
+    if (
+      !team ||
+      !target_teamMember ||
+      !participant ||
+      (team.creatorId !== participant.id &&
+        target_teamMember?.participant.id !== participant.id)
+    ) {
+      // Cope
+      console.error("Failed to remove user from team");
+      return false;
     }
+    await prisma.team.update({
+      where: { id: teamId },
+      data: {
+        members: {
+          delete: { id: target_teamMember.id },
+        },
+      },
+    });
+
+    const newTeam = await prisma.team.findUnique({
+      where: {
+        id: teamId,
+      },
+      select: {
+        members: true,
+      },
+    });
+
+    if (newTeam == null) {
+      // Cry like a baby
+      return false;
+    }
+
+    // Delete team if no members left
+    if (newTeam.members.length === 0) {
+      await prisma.invite.deleteMany({
+        where: {
+          teamId: teamId,
+        },
+      });
+
+      await prisma.team.delete({
+        where: {
+          id: teamId,
+        },
+      });
+      // Replace leader if necessary
+    } else if (team.creatorId === target_teamMember.id) {
+      await prisma.team.update({
+        data: {
+          creatorId: newTeam.members[0].id,
+        },
+        where: {
+          id: teamId,
+        },
+      });
+    }
+
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
 }
 
 export async function getInviteCode(teamId: string): Promise<string | false> {
