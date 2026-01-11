@@ -1,6 +1,13 @@
-export const Ascii = () => {
+type AsciiProps = {
+  fontSize?: string;
+  leading?: string;
+};
+
+export const Ascii = ({ fontSize, leading }: AsciiProps) => {
   return (
-    <pre className="font-primary text-amber-bright text-glow-base text-xs md:text-sm leading-[0.7]">
+    <pre
+      className={`font-primary text-amber-bright text-glow-base ${fontSize} ${leading}`}
+    >
       {`            .:-%@@@@@#:::
          *%@@@@@@@@+  #@@@@@@#**=
        @@@@@@@@@@@@@@*#@@@@@@@@@@@@+

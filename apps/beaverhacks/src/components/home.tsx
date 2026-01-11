@@ -37,15 +37,12 @@ const FORTUNES = [
 
 const MOTD = () => (
   <div className="mb-4 text-[10px] md:text-xs">
-    <pre className="text-amber-bright text-glow-base font-primary leading-tight">
-      {`╔═══════════════════════════════════════════════════╗
-║       ____  _____    ___     _______ ____  _   _    _    ____ _  ______         ║
-║      | __ )| ____|  / \\ \\   / / ____|  _ \\| | | |  / \\  / ___| |/ / ___|        ║
-║      |  _ \\|  _|   / _ \\ \\ / /|  _| | |_) | |_| | / _ \\| |   | ' /\\___ \\        ║
-║      | |_) | |___ / ___ \\ V / | |___|  _ <|  _  |/ ___ \\ |___| . \\ ___) |       ║
-║      |____/|_____/_/   \\_\\_/  |_____|_| \\_\\_| |_/_/   \\_\\____|_|\\_\\____/        ║
-║                                                                                 ║
-╚═══════════════════════════════════════════════════╝`}
+    <pre className="text-amber-bright text-glow-base font-primary text-[14px] leading-[13px]">
+      {`    ____  ___________ _    ____________  __  _____   ________ _______
+   / __ )/ ____/   | | |  / / ____/ __ \\/ / / /   | / ____/ //_/ ___/
+  / __  / __/ / /| | | | / / __/ / /_/ / /_/ / /| |/ /   / ,<  \\__ \\
+ / /_/ / /___/ ___ | | |/ / /___/ _, _/ __  / ___ / /___/ /| |___/ /
+/_____/_____/_/  |_| |___/_____/_/ |_/_/ /_/_/  |_\\____/_/ |_/____/`}
     </pre>
     <div className="mt-2 pl-1 space-y-0.5 text-amber-dim">
       <p>
@@ -76,9 +73,9 @@ const MOTD = () => (
 
 const BeavfetchOutput = () => (
   <div className="flex gap-4 md:gap-6 items-start py-1">
-    <pre className="text-amber-bright text-glow-base font-primary text-[6px] md:text-[8px] leading-none shrink-0">
-      <Ascii />
-    </pre>
+    <div className="shrink-0">
+      <Ascii fontSize="text-[10px]" leading="leading-[0.8]" />
+    </div>
     <div className="text-[10px] md:text-xs font-secondary min-w-0">
       <p className="text-amber-bright text-glow-base font-bold">
         hacker<span className="text-amber-dim">@</span>beaverhacks

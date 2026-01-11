@@ -8,6 +8,7 @@ import { Faq } from "@/components/faq";
 import { StatusBar } from "@/components/status-bar";
 import { SystemStats } from "@/components/system-stats";
 import { Panel } from "@/components/panel";
+import { Ascii } from "@/components/ascii";
 
 export default function Page() {
   const [currentPage, setCurrentPage] = useState<Page>("home");
@@ -62,41 +63,15 @@ export default function Page() {
         {/* Header bar */}
         <div className="shrink-0 flex items-center justify-between border-b border-amber-muted/30 pb-2 mb-3">
           <div className="flex items-center gap-3">
-            <pre className="text-amber-bright text-glow-base font-primary text-[2px] leading-[1.5px] hidden sm:block">
-              {`            .:-%@@@@@#:::
-         *%@@@@@@@@+  #@@@@@@#**=
-       @@@@@@@@@@@@@@*#@@@@@@@@@@@@+
-    =@@@@@@+++#@@@@@@@@@@@@@@@@@@@@@@%=
-   +@@@@@@=   %@@@@@@@@@@@@@@@@@@@@@@@@@-
-   =@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@.
-    =@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@.
-     =@@@@@@@@@@@@@@ -@@@@@@@@@@@@@@@@@@@@@@
-      +**%@@@@@@@**.=@@@@@#*.-+@@@@@@@@@@@@@#
-      +##       .##@@@@%: #@@@@@@@@@@@@@@@@@@:
-       *%        +@@@@.-@@@@@@@@@@@@@@@@@@@@@%
-                  =@+ %@@@@@@@@@@@@@@@@@@@@@@@
-                     @@@@@@@@@@@@@@@@@@@@@@@@@
-     ------         @@@@@@@@@@@@@@@@@@@@@@@@@@
-   %@@@@@@@@@#=    =@@@@@@@@@@@@@@@@@@@@@@@@@*
- :@@@@@@@@@@@@@@@= =@@@@@@@@@@@@@@@@@@@@@@@@@:
-.%@@@@@@@@@@@@@@@@@: .%@@@@@@@@@@@@@@@@@@@@@%.
-:@@@@@@@@@@@@@@@@@@@@+  :@@@@@@@@@@@@@@@@@@@*
-:@@@@@@@@@@@@@#@@@@@@@@%:  .#@@@@@@@@@@@%#.
-:@@@@@@@@@@@#  =@@@@@@@@%@%*    :-----    =
- *@@@@@@@%  @@@@@@@@@*   @@@@@@@@@@@@@@@@@
-  =======*@@@@@@@+ :=@@@@@@@@@@@@@@@@@@@%
-                %@@@@@@@@@@@@@@@@@@@@@@%
-                            -@@@@@@@@@:
-    .============@@@@@@@@@*#@@@@@@@+
-        *@@@@@@@@@@    @@@@@@@@@@@
-          -*@@@@@@@@@#-@@@@@@@#*
-              ::-@@@@@@@@@::.`}
-            </pre>
+            <Ascii
+              fontSize="text-[1.5px] md:text-[2px]"
+              leading="leading-[1px] md:leading-[1.25px]"
+            />
             <div className="flex flex-col justify-center">
               <span className="text-amber-bright text-glow-base font-primary text-sm md:text-base tracking-wide">
                 BEAVERHACKS
               </span>
-              <span className="text-amber-muted text-[9px] md:text-[10px] hidden sm:block">
+              <span className="text-amber-muted text-[9px] md:text-[10px]">
                 Oregon State Hackathon
               </span>
             </div>
