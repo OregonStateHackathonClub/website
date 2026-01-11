@@ -94,3 +94,25 @@ export async function createRubric(formData: FormData) {
 
   revalidatePath(`/console/${formData.get("hackathonId")}/tracks`);
 }
+
+export async function updateTrack(formData: FormData) {
+  if (!(await isAdmin())) {
+    throw new Error("Unauthorized: Admin access required");
+  }
+
+  const trackId = formData.get("trackId") as string;
+  const hackathonId = formData.get("hackathonId") as string;
+  
+  const trackData = {
+    name: formData.get("name") as string,
+    description: formData.get("description") as string,
+    prize: formData.get("prize") as string,
+  };
+
+  await prisma.track.update({
+    where: { id: trackId },
+    data: trackData,
+  });
+
+  revalidatePath(`/console/${hackathonId}/tracks`);
+}

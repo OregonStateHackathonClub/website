@@ -83,7 +83,7 @@ export function RubricDialog({
           size="sm"
           className="border-zinc-600 text-zinc-200 hover:bg-zinc-800 hover:text-white transition-colors"
         >
-          {existingRubric ? "Edit" : "Create Rubric"}
+          {existingRubric ? "Edit Rubric" : "Create Rubric"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] max-h-[90vh] flex flex-col">

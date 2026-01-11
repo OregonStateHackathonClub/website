@@ -1,8 +1,9 @@
 // admin only
 // see the tracks, create new tracks, add rubrics to tracks (each track can have one rubric)
 import { prisma } from "@repo/database";
-import { createTrack } from "./server-action";
+import { createTrack, updateTrack } from "./server-action";
 import { TrackDialog } from "./components/createTrack";
+import { EditTrackDialog } from "./components/editTrack";
 import { RubricDialog } from "./components/createRubric";
 import { createRubric } from "./server-action";
 
@@ -78,12 +79,19 @@ export default async function Page(props: {
                       </p>
                     )}
                   </div>
-                  <RubricDialog
-                    trackId={track.id}
-                    trackName={track.name}
-                    createRubric={createRubric}
-                    existingRubric={track.rubrics}
-                  />
+                  <div className="flex gap-2">
+                    <EditTrackDialog
+                      track={track}
+                      hackathonId={yearParam}
+                      updateTrack={updateTrack}
+                    />
+                    <RubricDialog
+                      trackId={track.id}
+                      trackName={track.name}
+                      createRubric={createRubric}
+                      existingRubric={track.rubrics}
+                    />
+                  </div>
                 </div>
               </div>
             ))}
