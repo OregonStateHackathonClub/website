@@ -65,7 +65,7 @@ export async function assignJudge({
         }
     })
 
-    if (user.role !== "ADMIN" || !judgeManager) {
+    if (user.role !== "ADMIN" || judgeManager) {
         return { success: false, error: "Unauthorized user" };
     }
 

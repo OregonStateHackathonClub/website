@@ -37,7 +37,7 @@ export default async function Layout({
     }
   })
 
-  if(user.role != 'ADMIN' || !judgeManager){
+  if(user.role != 'ADMIN' || judgeManager){
     unauthorized();
   }
   
