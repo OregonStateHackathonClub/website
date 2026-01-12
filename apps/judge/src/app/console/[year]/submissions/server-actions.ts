@@ -44,10 +44,28 @@ export async function assignJudge({
 
     const user = await prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { role: true },
     });
 
-    if (user?.role !== "ADMIN") {
+    if(!user){
+        return { success: false, error: "Unauthorized user" };
+    }
+
+    const participant = await prisma.hackathonParticipant.findFirst({
+        where: { userId: user.id}
+    })
+    
+    if(!participant){
+        return { success: false, error: "Unauthorized user" };
+    }
+    
+    const judgeManager = await prisma.judge.findFirst({
+        where: { 
+            hackathon_participant_id: participant.id,
+            role: 'MANAGER',
+        }
+    })
+
+    if (user.role !== "ADMIN" || !judgeManager) {
         return { success: false, error: "Unauthorized user" };
     }
 

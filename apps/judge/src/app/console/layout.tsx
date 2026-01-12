@@ -22,7 +22,22 @@ export default async function Layout({
     unauthorized();
   }
 
-  if(user.role != 'ADMIN'){
+  const participant = await prisma.hackathonParticipant.findFirst({
+    where: { userId: user.id}
+  })
+
+  if(!participant){
+    unauthorized();
+  }
+
+  const judgeManager = await prisma.judge.findFirst({
+    where: { 
+      hackathon_participant_id: participant.id,
+      role: 'MANAGER',
+    }
+  })
+
+  if(user.role != 'ADMIN' || !judgeManager){
     unauthorized();
   }
   
