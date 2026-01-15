@@ -3,6 +3,7 @@ import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
 import { revalidatePath } from "next/cache";
+import { SponsorCard } from "./sponsor-card";
 
 export default async function SponsorsAdminPage(props: {
   params: Promise<{ year: string }>;
@@ -32,6 +33,51 @@ export default async function SponsorsAdminPage(props: {
     });
 
     revalidatePath(`/console/${hackathonId}/sponsors`);
+  }
+
+  // Server Action to update a sponsor
+  async function updateSponsor(id: string, formData: FormData) {
+    "use server";
+    
+    const name = formData.get("name") as string;
+    const description = formData.get("description") as string;
+    const websiteUrl = formData.get("websiteUrl") as string;
+    const logoUrl = formData.get("logoUrl") as string;
+
+    if (!name) return { error: "Name is required" };
+
+    try {
+      await prisma.sponsor.update({
+        where: { id },
+        data: {
+          name,
+          description,
+          websiteUrl,
+          logoUrl,
+        },
+      });
+
+      revalidatePath(`/console/${hackathonId}/sponsors`);
+      return { success: true };
+    } catch (e) {
+      return { error: "Failed to update sponsor" };
+    }
+  }
+
+  // Server Action to delete a sponsor
+  async function deleteSponsor(id: string) {
+    "use server";
+    
+    try {
+      await prisma.sponsor.delete({
+        where: { id },
+      });
+
+      revalidatePath(`/console/${hackathonId}/sponsors`);
+      return { success: true };
+    } catch (e) {
+      return { error: "Failed to delete sponsor" };
+    }
   }
 
   // Fetch existing sponsors
@@ -78,29 +124,12 @@ export default async function SponsorsAdminPage(props: {
         <h2 className="text-lg font-semibold">Current Sponsors</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {sponsors.map((sponsor) => (
-            <div key={sponsor.id} className="rounded-lg border p-4">
-              <div className="mb-2 flex items-center justify-between">
-                <h3 className="font-semibold">{sponsor.name}</h3>
-              </div>
-              {sponsor.logoUrl && (
-                <img 
-                  src={sponsor.logoUrl} 
-                  alt={sponsor.name} 
-                  className="mb-2 h-12 object-contain" 
-                />
-              )}
-              <p className="text-sm text-muted-foreground">{sponsor.description}</p>
-              {sponsor.websiteUrl && (
-                <a 
-                  href={sponsor.websiteUrl} 
-                  target="_blank" 
-                  rel="noreferrer" 
-                  className="mt-2 block text-sm text-blue-500 hover:underline"
-                >
-                  Visit Website
-                </a>
-              )}
-            </div>
+            <SponsorCard 
+              key={sponsor.id} 
+              sponsor={sponsor} 
+              onUpdate={updateSponsor} 
+              onDelete={deleteSponsor} 
+            />
           ))}
           {sponsors.length === 0 && (
             <p className="text-muted-foreground">No sponsors added yet.</p>
