@@ -59,7 +59,7 @@ export default async function SponsorsAdminPage(props: {
 
       revalidatePath(`/console/${hackathonId}/sponsors`);
       return { success: true };
-    } catch (e) {
+    } catch {
       return { error: "Failed to update sponsor" };
     }
   }
@@ -75,7 +75,7 @@ export default async function SponsorsAdminPage(props: {
 
       revalidatePath(`/console/${hackathonId}/sponsors`);
       return { success: true };
-    } catch (e) {
+    } catch {
       return { error: "Failed to delete sponsor" };
     }
   }

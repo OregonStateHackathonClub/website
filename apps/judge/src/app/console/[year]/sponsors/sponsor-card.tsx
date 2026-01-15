@@ -6,6 +6,7 @@ import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
 import { Pencil, Trash2, X, Check } from "lucide-react";
 import { toast } from "sonner";
+import Image from "next/image";
 
 interface Sponsor {
   id: string;
@@ -112,11 +113,13 @@ export function SponsorCard({ sponsor, onUpdate, onDelete }: SponsorCardProps) {
       </div>
       
       {sponsor.logoUrl && (
-        <div className="mb-3 h-16 flex items-center justify-start">
-          <img 
+        <div className="relative mb-3 h-16 w-full flex items-center justify-start">
+          <Image 
             src={sponsor.logoUrl} 
             alt={sponsor.name} 
-            className="h-full object-contain" 
+            fill
+            className="object-contain object-left" 
+            unoptimized
           />
         </div>
       )}

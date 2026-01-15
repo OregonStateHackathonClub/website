@@ -1,5 +1,6 @@
 import { prisma } from "@repo/database";
 import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/card";
+import Image from "next/image";
 
 export default async function SponsorsPage(props: {
   params: Promise<{ year: string }>;
@@ -38,12 +39,14 @@ export default async function SponsorsPage(props: {
             // 2. border-0: Optional, if you want the image to define the top edge completely
             className="overflow-hidden transition-all hover:shadow-lg p-0" 
           >
-            <div className="flex h-48 w-full items-center justify-center bg-white p-6">
+            <div className="relative flex h-48 w-full items-center justify-center bg-white p-6">
               {sponsor.logoUrl ? (
-                <img
+                <Image
                   src={sponsor.logoUrl}
                   alt={sponsor.name}
-                  className="max-h-full max-w-full object-contain"
+                  fill
+                  className="object-contain p-6"
+                  unoptimized
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center text-xl font-bold text-gray-400">
