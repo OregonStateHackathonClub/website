@@ -249,6 +249,7 @@ model Track {
   description String
   hackathonId String
   prize       String?
+  sponsorId   String?
   createdAt   DateTime @default(now())
   drafts      Draft[]
   submissions Submission[]
@@ -256,6 +257,7 @@ model Track {
 
   // Relations
   hackathon   Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  sponsor     Sponsor?  @relation(fields: [sponsorId], references: [id])
 
   @@map("track")
 }
@@ -371,6 +373,7 @@ model Sponsor {
   websiteUrl  String?
 
   hackathon Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  tracks    Track[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   @@map("sponsor")
