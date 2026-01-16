@@ -112,7 +112,7 @@ export default function SubmissionsClient({
                   <p className="mb-4 text-center text-neutral-400 text-s tracking-wide">
                     Sponsors
                   </p>
-                  <div className="grid grid-cols-2 items-center justify-center gap-6 sm:grid-cols-4">
+                  <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
                     {hackathon.sponsors.map((sponsor) => (
                       <a
                         key={sponsor.id}
