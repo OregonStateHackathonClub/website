@@ -7,6 +7,8 @@ export const authClient = createAuthClient({
   ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`  
   : process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL 
   ? `https://${process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL}` 
+  : typeof window !== "undefined"
+  ? window.location.origin
   : "http://localhost:3000",
 });
 
