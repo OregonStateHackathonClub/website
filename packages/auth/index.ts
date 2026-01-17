@@ -12,9 +12,11 @@ if (!githubClientId || !githubClientSecret) {
 }
 
 export const auth: ReturnType<typeof betterAuth> = betterAuth({
-  trustedOrigins: process.env.NEXT_PUBLIC_APP_URL
-    ? [process.env.NEXT_PUBLIC_APP_URL]
-    : [],
+  trustedOrigins: [
+    "https://*.beaverhacks.org",
+    "https://beaverhacks.org",
+    "http://localhost:*",
+  ],
   socialProviders: {
     github: {
       clientId: githubClientId,

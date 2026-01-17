@@ -17,7 +17,7 @@ export default function CartPage() {
 
   const handleCheckout = async () => {
     if (!session?.user) {
-      signIn.social({ provider: "github", callbackURL: "/cart" });
+      signIn.social({ provider: "github", callbackURL: window.location.href });
       return;
     }
 
