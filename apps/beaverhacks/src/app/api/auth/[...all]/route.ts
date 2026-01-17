@@ -10,7 +10,7 @@ function isAllowedOrigin(origin: string): boolean {
   return false;
 }
 
-function getCorsHeaders(origin: string | null) {
+function getCorsHeaders(origin: string | null): Record<string, string> {
   if (origin && isAllowedOrigin(origin)) {
     return {
       "Access-Control-Allow-Origin": origin,
