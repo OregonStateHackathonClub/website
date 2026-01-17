@@ -19,10 +19,10 @@ const nextConfig: NextConfig = {
     ],
   },
   experimental: {
-		useCache: true,
-		authInterrupts: true,
-	},
-	reactCompiler: true,
+    useCache: true,
+    authInterrupts: true,
+  },
+  reactCompiler: true,
 };
 
 export default nextConfig;

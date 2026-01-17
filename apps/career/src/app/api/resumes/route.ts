@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
-import JSZip from "jszip";
 import prisma from "@repo/database";
 import { downloadFile } from "@repo/storage";
+import JSZip from "jszip";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   const applications = await prisma.application.findMany({

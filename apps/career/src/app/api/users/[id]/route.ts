@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
 import prisma from "@repo/database";
+import { NextResponse } from "next/server";
 
 // GET: Retrieve application by user ID (read-only for sponsors)
 export async function GET(

@@ -1,3 +1,3 @@
 export default function Page() {
-	return "stuff here";
+  return "stuff here";
 }
