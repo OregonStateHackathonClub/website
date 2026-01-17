@@ -13,8 +13,16 @@ export const createDraftSchema = z.object({
     projectTitle: z.string().optional(),
     miniDescription: z.string().optional(),
     projectDescription: z.string().optional(),
-    githubLink: z.string().url("Invalid GitHub URL").optional().or(z.literal("")),
-    youtubeLink: z.string().url("Invalid YouTube URL").optional().or(z.literal("")),
+    githubLink: z
+      .string()
+      .url("Invalid GitHub URL")
+      .optional()
+      .or(z.literal("")),
+    youtubeLink: z
+      .string()
+      .url("Invalid YouTube URL")
+      .optional()
+      .or(z.literal("")),
     uploadPhotos: z.array(z.string().url()).optional(),
     tracks: z.array(trackRefSchema).optional(),
   }),
@@ -27,8 +35,16 @@ export const updateDraftSchema = z.object({
     projectTitle: z.string().optional(),
     miniDescription: z.string().optional(),
     projectDescription: z.string().optional(),
-    githubLink: z.string().url("Invalid GitHub URL").optional().or(z.literal("")),
-    youtubeLink: z.string().url("Invalid YouTube URL").optional().or(z.literal("")),
+    githubLink: z
+      .string()
+      .url("Invalid GitHub URL")
+      .optional()
+      .or(z.literal("")),
+    youtubeLink: z
+      .string()
+      .url("Invalid YouTube URL")
+      .optional()
+      .or(z.literal("")),
     uploadPhotos: z.array(z.string().url()).optional(),
     tracks: z.array(trackRefSchema).optional(),
   }),
@@ -77,6 +93,8 @@ export const sendDataSchema = z.object({
 // Extract types from schemas
 export type CreateDraftInput = z.infer<typeof createDraftSchema>;
 export type UpdateDraftInput = z.infer<typeof updateDraftSchema>;
-export type CreateSubmissionFromDraftInput = z.infer<typeof createSubmissionFromDraftSchema>;
+export type CreateSubmissionFromDraftInput = z.infer<
+  typeof createSubmissionFromDraftSchema
+>;
 export type UpdateDataInput = z.infer<typeof updateDataSchema>;
 export type SendDataInput = z.infer<typeof sendDataSchema>;

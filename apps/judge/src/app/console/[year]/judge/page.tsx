@@ -3,5 +3,5 @@
 // show not judged first, but also have the ones they have judged at the bottom
 
 export default function Page() {
-	return "";
+  return "";
 }

@@ -1,6 +1,6 @@
+import { prisma } from "@repo/database";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { prisma } from "@repo/database";
 
 // --- Environment Variable Validation ---
 const githubClientId = process.env.GITHUB_CLIENT_ID;
@@ -30,6 +30,6 @@ export const auth = betterAuth({
 
 export type Session = typeof auth.$Infer.Session;
 
+export { getSessionCookie } from "better-auth/cookies";
 // Re-export for Next.js API routes
 export { toNextJsHandler } from "better-auth/next-js";
-export { getSessionCookie } from "better-auth/cookies"

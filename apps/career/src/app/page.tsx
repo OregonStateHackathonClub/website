@@ -1,8 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { Button } from "@repo/ui/components/button";
 import {
   Card,
   CardContent,
@@ -12,7 +10,9 @@ import {
 } from "@repo/ui/components/card";
 import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
-import { Button } from "@repo/ui/components/button";
+import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Navbar } from "@/components/navbar";
 
 export default function Home() {
