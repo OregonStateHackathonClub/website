@@ -1,7 +1,20 @@
 "use client";
 
-import { Button } from "@repo/ui/components/button";
-import { Input } from "@repo/ui/components/input";
+import JSZip from "jszip";
+import * as React from "react";
+
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+
 import {
   Table,
   TableBody,
@@ -10,21 +23,11 @@ import {
   TableHeader,
   TableRow,
 } from "@repo/ui/components/table";
-import {
-  type ColumnDef,
-  type ColumnFiltersState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  type SortingState,
-  useReactTable,
-} from "@tanstack/react-table";
-import JSZip from "jszip";
+
+import { Button } from "@repo/ui/components/button";
+import { Input } from "@repo/ui/components/input";
 import { Download } from "lucide-react";
-import * as React from "react";
-import type { Application } from "./columns";
+import { Application } from "./columns";
 
 type DataTableProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[];
