@@ -203,12 +203,6 @@ export default function CartPage() {
                   </span>
                   <span>${totalPrice.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Shipping</span>
-                  <span className="text-muted-foreground">
-                    Calculated at checkout
-                  </span>
-                </div>
               </div>
 
               <div className="border-t border-border my-4" />
