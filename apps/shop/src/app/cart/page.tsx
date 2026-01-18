@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { ArrowLeft, Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
-import { useSession, signIn } from "@repo/auth/client";
+import { useSession, redirectToLogin } from "@repo/auth/client";
 import { Card } from "@repo/ui/components/card";
 import { Button } from "@repo/ui/components/button";
 import { useCart } from "@/lib/cart";
@@ -17,7 +17,7 @@ export default function CartPage() {
 
   const handleCheckout = async () => {
     if (!session?.user) {
-      signIn.social({ provider: "github", callbackURL: window.location.href });
+      redirectToLogin();
       return;
     }
 
