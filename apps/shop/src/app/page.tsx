@@ -5,7 +5,8 @@ import { useState } from "react";
 import { Card } from "@repo/ui/components/card";
 import { Badge } from "@repo/ui/components/badge";
 import { product } from "@/lib/products";
-import { AddToCartButton } from "./product/[slug]/add-to-cart-button";
+import { AddToCartButton } from "@/components/add-to-cart-button";
+import { MapPin } from "lucide-react";
 
 export default function HomePage() {
   const [selectedImage, setSelectedImage] = useState(0);
@@ -104,12 +105,22 @@ export default function HomePage() {
 
               {/* Additional Info */}
               <div className="pt-3 border-t border-border space-y-1">
-                <p className="text-sm font-medium">
-                  Preorder — ships in 4-6 weeks
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Limited quantities. All sales are final.
-                </p>
+                <div className="flex items-start gap-2 p-3 rounded-lg border border-black-100">
+                  <MapPin className="w-4 h-4 mt-0.5" />
+                  <p className="text-sm">
+                    <span className="font-semibold">
+                      In-person delivery only.
+                    </span>
+                    <br />
+                    Available for pickup in 4-6 weeks. We do not offer shipping.
+                  </p>
+                </div>
+                <div className="space-y-2 px-1">
+                  <p className="text-sm font-medium"></p>
+                  <p className="text-xs text-muted-foreground">
+                    Limited quantities. All sales are final.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
