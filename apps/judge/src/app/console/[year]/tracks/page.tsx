@@ -2,6 +2,7 @@
 // see the tracks, create new tracks, add rubrics to tracks (each track can have one rubric)
 import { prisma } from "@repo/database";
 import { createTrack, updateTrack } from "./server-action";
+import { isAdmin } from "../../../actions/auth";
 import { TrackDialog } from "./components/createTrack";
 import { EditTrackDialog } from "./components/editTrack";
 import { RubricDialog } from "./components/createRubric";
@@ -10,6 +11,8 @@ import { createRubric } from "./server-action";
 export default async function Page(props: {
   params: Promise<{ year: string }>;
 }) {
+  if (!isAdmin()) return false;
+
   const params = await props.params;
   const yearParam = params.year;
 
@@ -88,6 +91,7 @@ export default async function Page(props: {
                     <RubricDialog
                       trackId={track.id}
                       trackName={track.name}
+                      hackathonId={yearParam}
                       createRubric={createRubric}
                       existingRubric={track.rubrics}
                     />

@@ -14,7 +14,7 @@ export default async function Layout({
   }
 
   return (
-    <div className="flex min-h-dvh w-full grow bg-zinc-900 text-black-50">
+    <div className="flex min-h-dvh w-full grow bg-zinc-900 text-zinc-50">
       {children}
     </div>
   );

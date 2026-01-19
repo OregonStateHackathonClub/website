@@ -16,9 +16,12 @@ import {
 } from "@repo/ui/components/dialog";
 import { Card } from "@repo/ui/components/card";
 
+const MAX_CRITERIA = 6;
+
 interface RubricDialogProps {
   trackId: string;
   trackName: string;
+  hackathonId: string;
   createRubric: (formData: FormData) => Promise<void>;
   existingRubric?: {
     id: string;
@@ -45,6 +48,7 @@ function SubmitButton() {
 export function RubricDialog({
   trackId,
   trackName,
+  hackathonId,
   createRubric,
   existingRubric,
 }: RubricDialogProps) {
@@ -99,11 +103,13 @@ export function RubricDialog({
           className="space-y-4 overflow-y-auto flex-1"
         >
           <input type="hidden" name="trackId" value={trackId} />
+          <input type="hidden" name="hackathonId" value={hackathonId} />
           <Input
             name="rubricName"
             placeholder="Rubric Name"
             value={rubricName}
             onChange={(e) => setRubricName(e.target.value)}
+            required
           />
 
           {criteria.map((criterion, index) => (
@@ -154,10 +160,19 @@ export function RubricDialog({
             </Card>
           ))}
 
-          <div className="flex justify-center pb-5">
-            <Button type="button" onClick={addCriterion}>
+          <div className="flex flex-col items-center gap-2 pb-5">
+            <Button
+              type="button"
+              onClick={addCriterion}
+              disabled={criteria.length >= MAX_CRITERIA}
+            >
               Add Criterion
             </Button>
+            {criteria.length >= MAX_CRITERIA && (
+              <p className="text-xs text-muted-foreground">
+                Maximum of {MAX_CRITERIA} criteria reached
+              </p>
+            )}
           </div>
         </form>
         <DialogFooter>
