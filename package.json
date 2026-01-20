@@ -4,7 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "pnpm --filter \"./apps/*\" dev",
-    "dev:judge": "pnpm --filter judge dev",
+    "dev:beaverhacks": "pnpm --filter beaverhacks dev -- -p 3000",
+    "dev:shop": "pnpm --filter shop dev -- -p 3001",
+    "dev:judge": "pnpm --filter judge dev -- -p 3002",
+    "dev:career": "pnpm --filter career dev -- -p 3003",
     "build": "pnpm --filter \"./apps/*\" build",
     "db:generate": "pnpm --filter @repo/database db:generate",
     "db:push": "pnpm --filter @repo/database db:push",
