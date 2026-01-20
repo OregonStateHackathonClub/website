@@ -2,11 +2,10 @@ import { headers } from "next/headers";
 import { sendEmail } from "@/lib/email";
 import { prisma } from "@repo/database";
 import { uploadFile } from "@repo/storage";
-import { ShirtSize } from "@repo/database";
 import { auth } from "@repo/auth";
 
 export async function POST(request: Request): Promise<Response> {
-  const applicationsOpen = false;
+  const applicationsOpen = process.env.APPLICATIONS_OPEN === "true";
 
   if (!applicationsOpen) {
     return new Response("Applications are closed", {
@@ -43,7 +42,7 @@ export async function POST(request: Request): Promise<Response> {
       userId: user.id,
       university: formData.get("university") as string,
       graduationYear: parseInt(formData.get("graduationYear") as string),
-      shirtSize: formData.get("shirtSize") as ShirtSize,
+      shirtSize: "M",
       resumePath: path,
     },
   });

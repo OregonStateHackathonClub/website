@@ -1,14 +1,21 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, Suspense, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { signIn, signUp } from "@repo/auth/client";
+import { signIn, signUp, useSession } from "@repo/auth/client";
 import { Mail, Lock, User, Github, Loader2 } from "lucide-react";
 
 function LoginForm() {
   const searchParams = useSearchParams();
   const callbackURL = searchParams.get("callbackURL") || "/";
   const router = useRouter();
+  const { data: session, isPending } = useSession();
+
+  useEffect(() => {
+    if (session?.user && !isPending) {
+      router.push("/profile");
+    }
+  }, [session, isPending, router]);
 
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [firstName, setFirstName] = useState("");
@@ -17,6 +24,15 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Show loading while checking session
+  if (isPending || session?.user) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <Loader2 className="w-6 h-6 text-white animate-spin" />
+      </div>
+    );
+  }
 
   const handleGitHubSignIn = () => {
     signIn.social({ provider: "github", callbackURL });
