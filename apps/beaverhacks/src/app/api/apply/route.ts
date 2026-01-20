@@ -2,11 +2,10 @@ import { headers } from "next/headers";
 import { sendEmail } from "@/lib/email";
 import { prisma } from "@repo/database";
 import { uploadFile } from "@repo/storage";
-import { ShirtSize } from "@repo/database";
 import { auth } from "@repo/auth";
 
 export async function POST(request: Request): Promise<Response> {
-  const applicationsOpen = false;
+  const applicationsOpen = process.env.APPLICATIONS_OPEN === "true";
 
   if (!applicationsOpen) {
     return new Response("Applications are closed", {
@@ -35,15 +34,17 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const formData = await request.formData();
+  const name = formData.get("name") as string;
 
   const path = await uploadFile(formData.get("resume") as File);
 
   const application = await prisma.application.create({
     data: {
       userId: user.id,
+      name,
       university: formData.get("university") as string,
       graduationYear: parseInt(formData.get("graduationYear") as string),
-      shirtSize: formData.get("shirtSize") as ShirtSize,
+      shirtSize: "M",
       resumePath: path,
     },
   });
@@ -56,7 +57,7 @@ export async function POST(request: Request): Promise<Response> {
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #F97316; margin-top: 20px;">BeaverHacks Registration Confirmed!</h2>
 
-          <p>Hello ${user.name},</p>
+          <p>Hello ${name},</p>
 
           <p>Thank you for registering for BeaverHacks! Your application has been successfully submitted.</p>
 
