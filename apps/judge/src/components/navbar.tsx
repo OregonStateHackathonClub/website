@@ -3,7 +3,7 @@
 import { Button } from "@repo/ui/components/button";
 import Image from "next/image";
 import Link from "next/link";
-import LoginLogoutButton from "./loginLogoutButton";
+import { AuthButton } from "./auth-button";
 
 interface NavbarProps {
   currentHackathonId: string;
@@ -50,7 +50,7 @@ export const Navbar = ({
               )}
             </>
           )}
-          <LoginLogoutButton />
+          <AuthButton />
         </div>
       </div>
     </nav>

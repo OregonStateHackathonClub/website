@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { authClient } from "@repo/auth/client";
+import { authClient, redirectToLogin } from "@repo/auth/client";
 import { Button } from "@repo/ui/components/button";
 import {
   Card,
@@ -62,9 +62,9 @@ export default function Home({
 
   useEffect(() => {
     if (!isPending && !session) {
-      router.push("/log-in");
+      redirectToLogin();
     }
-  }, [isPending, session, router]);
+  }, [isPending, session]);
 
   if (!session) {
     return (
