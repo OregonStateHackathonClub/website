@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
+import Image from "next/image";
 import {
-  User,
   Mail,
   Calendar,
   GraduationCap,
@@ -9,7 +9,6 @@ import {
   FileText,
   CheckCircle2,
   Clock,
-  LogOut,
 } from "lucide-react";
 
 import { auth } from "@repo/auth";
@@ -95,16 +94,17 @@ const Profile = async () => {
           <div className="p-6 border-b border-neutral-800">
             <div className="flex items-center gap-4">
               {/* Avatar */}
-              <div className="w-14 h-14 bg-neutral-800 border border-neutral-700 flex items-center justify-center flex-shrink-0">
+              <div className="w-14 h-14 bg-neutral-800 border border-neutral-700 flex items-center justify-center flex-shrink-0 relative overflow-hidden">
                 {user.image ? (
-                  <img
+                  <Image
                     src={user.image}
                     alt={user.name}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
                   />
                 ) : (
                   <span className="text-xl font-semibold text-white">
-                    {user.name?.charAt(0).toUpperCase() || "U"}
+                    {application.name?.charAt(0).toUpperCase()}
                   </span>
                 )}
               </div>
@@ -112,7 +112,7 @@ const Profile = async () => {
               {/* User Details */}
               <div className="flex-1 min-w-0">
                 <h2 className="text-lg font-medium text-white truncate">
-                  {user.name}
+                  {application.name}
                 </h2>
                 <div className="flex items-center gap-2 mt-1">
                   <Mail className="w-3.5 h-3.5 text-neutral-500" />

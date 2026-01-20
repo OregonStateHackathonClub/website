@@ -47,7 +47,7 @@ function LoginForm() {
       await signUp.email({
         email,
         password,
-        name: `${firstName} ${lastName}`.trim() || email.split("@")[0],
+        name: `${firstName} ${lastName}`.trim(),
         callbackURL,
         fetchOptions: {
           onResponse: () => setLoading(false),
