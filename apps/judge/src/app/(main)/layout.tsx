@@ -58,10 +58,10 @@ export default async function Layout({
     <main className="flex min-h-dvh flex-col text-neutral-200 pt-16">
       <div className="fixed inset-0 -z-10">
         <DotGrid
-          dotSize={1.5}
-          gap={25}
+          dotSize={1.9}
+          gap={29}
           baseColor="#27272a"
-          activeColor="#ea580c"
+          activeColor="#f97316"
           proximity={100}
           shockRadius={200}
           shockStrength={3}

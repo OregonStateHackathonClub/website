@@ -8,6 +8,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/card";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@repo/ui/components/hover-card";
 import { ArrowLeft, Users } from "lucide-react";
 import { headers } from "next/headers";
 import Image from "next/image";
@@ -19,7 +24,11 @@ import { ProjectLinks } from "@/components/projectLinks";
 
 // Define the reusable 'include' object for our query
 const submissionInclude = {
-  tracks: true,
+  tracks: {
+    include: {
+      sponsor: true,
+    },
+  },
   team: {
     include: {
       members: {
@@ -128,12 +137,50 @@ export default async function ProjectPage(props: {
               <div className="flex flex-wrap gap-2">
                 {submission.tracks.map(
                   (link: SubmissionWithDetails["tracks"][number]) => (
-                    <Badge
-                      key={link.id}
-                      className="bg-neutral-800 text-neutral-300 hover:bg-neutral-700"
-                    >
-                      {link.name}
-                    </Badge>
+                    <HoverCard key={link.id}>
+                      <HoverCardTrigger asChild>
+                        <Badge className="bg-neutral-800 text-neutral-300 hover:bg-neutral-700 hover:cursor-pointer">
+                          {link.name}
+                        </Badge>
+                      </HoverCardTrigger>
+                      <HoverCardContent className="w-80 bg-neutral-900 border-neutral-800 p-4">
+                        <div className="space-y-2">
+                          <h4 className="text-sm font-semibold text-white">{link.name}</h4>
+                          <p className="text-xs text-neutral-400">
+                            {link.description}
+                          </p>
+                          {link.prize && (
+                            <div className="flex items-center pt-2">
+                              <span className="text-xs font-semibold text-orange-400 mr-2">Prize:</span>
+                              <span className="text-xs text-neutral-300">{link.prize}</span>
+                            </div>
+                          )}
+                          {link.sponsor && (
+                            <div className="pt-2 border-t border-neutral-800 mt-2">
+                               <p className="text-xs text-neutral-500 mb-1">Sponsored by</p>
+                               <Link 
+                                href={`/${params.year}/sponsors/${link.sponsor.id}`}
+                                className="flex items-center gap-2 hover:bg-neutral-800 p-1 rounded transition-colors group"
+                               >
+                                  {link.sponsor.logoUrl && (
+                                    <div className="relative h-6 w-6 rounded overflow-hidden bg-white">
+                                      <Image 
+                                        src={link.sponsor.logoUrl} 
+                                        alt={link.sponsor.name}
+                                        fill
+                                        className="object-contain p-0.5"
+                                      />
+                                    </div>
+                                  )}
+                                  <span className="text-sm font-medium text-orange-400 group-hover:underline">
+                                    {link.sponsor.name}
+                                  </span>
+                               </Link>
+                            </div>
+                          )}
+                        </div>
+                      </HoverCardContent>
+                    </HoverCard>
                   ),
                 )}
               </div>

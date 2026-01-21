@@ -62,6 +62,11 @@ export default async function Page(props: {
           tracks: true,
         },
       },
+      sponsors: {
+        orderBy: {
+          id: "asc",
+        },
+      },
     },
   });
 

@@ -35,7 +35,7 @@ export default function UserOuterSheet({
       setIsSheetOpen(false);
       setAllUsers((prev) => prev.filter((u) => u.id !== currentUser.id));
     }
-  }, [user, hackathonId, setAllUsers, setIsSheetOpen]);
+  }, [user, hackathonId, setAllUsers, setIsSheetOpen, currentUser.id]);
 
   return (
     <Sheet
