@@ -68,16 +68,8 @@ export async function setJudgeType(judgeId: string, role: JudgeRole) {
   }
 }
 
-<<<<<<< HEAD
-export async function createJudge(
-  participantId: string,
-  role: JudgeRole = JudgeRole.JUDGE,
-) {
-  if (!isAdmin()) return false;
-=======
 export async function createJudge(participantId: string, role: JudgeRole = JudgeRole.JUDGE) {
   if (!await isAdmin()) return false;
->>>>>>> 5c5a3708e9910196b6df2b0242f0e064ab4bb3dd
 
   try {
     const participant = await prisma.hackathonParticipant.findUnique({
@@ -117,12 +109,7 @@ export async function removeJudge(judgeId: string) {
 
     if (!judge) return false;
 
-<<<<<<< HEAD
-    if (!(isManager(judge?.hackathon_participant.hackathonId) || isAdmin()))
-      return false;
-=======
     if (!(await isManager(judge?.hackathon_participant.hackathonId) || isAdmin())) return false;
->>>>>>> 5c5a3708e9910196b6df2b0242f0e064ab4bb3dd
 
     await prisma.judge.delete({
       where: {

@@ -125,13 +125,9 @@ export async function setAdmin(
   adminValue: boolean,
   userId: string,
 ): Promise<boolean> {
-<<<<<<< HEAD
-  if (!isAdmin()) return false;
-=======
 
   if (!await isAdmin())
     return false
->>>>>>> 5c5a3708e9910196b6df2b0242f0e064ab4bb3dd
 
   await prisma.user.update({
     where: {
