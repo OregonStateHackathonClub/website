@@ -26,8 +26,23 @@ const Profile = async () => {
 
   const user = session.user;
 
+  // Get the current hackathon
+  const hackathon = await prisma.hackathon.findFirst({
+    orderBy: { createdAt: "desc" },
+  });
+
+  if (!hackathon) {
+    redirect("/apply");
+  }
+
+  // Get application for current hackathon
   const application = await prisma.application.findUnique({
-    where: { userId: user.id },
+    where: {
+      userId_hackathonId: {
+        userId: user.id,
+        hackathonId: hackathon.id,
+      },
+    },
   });
 
   if (!application) redirect("/apply");
@@ -46,14 +61,38 @@ const Profile = async () => {
         return {
           label: "Checked In",
           icon: CheckCircle2,
+          color: "text-cyan-400",
+          bg: "bg-cyan-400/10",
+          border: "border-cyan-400/20",
+        };
+      case "ACCEPTED":
+        return {
+          label: "Accepted",
+          icon: CheckCircle2,
           color: "text-emerald-400",
           bg: "bg-emerald-400/10",
           border: "border-emerald-400/20",
         };
+      case "REJECTED":
+        return {
+          label: "Not Accepted",
+          icon: Clock,
+          color: "text-red-400",
+          bg: "bg-red-400/10",
+          border: "border-red-400/20",
+        };
+      case "WAITLISTED":
+        return {
+          label: "Waitlisted",
+          icon: Clock,
+          color: "text-purple-400",
+          bg: "bg-purple-400/10",
+          border: "border-purple-400/20",
+        };
       case "APPLIED":
       default:
         return {
-          label: "Application Submitted",
+          label: "Application Under Review",
           icon: Clock,
           color: "text-amber-400",
           bg: "bg-amber-400/10",

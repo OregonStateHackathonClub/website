@@ -1,8 +1,10 @@
 import { headers } from "next/headers";
-import { sendEmail } from "@/lib/email";
+import { Resend } from "resend";
 import { prisma } from "@repo/database";
 import { uploadFile } from "@repo/storage";
 import { auth } from "@repo/auth";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request): Promise<Response> {
   const applicationsOpen = process.env.APPLICATIONS_OPEN === "true";
@@ -23,12 +25,27 @@ export async function POST(request: Request): Promise<Response> {
 
   const user = session.user;
 
+  // Get the current hackathon (most recent)
+  const hackathon = await prisma.hackathon.findFirst({
+    orderBy: { createdAt: "desc" },
+  });
+
+  if (!hackathon) {
+    return new Response("No active hackathon found", { status: 400 });
+  }
+
+  // Check if user already applied to this hackathon
   const existingApplication = await prisma.application.findUnique({
-    where: { userId: user.id },
+    where: {
+      userId_hackathonId: {
+        userId: user.id,
+        hackathonId: hackathon.id,
+      },
+    },
   });
 
   if (existingApplication) {
-    return new Response("You have already submitted an application", {
+    return new Response("You have already submitted an application for this hackathon", {
       status: 400,
     });
   }
@@ -38,19 +55,34 @@ export async function POST(request: Request): Promise<Response> {
 
   const path = await uploadFile(formData.get("resume") as File);
 
-  const application = await prisma.application.create({
-    data: {
-      userId: user.id,
-      name,
-      university: formData.get("university") as string,
-      graduationYear: parseInt(formData.get("graduationYear") as string),
-      shirtSize: "M",
-      resumePath: path,
-    },
+  // Create application and hackathon participant in a transaction
+  const application = await prisma.$transaction(async (tx) => {
+    const app = await tx.application.create({
+      data: {
+        userId: user.id,
+        hackathonId: hackathon.id,
+        name,
+        university: formData.get("university") as string,
+        graduationYear: parseInt(formData.get("graduationYear") as string),
+        shirtSize: "M",
+        resumePath: path,
+      },
+    });
+
+    // Also create hackathon participant record
+    await tx.hackathonParticipant.create({
+      data: {
+        userId: user.id,
+        hackathonId: hackathon.id,
+      },
+    });
+
+    return app;
   });
 
   try {
-    await sendEmail({
+    await resend.emails.send({
+      from: "BeaverHacks <info@beaverhacks.org>",
       to: user.email,
       subject: "BeaverHacks Registration Confirmation",
       html: `

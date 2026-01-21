@@ -16,8 +16,30 @@ const Apply = async () => {
     redirect("/login?callbackURL=/apply");
   }
 
+  // Get the current hackathon
+  const hackathon = await prisma.hackathon.findFirst({
+    orderBy: { createdAt: "desc" },
+  });
+
+  if (!hackathon) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center p-6">
+        <div className="text-center text-neutral-400">
+          <h1 className="text-xl font-semibold text-white mb-2">No Active Hackathon</h1>
+          <p>Please check back later.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if user already applied to this hackathon
   const existingApplication = await prisma.application.findUnique({
-    where: { userId: session.user.id },
+    where: {
+      userId_hackathonId: {
+        userId: session.user.id,
+        hackathonId: hackathon.id,
+      },
+    },
   });
 
   if (existingApplication) redirect("/profile");
