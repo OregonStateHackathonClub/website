@@ -1,6 +1,6 @@
 "use client";
 
-import { authClient } from "@repo/auth/client";
+import { authClient, redirectToLogin } from "@repo/auth/client";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -37,7 +37,7 @@ export default function InvitePageClient({
       addToTeam();
     } else if (!isPending && !session) {
       setRedirecting(true);
-      router.push("/log-in");
+      redirectToLogin();
     }
   }, [isPending, session, router, code, year]);
 
