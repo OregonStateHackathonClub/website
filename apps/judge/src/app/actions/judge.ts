@@ -2,11 +2,34 @@
 import { JudgeRole, prisma } from "@repo/database";
 import { isAdmin, isManager } from "./auth";
 
-export async function getJudgeType(
-  userId: string,
-  hackathonId: string,
-): Promise<JudgeRole | false> {
-  if (!isAdmin()) return false;
+export type JudgeResult = {
+  role: JudgeRole;
+  id: string;
+} | null;
+
+export async function getJudge(userId: string, hackathonId: string): Promise<JudgeResult | false> {
+  if (!await isAdmin()) return false;
+
+  try {
+    const judge = await prisma.judge.findFirst({
+      where: {
+        hackathon_participant: {
+          userId: userId,
+          hackathonId: hackathonId
+        }
+      }
+    })
+
+    if (!judge) return false
+    
+    return judge
+  } catch {
+    return false
+  }
+}
+
+export async function getJudgeType(userId: string, hackathonId: string): Promise<JudgeRole | false> {
+  if (!await isAdmin()) return false;
 
   try {
     const judge = await prisma.judge.findFirst({
@@ -27,7 +50,7 @@ export async function getJudgeType(
 }
 
 export async function setJudgeType(judgeId: string, role: JudgeRole) {
-  if (!isAdmin()) return false;
+  if (!await isAdmin()) return false;
 
   try {
     const judge = await prisma.judge.update({
@@ -45,11 +68,16 @@ export async function setJudgeType(judgeId: string, role: JudgeRole) {
   }
 }
 
+<<<<<<< HEAD
 export async function createJudge(
   participantId: string,
   role: JudgeRole = JudgeRole.JUDGE,
 ) {
   if (!isAdmin()) return false;
+=======
+export async function createJudge(participantId: string, role: JudgeRole = JudgeRole.JUDGE) {
+  if (!await isAdmin()) return false;
+>>>>>>> 5c5a3708e9910196b6df2b0242f0e064ab4bb3dd
 
   try {
     const participant = await prisma.hackathonParticipant.findUnique({
@@ -89,8 +117,12 @@ export async function removeJudge(judgeId: string) {
 
     if (!judge) return false;
 
+<<<<<<< HEAD
     if (!(isManager(judge?.hackathon_participant.hackathonId) || isAdmin()))
       return false;
+=======
+    if (!(await isManager(judge?.hackathon_participant.hackathonId) || isAdmin())) return false;
+>>>>>>> 5c5a3708e9910196b6df2b0242f0e064ab4bb3dd
 
     await prisma.judge.delete({
       where: {

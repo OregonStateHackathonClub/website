@@ -1,52 +1,31 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@repo/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@repo/ui/components/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@repo/ui/components/form";
-import { Input } from "@repo/ui/components/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@repo/ui/components/select";
-import { FileUp } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import {
+  FileUp,
+  GraduationCap,
+  Building2,
+  Calendar,
+  Loader2,
+  User,
+  Mail,
+} from "lucide-react";
 
 const MAX_FILE_SIZE = 1024 * 1024 * 5; // 5MB
 const ACCEPTED_FILE_TYPES = ["application/pdf", "image/jpeg", "image/png"];
 
 const formSchema = z.object({
-  name: z.string(),
-  email: z.string(),
-  university: z.string().min(1, { message: "University cannot be empty" }),
-  graduationYear: z
-    .string()
-    .min(1, { message: "Graduation year cannot be empty" }),
-  shirtSize: z.enum(["XS", "S", "M", "L", "XL", "XXL", "XXXL"], {
-    required_error: "Please select a t-shirt size.",
-  }),
+  name: z.string().min(1, { message: "Name is required" }),
+  email: z.string().email({ message: "Valid email is required" }),
+  university: z.string().min(1, { message: "University is required" }),
+  graduationYear: z.string().min(1, { message: "Graduation year is required" }),
   resume: z
     .instanceof(File)
     .optional()
-    .refine((file) => file !== undefined, "File is required")
+    .refine((file) => file !== undefined, "Resume is required")
     .refine((file) => {
       if (file) {
         return file.size <= MAX_FILE_SIZE;
@@ -60,34 +39,41 @@ const formSchema = z.object({
 });
 
 export const ApplicationForm = ({
-  name,
   email,
-  defaultValues = {},
+  applicationsOpen,
 }: {
-  name: string;
   email: string;
-  defaultValues?: Partial<z.infer<typeof formSchema>>;
+  applicationsOpen: boolean;
 }) => {
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name,
+      name: "",
       email,
       university: "",
       graduationYear: "",
-      shirtSize: undefined,
       resume: undefined,
-      ...defaultValues,
     },
   });
 
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting, isValid },
+  } = form;
+
+  const resumeFile = watch("resume");
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const formData = new FormData();
+    formData.append("name", values.name);
+    formData.append("email", values.email);
     formData.append("university", values.university);
     formData.append("graduationYear", values.graduationYear);
-    formData.append("shirtSize", values.shirtSize);
     formData.append("resume", values.resume!);
 
     try {
@@ -109,199 +95,181 @@ export const ApplicationForm = ({
   );
 
   return (
-    <div className="flex justify-center py-8 px-4">
-      <Card className="w-full max-w-xl shadow-lg">
-        <CardHeader className="space-y-1 bg-muted/50 rounded-t-lg">
-          <CardTitle className="text-2xl font-bold text-center">
-            BeaverHacks Registration
-          </CardTitle>
-          <CardDescription className="text-center">
-            Complete your hackathon registration below
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="pt-6">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="space-y-4">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium">Personal Information</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Name</FormLabel>
-                          <FormControl>
-                            <Input disabled={true} {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+    <div className="w-full max-w-md border border-neutral-800 bg-neutral-950/80 backdrop-blur-sm p-8">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <h1 className="text-xl font-semibold text-white">
+          Apply to BeaverHacks
+        </h1>
+        <p className="mt-2 text-sm text-neutral-500">
+          Complete your registration below
+        </p>
+      </div>
 
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email</FormLabel>
-                          <FormControl>
-                            <Input disabled={true} {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        {/* Name and Email */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-medium text-neutral-400 mb-1.5">
+              Name
+            </label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600" />
+              <input
+                type="text"
+                {...register("name")}
+                placeholder="John Doe"
+                disabled={!applicationsOpen}
+                className={`w-full h-10 pl-10 pr-3 bg-transparent border border-neutral-800 text-sm focus:outline-none transition-colors ${!applicationsOpen ? "text-neutral-500 cursor-not-allowed" : "text-white placeholder:text-neutral-600 focus:border-neutral-600"}`}
+              />
+            </div>
+            {errors.name && (
+              <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>
+            )}
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-neutral-400 mb-1.5">
+              Email
+            </label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600" />
+              <input
+                type="email"
+                {...register("email")}
+                disabled
+                className="w-full h-10 pl-10 pr-3 bg-transparent border border-neutral-800 text-neutral-400 text-sm cursor-not-allowed"
+              />
+            </div>
+            {errors.email && (
+              <p className="text-xs text-red-500 mt-1">
+                {errors.email.message}
+              </p>
+            )}
+          </div>
+        </div>
 
-                <div className="space-y-4 pt-2">
-                  <h3 className="text-lg font-medium">Education</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="university"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>University</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Oregon State University"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+        {/* University */}
+        <div>
+          <label className="block text-xs font-medium text-neutral-400 mb-1.5">
+            University
+          </label>
+          <div className="relative">
+            <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600" />
+            <input
+              type="text"
+              {...register("university")}
+              placeholder="Oregon State University"
+              disabled={!applicationsOpen}
+              className={`w-full h-10 pl-10 pr-3 bg-transparent border border-neutral-800 text-sm focus:outline-none transition-colors ${!applicationsOpen ? "text-neutral-500 cursor-not-allowed" : "text-white placeholder:text-neutral-600 focus:border-neutral-600"}`}
+            />
+          </div>
+          {errors.university && (
+            <p className="text-xs text-red-500 mt-1">
+              {errors.university.message}
+            </p>
+          )}
+        </div>
 
-                    <FormField
-                      control={form.control}
-                      name="graduationYear"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Graduation Year</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select year" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {yearsArray.map((year) => (
-                                <SelectItem key={year} value={year}>
-                                  {year}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
+        {/* Graduation Year */}
+        <div>
+          <label className="block text-xs font-medium text-neutral-400 mb-1.5">
+            Graduation Year
+          </label>
+          <div className="relative">
+            <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600" />
+            <select
+              {...register("graduationYear")}
+              disabled={!applicationsOpen}
+              className={`w-full h-10 pl-10 pr-3 bg-transparent border border-neutral-800 text-sm focus:outline-none transition-colors appearance-none ${!applicationsOpen ? "text-neutral-500 cursor-not-allowed" : "text-white focus:border-neutral-600 cursor-pointer"}`}
+            >
+              <option value="" disabled className="bg-neutral-900">
+                Select year
+              </option>
+              {yearsArray.map((year) => (
+                <option key={year} value={year} className="bg-neutral-900">
+                  {year}
+                </option>
+              ))}
+            </select>
+            <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600 pointer-events-none" />
+          </div>
+          {errors.graduationYear && (
+            <p className="text-xs text-red-500 mt-1">
+              {errors.graduationYear.message}
+            </p>
+          )}
+        </div>
 
-                <div className="space-y-4 pt-2">
-                  <h3 className="text-lg font-medium">Event Details</h3>
-                  <FormField
-                    control={form.control}
-                    name="shirtSize"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>T-Shirt Size</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select your t-shirt size" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="XS">Extra Small (XS)</SelectItem>
-                            <SelectItem value="S">Small (S)</SelectItem>
-                            <SelectItem value="M">Medium (M)</SelectItem>
-                            <SelectItem value="L">Large (L)</SelectItem>
-                            <SelectItem value="XL">Extra Large (XL)</SelectItem>
-                            <SelectItem value="XXL">Double XL (XXL)</SelectItem>
-                            <SelectItem value="XXXL">
-                              Triple XL (XXXL)
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="resume"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Resume</FormLabel>
-                        <FormControl>
-                          <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg px-3 py-8 text-center hover:border-muted-foreground/50 transition-colors">
-                            <input
-                              type="file"
-                              id="file-upload"
-                              className="hidden"
-                              onChange={(e) => {
-                                field.onChange(
-                                  e.target?.files ? e.target.files[0] : null,
-                                );
-                              }}
-                            />
-                            <label
-                              htmlFor="file-upload"
-                              className="cursor-pointer"
-                            >
-                              <div className="flex flex-col items-center gap-2">
-                                <FileUp className="h-8 w-8 text-muted-foreground/70" />
-                                {!field.value ? (
-                                  <span className="text-sm text-muted-foreground">
-                                    Click to upload your resume (PDF, JPEG, PNG)
-                                  </span>
-                                ) : (
-                                  <span className="text-sm font-medium">
-                                    {field.value.name}
-                                  </span>
-                                )}
-                                <span className="text-xs text-muted-foreground/70">
-                                  Maximum file size: 5MB
-                                </span>
-                              </div>
-                            </label>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+        {/* Resume Upload */}
+        <div>
+          <label className="block text-xs font-medium text-neutral-400 mb-1.5">
+            Resume
+          </label>
+          <div className="relative">
+            <input
+              type="file"
+              id="resume-upload"
+              className="hidden"
+              accept=".pdf,.jpeg,.jpg,.png"
+              disabled={!applicationsOpen}
+              onChange={(e) => {
+                const file = e.target?.files?.[0];
+                if (file) {
+                  setValue("resume", file, { shouldValidate: true });
+                }
+              }}
+            />
+            <label
+              htmlFor="resume-upload"
+              className={`flex items-center gap-3 w-full h-20 px-4 bg-transparent border border-dashed border-neutral-800 text-sm transition-colors ${!applicationsOpen ? "cursor-not-allowed" : "cursor-pointer hover:border-neutral-600"}`}
+            >
+              <div className="w-10 h-10 flex items-center justify-center border border-neutral-800 bg-neutral-900">
+                <FileUp className="w-4 h-4 text-neutral-500" />
               </div>
-
-              <div className="flex justify-end px-0 pt-4">
-                <Button
-                  type="submit"
-                  className="w-full bg-orange-500 hover:bg-orange-600 text-white"
-                  disabled={
-                    !form.formState.isValid || form.formState.isSubmitting
-                  }
-                >
-                  Complete Registration
-                </Button>
+              <div className="flex-1 min-w-0">
+                {resumeFile ? (
+                  <>
+                    <p className="text-white text-sm truncate">
+                      {resumeFile.name}
+                    </p>
+                    <p className="text-neutral-600 text-xs">Click to replace</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-neutral-400 text-sm">
+                      Upload your resume
+                    </p>
+                    <p className="text-neutral-600 text-xs">
+                      PDF, JPEG, PNG (max 5MB)
+                    </p>
+                  </>
+                )}
               </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+            </label>
+          </div>
+          {errors.resume && (
+            <p className="text-xs text-red-500 mt-1">{errors.resume.message}</p>
+          )}
+        </div>
+
+        {/* Submit */}
+        <button
+          type="submit"
+          disabled={!applicationsOpen || !isValid || isSubmitting}
+          className="w-full h-10 bg-white text-black text-sm font-medium hover:bg-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+        >
+          {!applicationsOpen ? (
+            "Applications Closed"
+          ) : isSubmitting ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Submitting...
+            </>
+          ) : (
+            "Complete Registration"
+          )}
+        </button>
+      </form>
     </div>
   );
 };

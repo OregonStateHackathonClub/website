@@ -1,82 +1,31 @@
-"use client";
+import Link from "next/link";
 
-import { useEffect, useRef, useState } from "react";
-import AboutPage from "@/components/landing/about";
-import FaqPage from "@/components/landing/faq";
-import SponsorPage from "@/components/landing/sponsors";
-import { Navbar } from "@/components/navbar";
-
-const Home = () => {
-  const about = useRef<HTMLDivElement>(null);
-  const sponsors = useRef<HTMLDivElement>(null);
-  const faq = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const handleResize = () => {
-      const currentIsMobile = window.innerWidth < 768;
-
-      if (currentIsMobile !== isMobile) {
-        setIsMobile(currentIsMobile);
-
-        if (videoRef.current) {
-          videoRef.current.load();
-        }
-      }
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [isMobile]);
-
+export default function Page() {
   return (
-    <>
-      <Navbar aboutRef={about} sponsorsRef={sponsors} faqRef={faq} />
-      <div className="relative w-screen h-screen">
-        <video
-          ref={videoRef}
-          className={`absolute w-full h-full object-cover`}
-          autoPlay
-          loop
-          muted
-          playsInline
-        >
-          <source
-            src={isMobile ? "/promo_vid_tall.mp4" : "/promo_vid_wide.mp4"}
-            type="video/mp4"
-          />
-        </video>
-        <div
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-3 text-white cursor-pointer z-40 opacity-70 hover:opacity-100 transition-opacity duration-300"
-          onClick={() => about.current?.scrollIntoView({ behavior: "smooth" })}
-        >
-          <span className="text-xs uppercase tracking-widest">Discover</span>
-          <div className="h-12 flex flex-col items-center justify-start overflow-hidden">
-            <div className="w-px h-8 bg-white animate-pulse"></div>
-          </div>
+    <main className="h-screen bg-screen-dark flex items-center justify-center p-4">
+      <div className="crt-screen crt-scanlines crt-vignette w-full max-w-xl border border-amber-muted/25 p-8 text-center">
+        <h1 className="text-amber-bright text-glow-base font-primary text-3xl md:text-4xl tracking-wide mb-2">
+          BEAVERHACKS
+        </h1>
+        <p className="text-amber-muted text-sm mb-8">
+          Oregon State Hackathon
+        </p>
+
+        <div className="text-amber-normal font-secondary text-lg mb-8">
+          Site under maintenance
         </div>
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-linear-to-b from-transparent to-background z-10"></div>
-      </div>
 
-      {/*about page*/}
-      <div ref={about} className="py-16">
-        <AboutPage />
-      </div>
+        <p className="text-amber-dim text-sm mb-6">
+          Looking to apply for the online hackathon?
+        </p>
 
-      {/*sponsors page*/}
-      <div ref={sponsors} className="py-20">
-        <SponsorPage />
+        <Link
+          href="/apply"
+          className="inline-block px-6 py-3 border border-amber-muted/50 text-amber-bright hover:text-glow-base hover:border-amber-bright transition-all font-secondary"
+        >
+          Click here to apply
+        </Link>
       </div>
-
-      {/*FAQ page*/}
-      <div ref={faq}>
-        <FaqPage />
-      </div>
-    </>
+    </main>
   );
-};
-
-export default Home;
+}

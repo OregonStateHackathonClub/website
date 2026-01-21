@@ -1,6 +1,7 @@
 "use client";
 import { userSearch, UserSearchResult } from "@/app/actions/user";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+<<<<<<< HEAD
 import {
   Pagination,
   PaginationContent,
@@ -10,6 +11,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@repo/ui/components/pagination";
+=======
+>>>>>>> 5c5a3708e9910196b6df2b0242f0e064ab4bb3dd
 import { Button } from "@repo/ui/components/button";
 import {
   DropdownMenu,
@@ -21,6 +24,9 @@ import { toast } from "sonner";
 import { JudgeRole, UserRole } from "@prisma/client";
 import { ChevronDown } from "lucide-react";
 import UserOuterSheet from "./UserOuterSheet";
+import InfoTooltip from "./InfoTooltip";
+import Pages from "./Pages";
+import AddDialog from "./AddDialog";
 
 export default function UsersPage({ hackathonId }: { hackathonId: string }) {
   const [search, setSearch] = useState("");
@@ -111,6 +117,7 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
     const entriesPerPage = 25;
     const totalPages = Math.ceil(list.length / entriesPerPage);
 
+<<<<<<< HEAD
     const startIndex = (page - 1) * entriesPerPage;
     const endIndex = startIndex + entriesPerPage;
     const currentEntries = list.slice(startIndex, endIndex);
@@ -356,4 +363,106 @@ export default function UsersPage({ hackathonId }: { hackathonId: string }) {
       </div>
     </>
   );
+=======
+	return (
+		<>
+			{
+				currentUser &&
+				<UserOuterSheet
+					currentUser={currentUser}
+					hackathonId={hackathonId}
+					setAllUsers={setAllUsers}
+					isSheetOpen={isSheetOpen}
+					setIsSheetOpen={setIsSheetOpen}
+				/>
+			}
+			<div className="mx-auto w-full max-w-3xl py-10">
+				<div className="flex justify-center">
+					<div className="font-bold text-3xl">Users</div>
+				</div>
+				<div>
+					<input
+						type="text"
+						placeholder="Search..."
+						className="mb-2 w-75 cursor-text rounded-xl border border-gray-700 bg-gray-900 p-2 shadow-sm transition-all duration-200 hover:bg-gray-800 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+						value={search}
+						onChange={(e) => setSearch(e.target.value)}
+					/>
+				</div>
+				{
+					hackathonId ?
+					<div>
+						<div className="flex w-full justify-between items-center my-5">
+							<div>
+								Managers
+							</div>
+							<InfoTooltip>
+								<strong>Managers can:</strong>
+								<ul className="list-disc list-inside">
+									<li>Add/Remove judges from this hackathon</li>
+									<li>Modify this hackathon&apos;s information</li>
+									<li>Add/Modify/Remove teams & hackathon participants from this hackathon</li>
+									<li>Judge hackathon submissions</li>
+								</ul>
+							</InfoTooltip>
+							<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
+							<AddDialog role={JudgeRole.MANAGER} hackathonId={hackathonId} search={search} setSearch={setSearch} filteredUsers={filteredUsers} setAllUsers={setAllUsers} />
+						</div>
+						{users ? <Users list={managers} page={managerPage} setPage={setManagerPage} /> : <div>Loading...</div>}
+
+						<div className="flex w-full justify-between items-center my-5">
+							<div>
+								Judges
+							</div>
+							<InfoTooltip>
+								<strong>Judges can:</strong>
+								<ul className="list-disc list-inside">
+									<li>Judge hackathon submissions</li>
+									<li>Modify their own judging rubric</li>
+								</ul>
+							</InfoTooltip>
+							<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
+							<AddDialog role={JudgeRole.JUDGE} hackathonId={hackathonId} search={search} setSearch={setSearch} filteredUsers={filteredUsers} setAllUsers={setAllUsers} />
+						</div>
+						{users ? <Users list={judges} page={judgePage} setPage={setJudgePage} /> : <div>Loading...</div>}
+
+						<div className="flex w-full justify-between items-center my-5">
+							<div>
+								Users
+							</div>
+							<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
+							<AddDialog role={null} hackathonId={hackathonId} search={search} setSearch={setSearch} filteredUsers={filteredUsers} setAllUsers={setAllUsers} />
+						</div>
+						{users ? <Users list={users} page={userPage} setPage={setUserPage} /> : <div>Loading...</div>}
+					</div>
+					:
+					<div>
+						<div className="flex w-full justify-between items-center my-5">
+							<div>
+								Admins
+							</div>
+							<InfoTooltip>
+								<strong>Admins can:</strong>
+								<ul className="list-disc list-inside">
+									<li>Add/Modify/Remove Hackathons</li>
+									<li>Add/Remove admins, managers, and judges</li>
+									<li>Modify/Delete Users</li>
+								</ul>
+							</InfoTooltip>
+							<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
+						</div>
+						{users ? <Users list={admins} page={adminPage} setPage={setAdminPage} /> : <div>Loading...</div>}
+						<div className="flex w-full justify-between items-center my-5">
+							<div>
+								Users
+							</div>
+							<div className="flex-1 h-0.5 mx-5 bg-gray-800 rounded-full" />
+						</div>
+						{users ? <Users list={users} page={userPage} setPage={setUserPage} /> : <div>Loading...</div>}
+					</div>
+				}
+			</div>
+		</>
+	);
+>>>>>>> 5c5a3708e9910196b6df2b0242f0e064ab4bb3dd
 }

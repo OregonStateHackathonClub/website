@@ -1,29 +1,44 @@
-import { auth } from "@repo/auth";
-import { prisma } from "@repo/database";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { AuthPage } from "@/components/auth";
+import { headers } from "next/headers";
+
+import { prisma } from "@repo/database";
+import { auth } from "@repo/auth";
 import { ApplicationForm } from "@/components/form";
 
 const Apply = async () => {
+  const applicationsOpen = process.env.APPLICATIONS_OPEN === "true";
+
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
-  if (!session?.user) return <AuthPage />;
-
-  const user = session.user;
+  if (!session?.user) {
+    redirect("/login?callbackURL=/apply");
+  }
 
   const existingApplication = await prisma.application.findUnique({
-    where: { userId: user.id },
+    where: { userId: session.user.id },
   });
 
   if (existingApplication) redirect("/profile");
 
   return (
-    <div className="flex justify-center items-center h-screen">
-      <div className="h-[90vh]">
-        <ApplicationForm name={user.name} email={user.email} />
+    <div className="min-h-screen bg-black flex items-center justify-center p-6 relative overflow-hidden">
+      {/* Background elements */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-neutral-900/50 via-black to-black" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gradient-to-b from-neutral-800/20 to-transparent rounded-full blur-3xl" />
+
+      {/* Subtle grid */}
+      <div
+        className="absolute inset-0 opacity-[0.015]"
+        style={{
+          backgroundImage: `linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)`,
+          backgroundSize: "60px 60px",
+        }}
+      />
+
+      <div className="relative z-10">
+        <ApplicationForm email={session.user.email} applicationsOpen={applicationsOpen} />
       </div>
     </div>
   );

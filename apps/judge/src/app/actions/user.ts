@@ -1,6 +1,7 @@
 "use server";
 import { JudgeRole, prisma, UserRole } from "@repo/database";
 import { isAdmin } from "./auth";
+import { JudgeResult } from "./judge";
 
 export type UserSearchResult = {
   id: string;
@@ -10,19 +11,12 @@ export type UserSearchResult = {
   hackathonParticipants: {
     id: string;
     hackathonId: string;
-    judge: {
-      role: JudgeRole;
-      id: string;
-    } | null;
+    judge: JudgeResult;
   }[];
 };
 
-export async function userSearch(
-  search: string,
-  hackathonId: string = "",
-  role: UserRole | JudgeRole | null = null,
-): Promise<UserSearchResult[] | false> {
-  if (!isAdmin()) return false;
+export async function userSearch(search: string, hackathonId: string = "", role: UserRole | JudgeRole | null = null): Promise <UserSearchResult[] | false> {
+	if (!await isAdmin()) return false;
   const users = await prisma.user.findMany({
     where: {
       AND: [
@@ -118,7 +112,7 @@ export async function removeUser(id: string): Promise<boolean> {
 
     if (!user) return false;
 
-    if (!isAdmin()) return false;
+    if (!await isAdmin()) return false;
 
     await prisma.user.delete({ where: { id } });
     return true;
@@ -131,7 +125,13 @@ export async function setAdmin(
   adminValue: boolean,
   userId: string,
 ): Promise<boolean> {
+<<<<<<< HEAD
   if (!isAdmin()) return false;
+=======
+
+  if (!await isAdmin())
+    return false
+>>>>>>> 5c5a3708e9910196b6df2b0242f0e064ab4bb3dd
 
   await prisma.user.update({
     where: {

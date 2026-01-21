@@ -101,6 +101,7 @@ model Application {
   id             String            @id @default(cuid())
   createdAt      DateTime          @default(now())
   userId         String            @unique
+  name           String
   university     String
   graduationYear Int
   shirtSize      ShirtSize

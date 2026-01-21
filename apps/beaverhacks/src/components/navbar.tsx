@@ -1,144 +1,85 @@
-import { Button } from "@repo/ui/components/button";
-import Image from "next/image";
-import Link from "next/link";
-import { useEffect, useState } from "react";
+"use client";
 
-type NavbarProps = {
-  aboutRef: React.RefObject<HTMLDivElement | null>;
-  sponsorsRef: React.RefObject<HTMLDivElement | null>;
-  faqRef: React.RefObject<HTMLDivElement | null>;
-};
+const navItems = [
+  { id: "home", label: "home", icon: "", file: "index.tsx" },
+  { id: "sponsors", label: "sponsors", icon: "", file: "sponsors.tsx" },
+  { id: "faq", label: "faq", icon: "󰋖", file: "faq.md" },
+] as const;
 
-export const Navbar = ({ aboutRef, sponsorsRef, faqRef }: NavbarProps) => {
-  const [isOnVideoSection, setIsOnVideoSection] = useState(true);
+export type Page = (typeof navItems)[number]["id"];
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY < window.innerHeight) {
-        setIsOnVideoSection(true);
-      } else {
-        setIsOnVideoSection(false);
-      }
-    };
+interface NavbarProps {
+  active: Page;
+  onNavigate: (page: Page) => void;
+}
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
+export const Navbar = ({ active, onNavigate }: NavbarProps) => {
   return (
-    <nav
-      className={`z-50 fixed w-screen flex items-center justify-between p-4 border-b transition-all duration-300 ${
-        isOnVideoSection
-          ? "border-white/10 bg-black/30 backdrop-blur-sm text-white"
-          : "border-border bg-background"
-      }`}
-    >
-      <div className="flex gap-8">
-        <Link href="/" className="flex items-center gap-4">
-          <div className="flex items-center gap-4">
-            <Image
-              src="/images/beaver.png"
-              width={40}
-              height={40}
-              className="w-10 h-10 sm:w-12 sm:h-12"
-              alt="logo"
-            />
-            <div className="flex flex-col">
-              <h1 className="text-lg uppercase font-bold sm:text-xl">
-                BeaverHacks
-              </h1>
-              <p className="text-xs uppercase text-muted-foreground text-nowrap hidden sm:block">
-                Oregon State University
-              </p>
-            </div>
-          </div>
-        </Link>
-        <div className="flex items-center gap-4">
-          <Link
-            href="https://instagram.com/beaverhacks"
-            target="_blank"
-            rel="noreferrer"
-            className="text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="Instagram"
-          >
-            <Image
-              src="/images/instagram.svg"
-              width={20}
-              height={20}
-              alt="Instagram logo"
-              className="w-4 h-4 sm:w-5 sm:h-5"
-            />
-          </Link>
-          <Link
-            href="https://youtube.com/@osubeaverhacks"
-            target="_blank"
-            rel="noreferrer"
-            className="text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="YouTube"
-          >
-            <Image
-              src="/images/youtube.svg"
-              width={20}
-              height={20}
-              alt="Youtube logo"
-              className="w-5 h-5 sm:w-6 sm:h-6"
-            />
-          </Link>
-          <Link
-            href="https://discord.gg/vuepffJxub"
-            target="_blank"
-            rel="noreferrer"
-            className="text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="Discord"
-          >
-            <Image
-              src="/images/discord.svg"
-              width={20}
-              height={20}
-              alt="Discord logo"
-              className="w-5 h-5 sm:w-6 sm:h-6"
-            />
-          </Link>
+    <nav className="relative z-20 shrink-0 mb-2">
+      {/* Tabline */}
+      <div className="flex items-stretch font-secondary text-[10px] md:text-xs border-b border-amber-muted/30">
+        {/* Tabs */}
+        <div className="flex items-stretch">
+          {navItems.map((item) => {
+            const isActive = active === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => onNavigate(item.id)}
+                className={`group flex items-center gap-1.5 px-3 py-1.5 transition-all border-b-2 -mb-0.5 ${
+                  isActive
+                    ? "bg-amber-muted/20 border-amber-bright text-amber-bright"
+                    : "border-transparent text-amber-dim hover:text-amber-normal hover:bg-amber-muted/10"
+                }`}
+              >
+                <span
+                  className={`text-[10px] ${isActive ? "text-amber-bright" : "text-amber-muted group-hover:text-amber-dim"}`}
+                >
+                  {item.icon}
+                </span>
+                <span className="hidden sm:inline">{item.file}</span>
+                <span className="sm:hidden">{item.label}</span>
+                {isActive && (
+                  <span className="text-amber-muted text-[8px] hidden md:inline">
+                    ●
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
+
+        {/* Spacer with vim-style buffer info */}
+        <div className="flex-1 flex items-center justify-end px-2 text-amber-muted/50">
+          <span className="hidden lg:inline">
+            {navItems.findIndex((item) => item.id === active) + 1}/
+            {navItems.length}
+          </span>
+        </div>
+
+        {/* Register button - special tab */}
+        <a
+          href="/apply"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-bright/10 text-amber-bright hover:bg-amber-bright/20 transition-all border-l border-amber-muted/30"
+        >
+          <span className="text-[10px]"></span>
+          <span className="hidden sm:inline">register</span>
+          <span className="sm:hidden">reg</span>
+        </a>
       </div>
 
-      <div className="flex gap-2 md:gap-4">
-        <Button
-          variant="outline"
-          className="hidden md:block"
-          onClick={() => {
-            aboutRef.current?.scrollIntoView({ behavior: "smooth" });
-          }}
-        >
-          About
-        </Button>
-        <Button
-          variant="outline"
-          className="hidden md:block"
-          onClick={() => {
-            sponsorsRef.current?.scrollIntoView({ behavior: "smooth" });
-          }}
-        >
-          Sponsors
-        </Button>
-        <Button
-          variant="outline"
-          className="hidden md:block"
-          onClick={() => {
-            faqRef.current?.scrollIntoView({ behavior: "smooth" });
-          }}
-        >
-          FAQ
-        </Button>
-
-        <Link href="/apply">
-          <Button
-            variant="default"
-            className="bg-orange-500 hover:bg-orange-600 text-white"
-          >
-            Register
-          </Button>
-        </Link>
+      {/* Breadcrumb / path line */}
+      <div className="flex items-center gap-2 px-1 py-1 text-[9px] md:text-[10px] text-amber-muted">
+        <span className="text-amber-dim">~</span>
+        <span className="text-amber-muted/50">/</span>
+        <span className="text-amber-dim">beaverhacks</span>
+        <span className="text-amber-muted/50">/</span>
+        <span className="text-amber-normal">
+          {navItems.find((item) => item.id === active)?.file}
+        </span>
+        <span className="text-amber-muted/50 hidden sm:inline">
+          [+] utf-8 unix
+        </span>
       </div>
     </nav>
   );
