@@ -5,12 +5,12 @@ export async function GET() {
   try {
     const users = await prisma.user.findMany({
       where: {
-        application: {
-          isNot: null, // Only return users with applications
+        applications: {
+          some: {}, // Only return users with applications
         },
       },
       include: {
-        application: true,
+        applications: true,
         hackathonParticipants: {
           include: {
             hackathon: true,
