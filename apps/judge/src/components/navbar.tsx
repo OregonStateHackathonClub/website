@@ -3,7 +3,7 @@
 import { Button } from "@repo/ui/components/button";
 import Image from "next/image";
 import Link from "next/link";
-import LoginLogoutButton from "./loginLogoutButton";
+import { AuthButton } from "./auth-button";
 
 interface NavbarProps {
   currentHackathonId: string;
@@ -22,6 +22,9 @@ export const Navbar = ({
         <HackathonHomepageButton link={`/${currentHackathonId}`} />
 
         <div className="flex items-center gap-4">
+          <Link href={`/${currentHackathonId}/sponsors`}>
+            <Button variant="ghost" className="hover:cursor-pointer">Sponsors</Button>
+          </Link>
           {/* Conditional Team/Submission Buttons */}
           {userTeamId && (
             <>
@@ -50,7 +53,7 @@ export const Navbar = ({
               )}
             </>
           )}
-          <LoginLogoutButton />
+          <AuthButton />
         </div>
       </div>
     </nav>

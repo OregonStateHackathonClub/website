@@ -1,4 +1,4 @@
-"use server"
+"use server";
 import { prisma } from "@repo/database";
 import { isAdmin, isManager } from "./auth";
 import { auth } from "@repo/auth";
@@ -54,16 +54,18 @@ export async function createHackathonParticipant(userId: string = "", hackathonI
 
 export async function removeHackathonParticipant(id: string) {
   try {
-    const hackathon_participant = await prisma.hackathonParticipant.findUnique({ where: { id } })
+    const hackathon_participant = await prisma.hackathonParticipant.findUnique({
+      where: { id },
+    });
 
-    if (!hackathon_participant) return false
+    if (!hackathon_participant) return false;
 
     if (!(await isManager(hackathon_participant.hackathonId) || await isAdmin())) return false;
 
-    await prisma.hackathonParticipant.delete({ where: { id } })
+    await prisma.hackathonParticipant.delete({ where: { id } });
 
-    return true
+    return true;
   } catch {
-    return false
+    return false;
   }
 }

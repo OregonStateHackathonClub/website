@@ -14,6 +14,13 @@ interface Track {
   name: string;
 }
 
+interface Sponsor {
+  id: string;
+  name: string;
+  websiteUrl: string | null;
+  logoUrl: string;
+}
+
 interface Submission {
   id: string;
   name: string;
@@ -27,7 +34,7 @@ interface Submission {
 interface Hackathon {
   submissions: Submission[];
   bannerImage?: string;
-  sponsorLogos?: string[];
+  sponsors?: Sponsor[];
 }
 
 interface SubmissionsClientProps {
@@ -37,28 +44,6 @@ interface SubmissionsClientProps {
   userTeamId?: string | null;
   teamSubmission?: { id: string /*status: string  removed this*/ } | null;
 }
-const sponsors = [
-  {
-    href: "https://acm.oregonstate.edu/",
-    src: "https://beaverhacks.org/images/acmlogo.svg",
-    alt: "ACM OSU",
-  },
-  {
-    href: "https://www.osuappdev.club/",
-    src: "https://beaverhacks.org/_next/image?url=%2Fimages%2Fappdev.png&w=256&q=75",
-    alt: "App Development Club",
-  },
-  {
-    href: "https://gdgc-osu.com/",
-    src: "https://beaverhacks.org/_next/image?url=%2Fimages%2Fgdgc.png&w=256&q=75",
-    alt: "Google Developer Group on Campus",
-  },
-  {
-    href: "https://org.osu.edu/womenincyber/",
-    src: "https://beaverhacks.org/_next/image?url=%2Fimages%2Fwicys.png&w=256&q=75",
-    alt: "Women in Cybersecurity",
-  },
-];
 
 export default function SubmissionsClient({
   hackathon,
@@ -110,7 +95,7 @@ export default function SubmissionsClient({
             <span className="inline-flex items-center rounded-full border border-neutral-800 bg-neutral-900/60 px-3 py-1 text-neutral-300 text-s tracking-wide">
               Oregon State University
             </span>
-            <h1 className="bg-gradient-to-r from-white via-orange-100 to-orange-500 bg-clip-text text-4xl font-extrabold tracking-tight text-transparent drop-shadow-sm sm:text-5xl md:text-6xl">
+            <h1 className="bg-gradient-to-r from-orange-300 via-orange-400 to-orange-500 bg-clip-text text-4xl font-extrabold tracking-tight text-transparent drop-shadow-sm sm:text-5xl md:text-6xl">
               BeaverHacks {year}
             </h1>
             <p className="max-w-2xl text-neutral-300 text-sm sm:text-base">
@@ -120,34 +105,38 @@ export default function SubmissionsClient({
           </div>
 
           {/* Sponsors (per year) */}
-          <div className="mt-12">
-            <div className="mx-auto max-w-5xl">
-              <div className="rounded-3xl border border-neutral-800 bg-neutral-900/50 p-4 sm:p-6">
-                <p className="mb-4 text-center text-neutral-400 text-s tracking-wide">
-                  Sponsors
-                </p>
-                <div className="grid grid-cols-2 items-center justify-center gap-6 sm:grid-cols-4">
-                  {sponsors.map((sponsor) => (
-                    <a
-                      key={sponsor.alt}
-                      href={sponsor.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center opacity-80 transition hover:scale-102 hover:opacity-100"
-                    >
-                      <Image
-                        src={sponsor.src}
-                        alt={sponsor.alt}
-                        width={100}
-                        height={40}
-                        className="object-contain"
-                      />
-                    </a>
-                  ))}
+          {hackathon.sponsors && hackathon.sponsors.length > 0 && (
+            <div className="mt-12">
+              <div className="mx-auto max-w-5xl">
+                <div className="rounded-3xl border border-neutral-800 bg-neutral-900/50 p-4 sm:p-6">
+                  <p className="mb-4 text-center text-neutral-400 text-s tracking-wide">
+                    Sponsors
+                  </p>
+                  <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
+                    {hackathon.sponsors.map((sponsor) => (
+                      <a
+                        key={sponsor.id}
+                        href={sponsor.websiteUrl || "#"}
+                        target={sponsor.websiteUrl ? "_blank" : undefined}
+                        rel={
+                          sponsor.websiteUrl ? "noopener noreferrer" : undefined
+                        }
+                        className="flex items-center justify-center opacity-80 transition hover:scale-102 hover:opacity-100"
+                      >
+                        <Image
+                          src={sponsor.logoUrl}
+                          alt={sponsor.name}
+                          width={150}
+                          height={150}
+                          className="object-contain"
+                        />
+                      </a>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 

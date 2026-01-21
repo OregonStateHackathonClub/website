@@ -33,7 +33,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { isTeamMember } from "@/app/actions/auth"; 
+import { isTeamMember } from "@/app/actions/auth";
 import {
   getInviteCode,
   getTeamInfo,
