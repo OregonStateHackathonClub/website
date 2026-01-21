@@ -57,6 +57,8 @@ export async function assignJudge({
     if(!participant){
         return { success: false, error: "Unauthorized user" };
     }
+
+    // Fix the logic for allowig to assign a judge
     
     const judgeManager = await prisma.judge.findFirst({
         where: { 
