@@ -137,13 +137,11 @@ model Hackathon {
   teams        Team[]
   tracks       Track[]
   submissions  Submission[]
-
-  judges       JudgeAssignment[]
   sponsors     Sponsor[]
+
   @@map("hackathon")
 }
 
-// Join table: User ↔ Hackathon (tracks who's participating in which hackathons)
 model HackathonParticipant {
   id          String   @id @default(cuid())
   userId      String
@@ -166,7 +164,7 @@ model Team {
   description         String?
   lookingForTeammates Boolean  @default(false)
   contact             String?
-  creatorId           String // The user who created the team
+  creatorId           String
   hackathonId         String
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
@@ -181,11 +179,10 @@ model Team {
   @@map("team")
 }
 
-// Join table: HackathonParticipant ↔ Team (one participant per hackathon can be on one team)
 model TeamMember {
   id            String   @id @default(cuid())
   teamId        String
-  participantId String   @unique // One participant can only be on one team per hackathon
+  participantId String   @unique
   joinedAt      DateTime @default(now())
 
   // Relations
@@ -242,13 +239,17 @@ model Submission {
   updatedAt   DateTime @updatedAt
 
   // Relations
-  team      Team          @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  hackathon Hackathon     @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
-  scores    Score[]
+  team      Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  hackathon Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
   tracks    Track[]
-  grade     RubricGrade[]
-  // Link back to JudgeAssignment
-  judges    JudgeAssignment[] 
+
+  // Multi-round judging
+  roundAssignments RoundJudgeAssignment[]
+  triageScores     TriageScore[]
+  scores           Score[]
+  rankedVotes      RankedVote[]
+  advancements     RoundAdvancement[]
+  trackWins        TrackWinner[]
 
   @@map("submission")
 }
@@ -261,13 +262,16 @@ model Track {
   prize       String?
   sponsorId   String?
   createdAt   DateTime @default(now())
-  drafts      Draft[]
-  submissions Submission[]
-  rubric      Rubric?
 
   // Relations
-  hackathon   Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
-  sponsor     Sponsor?  @relation(fields: [sponsorId], references: [id])
+  hackathon        Hackathon              @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  sponsor          Sponsor?               @relation(fields: [sponsorId], references: [id])
+  drafts           Draft[]
+  submissions      Submission[]
+  rubric           Rubric?
+  judgingPlan      JudgingPlan?
+  judgeAssignments JudgeTrackAssignment[]
+  winners          TrackWinner[]
 
   @@map("track")
 }
@@ -280,45 +284,55 @@ model Rubric {
   // Relations
   track    Track            @relation(fields: [trackId], references: [id], onDelete: Cascade)
   criteria RubricCriteria[]
+  rounds   JudgingRound[]
 
   @@map("rubric")
 }
 
 model RubricCriteria {
-  id       String @id @default(cuid())
-  rubricId String
-  name     String
-  weight   Float
-  maxScore Int
+  id          String  @id @default(cuid())
+  rubricId    String
+  name        String
+  description String?
+  weight      Float
+  maxScore    Int
 
   // Relations
-  rubric Rubric        @relation(fields: [rubricId], references: [id], onDelete: Cascade)
-  grade  RubricGrade[]
+  rubric Rubric @relation(fields: [rubricId], references: [id], onDelete: Cascade)
 
   @@map("rubric_criteria")
 }
 
-model RubricGrade {
-  id               String @id @default(cuid())
-  submissionId     String
-  rubricCriteriaId String
-  score            Float
+model Sponsor {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  logoUrl     String
+  hackathonId String
+  websiteUrl  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relations
-  submission     Submission     @relation(fields: [submissionId], references: [id], onDelete: Cascade)
-  rubricCriteria RubricCriteria @relation(fields: [rubricCriteriaId], references: [id], onDelete: Cascade)
+  hackathon Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  tracks    Track[]
 
-  @@map("rubric_grade")
+  @@map("sponsor")
 }
 
-
 // ============================================================================
-// JUDGE SYSTEM (judge.beaverhacks.org)
+// MULTI-ROUND JUDGING SYSTEM
 // ============================================================================
 
 enum JudgeRole {
   JUDGE
   MANAGER
+}
+
+enum JudgingRoundType {
+  TRIAGE
+  RUBRIC
+  RANKED
 }
 
 model Judge {
@@ -331,61 +345,164 @@ model Judge {
   createdAt                DateTime  @default(now())
 
   // Relations
-  hackathon_participant HackathonParticipant @relation(fields: [hackathon_participant_id], references: [id], onDelete: Cascade)
-  assignments           JudgeAssignment[]
+  hackathon_participant HackathonParticipant   @relation(fields: [hackathon_participant_id], references: [id], onDelete: Cascade)
+  trackAssignments      JudgeTrackAssignment[]
+  roundAssignments      RoundJudgeAssignment[]
+  triageScores          TriageScore[]
   scores                Score[]
+  rankedVotes           RankedVote[]
 
   @@map("judge")
 }
 
-// Join table: Judge ↔ Hackathon (judges can be assigned to multiple hackathons)
-// AND Judge ↔ Submission (judges are assigned to grade specific submissions)
-model JudgeAssignment {
-  id           String   @id @default(cuid())
-  judgeId      String
-  hackathonId  String?
-  submissionId String?
-  assignedAt   DateTime @default(now())
+// Assigns judges to tracks they can judge
+model JudgeTrackAssignment {
+  id      String @id @default(cuid())
+  judgeId String
+  trackId String
 
   // Relations
-  judge      Judge      @relation(fields: [judgeId], references: [id], onDelete: Cascade)
-  hackathon  Hackathon?  @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
-  submission Submission? @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  judge Judge @relation(fields: [judgeId], references: [id], onDelete: Cascade)
+  track Track @relation(fields: [trackId], references: [id], onDelete: Cascade)
 
-  // A judge can only be assigned to a specific submission once
-  @@unique([judgeId, submissionId])
-  @@map("judge_assignment")
+  @@unique([judgeId, trackId])
+  @@map("judge_track_assignment")
 }
 
-model Score {
-  id           String   @id @default(cuid())
-  submissionId String
-  judgeId      String
-  rubricScores Json     @default("{}")
-  totalScore   Int      @default(0)
-  comments     String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+// Judging plan for a track (defines rounds)
+model JudgingPlan {
+  id      String @id @default(cuid())
+  trackId String @unique
 
   // Relations
-  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
-  judge      Judge      @relation(fields: [judgeId], references: [id], onDelete: Cascade)
+  track  Track          @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  rounds JudgingRound[]
 
-  @@unique([submissionId, judgeId])
+  @@map("judging_plan")
+}
+
+// A single round in a judging plan
+model JudgingRound {
+  id                String           @id @default(cuid())
+  planId            String
+  roundNumber       Int
+  type              JudgingRoundType
+  advanceCount      Int?
+  advancePercent    Float?
+  judgesPerProject  Int              @default(3)
+  minutesPerProject Int              @default(5)
+  rubricId          String?
+  rankedSlots       Int?
+  isActive          Boolean          @default(false)
+  isComplete        Boolean          @default(false)
+
+  // Relations
+  plan             JudgingPlan            @relation(fields: [planId], references: [id], onDelete: Cascade)
+  rubric           Rubric?                @relation(fields: [rubricId], references: [id])
+  judgeAssignments RoundJudgeAssignment[]
+  triageScores     TriageScore[]
+  rankedVotes      RankedVote[]
+  advancements     RoundAdvancement[]
+
+  @@map("judging_round")
+}
+
+// Per-round assignment of judge to submission
+model RoundJudgeAssignment {
+  id           String  @id @default(cuid())
+  roundId      String
+  judgeId      String
+  submissionId String
+  completed    Boolean @default(false)
+
+  // Relations
+  round      JudgingRound @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  judge      Judge        @relation(fields: [judgeId], references: [id], onDelete: Cascade)
+  submission Submission   @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roundId, judgeId, submissionId])
+  @@map("round_judge_assignment")
+}
+
+// Triage round scores (1-5 stars)
+model TriageScore {
+  id           String @id @default(cuid())
+  roundId      String
+  judgeId      String
+  submissionId String
+  stars        Int
+
+  // Relations
+  round      JudgingRound @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  judge      Judge        @relation(fields: [judgeId], references: [id], onDelete: Cascade)
+  submission Submission   @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roundId, judgeId, submissionId])
+  @@map("triage_score")
+}
+
+// Rubric round scores (per criteria)
+model Score {
+  id           String  @id @default(cuid())
+  roundId      String
+  judgeId      String
+  submissionId String
+  criteriaId   String
+  value        Int
+  notes        String?
+
+  // Relations
+  judge      Judge      @relation(fields: [judgeId], references: [id], onDelete: Cascade)
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roundId, judgeId, submissionId, criteriaId])
   @@map("score")
 }
 
-model Sponsor {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  logoUrl     String
-  hackathonId String
-  websiteUrl  String?
+// Ranked round votes
+model RankedVote {
+  id           String @id @default(cuid())
+  roundId      String
+  judgeId      String
+  submissionId String
+  rank         Int
 
-  hackathon Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
-  tracks    Track[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  @@map("sponsor")
+  // Relations
+  round      JudgingRound @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  judge      Judge        @relation(fields: [judgeId], references: [id], onDelete: Cascade)
+  submission Submission   @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roundId, judgeId, submissionId])
+  @@map("ranked_vote")
+}
+
+// Tracks which submissions advance from each round
+model RoundAdvancement {
+  id           String  @id @default(cuid())
+  roundId      String
+  submissionId String
+  toRoundId    String?
+  rank         Int
+
+  // Relations
+  round      JudgingRound @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  submission Submission   @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roundId, submissionId])
+  @@map("round_advancement")
+}
+
+// Final winners per track
+model TrackWinner {
+  id           String @id @default(cuid())
+  trackId      String
+  submissionId String
+  place        Int
+
+  // Relations
+  track      Track      @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@unique([trackId, submissionId])
+  @@map("track_winner")
 }

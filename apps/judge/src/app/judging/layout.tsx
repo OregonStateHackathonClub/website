@@ -1,7 +1,7 @@
 import { auth } from "@repo/auth";
 import { headers } from "next/headers";
 import { unauthorized } from "next/navigation";
-import { prisma } from "@repo/database"
+import { prisma } from "@repo/database";
 
 export default async function Layout({
   children,
@@ -14,33 +14,15 @@ export default async function Layout({
     unauthorized();
   }
 
-  const user = await prisma.user.findFirst({
-    where: { id: session.user.id },
+  const participant = await prisma.hackathonParticipant.findFirst({
+    where: { userId: session.user.id },
+    include: { judge: true },
   });
 
-  if (!user) {
+  if (!participant?.judge) {
     unauthorized();
   }
 
-  const participant = await prisma.hackathonParticipant.findFirst({
-    where: { userId: user.id}
-  })
-
-  if(!participant){
-    unauthorized();
-  }
-
-  const judgeManager = await prisma.judge.findFirst({
-    where: { 
-      hackathon_participant_id: participant.id,
-      role: 'MANAGER',
-    }
-  })
-
-  if(user.role != 'ADMIN' || judgeManager){
-    unauthorized();
-  }
-  
   return (
     <div className="flex min-h-dvh w-full grow bg-zinc-900 text-zinc-50">
       {children}

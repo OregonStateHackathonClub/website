@@ -267,12 +267,12 @@ export async function getHackathonJudges(hackathonId: string) {
       },
       _count: {
         select: {
-          assignments: true,
+          roundAssignments: true,
           scores: true,
         },
       },
     },
-    orderBy: { createdAt: "desc" },
+    orderBy: { name: "asc" },
   });
 }
 

@@ -10,6 +10,7 @@ const tabs = [
   { name: "Submissions", href: "/submissions" },
   { name: "Judges", href: "/judges" },
   { name: "Tracks", href: "/tracks" },
+  { name: "Judging", href: "/judging" },
 ];
 
 interface HackathonNavProps {

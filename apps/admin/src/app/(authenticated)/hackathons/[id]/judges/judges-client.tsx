@@ -29,7 +29,7 @@ type Judge = {
     };
   };
   _count: {
-    assignments: number;
+    roundAssignments: number;
     scores: number;
   };
 };
@@ -210,7 +210,7 @@ export function JudgesClient({
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-1.5 text-sm text-neutral-400">
                       <ClipboardList className="h-4 w-4 text-neutral-600" />
-                      {judge._count.assignments}
+                      {judge._count.roundAssignments}
                     </div>
                   </td>
                   <td className="px-6 py-4">
