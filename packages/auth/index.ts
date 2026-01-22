@@ -2,15 +2,6 @@ import { prisma } from "@repo/database";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 
-const githubClientId = process.env.GITHUB_CLIENT_ID;
-const githubClientSecret = process.env.GITHUB_CLIENT_SECRET;
-
-if (!githubClientId || !githubClientSecret) {
-  throw new Error(
-    "Missing GitHub OAuth credentials in .env.local or deployment environment",
-  );
-}
-
 export const auth: ReturnType<typeof betterAuth> = betterAuth({
   baseURL: process.env.NEXT_PUBLIC_AUTH_URL || "http://localhost:3000",
   trustedOrigins: [
@@ -27,8 +18,8 @@ export const auth: ReturnType<typeof betterAuth> = betterAuth({
   },
   socialProviders: {
     github: {
-      clientId: githubClientId,
-      clientSecret: githubClientSecret,
+      clientId: process.env.GITHUB_CLIENT_ID || "",
+      clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
     },
   },
   database: prismaAdapter(prisma, {
