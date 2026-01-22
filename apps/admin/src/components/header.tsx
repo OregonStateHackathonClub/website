@@ -2,7 +2,6 @@
 
 import { signOut } from "@repo/auth/client";
 import { LogOut, User } from "lucide-react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import type { AdminUser } from "@/app/actions/auth";
 
@@ -11,12 +10,11 @@ interface HeaderProps {
 }
 
 export function Header({ user }: HeaderProps) {
-  const router = useRouter();
-
   const handleSignOut = async () => {
     await signOut();
     const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || "http://localhost:3000";
-    const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL || "http://localhost:3004";
+    const adminUrl =
+      process.env.NEXT_PUBLIC_ADMIN_URL || "http://localhost:3004";
     window.location.href = `${authUrl}/login?callbackURL=${encodeURIComponent(`${adminUrl}/dashboard`)}`;
   };
 

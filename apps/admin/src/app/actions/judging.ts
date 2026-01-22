@@ -57,7 +57,7 @@ export async function getJudgingData(hackathonId: string) {
 export async function assignJudgeToTrack(
   hackathonId: string,
   judgeId: string,
-  trackId: string
+  trackId: string,
 ): Promise<{ success: boolean; error?: string }> {
   await requireAdmin();
 
@@ -98,7 +98,7 @@ export async function assignJudgeToTrack(
 
     revalidatePath(`/hackathons/${hackathonId}/judging`);
     return { success: true };
-  } catch (error) {
+  } catch {
     return { success: false, error: "Failed to assign judge to track" };
   }
 }
@@ -107,7 +107,7 @@ export async function assignJudgeToTrack(
 export async function removeJudgeFromTrack(
   hackathonId: string,
   judgeId: string,
-  trackId: string
+  trackId: string,
 ): Promise<{ success: boolean; error?: string }> {
   await requireAdmin();
 
@@ -120,7 +120,7 @@ export async function removeJudgeFromTrack(
 
     revalidatePath(`/hackathons/${hackathonId}/judging`);
     return { success: true };
-  } catch (error) {
+  } catch {
     return { success: false, error: "Failed to remove judge from track" };
   }
 }
@@ -137,7 +137,7 @@ export async function saveJudgingPlan(
     minutesPerProject: number;
     rubricId?: string;
     rankedSlots?: number;
-  }[]
+  }[],
 ): Promise<{ success: boolean; error?: string }> {
   await requireAdmin();
 
@@ -189,7 +189,7 @@ export async function saveJudgingPlan(
 // Delete a judging plan
 export async function deleteJudgingPlan(
   hackathonId: string,
-  trackId: string
+  trackId: string,
 ): Promise<{ success: boolean; error?: string }> {
   await requireAdmin();
 
@@ -213,7 +213,7 @@ export async function deleteJudgingPlan(
 
     revalidatePath(`/hackathons/${hackathonId}/judging`);
     return { success: true };
-  } catch (error) {
+  } catch {
     return { success: false, error: "Failed to delete judging plan" };
   }
 }
@@ -222,7 +222,7 @@ export async function deleteJudgingPlan(
 export async function autoAssignJudges(
   hackathonId: string,
   trackId: string,
-  roundId: string
+  roundId: string,
 ): Promise<{ success: boolean; assigned?: number; error?: string }> {
   await requireAdmin();
 
@@ -301,7 +301,11 @@ export async function autoAssignJudges(
     });
 
     const judges = trackJudges.map((tj) => tj.judge);
-    const assignments: { roundId: string; judgeId: string; submissionId: string }[] = [];
+    const assignments: {
+      roundId: string;
+      judgeId: string;
+      submissionId: string;
+    }[] = [];
 
     if (round.type === "RANKED") {
       // All judges see all submissions
@@ -325,7 +329,8 @@ export async function autoAssignJudges(
       for (const submissionId of submissionIds) {
         // Get judges with least workload
         const sortedJudges = [...judges].sort(
-          (a, b) => (judgeWorkload.get(a.id) || 0) - (judgeWorkload.get(b.id) || 0)
+          (a, b) =>
+            (judgeWorkload.get(a.id) || 0) - (judgeWorkload.get(b.id) || 0),
         );
 
         // Assign required number of judges
@@ -357,7 +362,7 @@ export async function autoAssignJudges(
 // Activate a round (start judging)
 export async function activateRound(
   hackathonId: string,
-  roundId: string
+  roundId: string,
 ): Promise<{ success: boolean; error?: string }> {
   await requireAdmin();
 
@@ -382,7 +387,10 @@ export async function activateRound(
     }
 
     if (round._count.judgeAssignments === 0) {
-      return { success: false, error: "No judge assignments. Run auto-assign first." };
+      return {
+        success: false,
+        error: "No judge assignments. Run auto-assign first.",
+      };
     }
 
     // Deactivate other rounds in this plan
@@ -399,7 +407,7 @@ export async function activateRound(
 
     revalidatePath(`/hackathons/${hackathonId}/judging`);
     return { success: true };
-  } catch (error) {
+  } catch {
     return { success: false, error: "Failed to activate round" };
   }
 }
@@ -407,7 +415,7 @@ export async function activateRound(
 // Complete a round and determine advancements
 export async function completeRound(
   hackathonId: string,
-  roundId: string
+  roundId: string,
 ): Promise<{ success: boolean; advanced?: number; error?: string }> {
   await requireAdmin();
 
@@ -429,7 +437,9 @@ export async function completeRound(
     }
 
     // Check all assignments are completed
-    const incompleteCount = round.judgeAssignments.filter((a) => !a.completed).length;
+    const incompleteCount = round.judgeAssignments.filter(
+      (a) => !a.completed,
+    ).length;
     if (incompleteCount > 0) {
       return {
         success: false,
@@ -449,7 +459,10 @@ export async function completeRound(
       });
 
       const sorted = scores
-        .map((s) => ({ submissionId: s.submissionId, score: s._avg.stars || 0 }))
+        .map((s) => ({
+          submissionId: s.submissionId,
+          score: s._avg.stars || 0,
+        }))
         .sort((a, b) => b.score - a.score);
 
       const advanceCount =
@@ -471,7 +484,10 @@ export async function completeRound(
       });
 
       const sorted = scores
-        .map((s) => ({ submissionId: s.submissionId, score: s._sum.value || 0 }))
+        .map((s) => ({
+          submissionId: s.submissionId,
+          score: s._sum.value || 0,
+        }))
         .sort((a, b) => b.score - a.score);
 
       const advanceCount =
@@ -496,7 +512,7 @@ export async function completeRound(
         const points = rankedSlots - vote.rank + 1;
         pointsMap.set(
           vote.submissionId,
-          (pointsMap.get(vote.submissionId) || 0) + points
+          (pointsMap.get(vote.submissionId) || 0) + points,
         );
       }
 
@@ -574,14 +590,19 @@ export async function getRoundProgress(roundId: string) {
   if (!round) return null;
 
   const totalAssignments = round.judgeAssignments.length;
-  const completedAssignments = round.judgeAssignments.filter((a) => a.completed).length;
+  const completedAssignments = round.judgeAssignments.filter(
+    (a) => a.completed,
+  ).length;
 
   return {
     ...round,
     progress: {
       total: totalAssignments,
       completed: completedAssignments,
-      percent: totalAssignments > 0 ? Math.round((completedAssignments / totalAssignments) * 100) : 0,
+      percent:
+        totalAssignments > 0
+          ? Math.round((completedAssignments / totalAssignments) * 100)
+          : 0,
     },
   };
 }

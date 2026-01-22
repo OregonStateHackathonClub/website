@@ -12,7 +12,6 @@ import {
   User,
   X,
   Calendar,
-  Mail,
   FileText,
   Users,
   Trophy,

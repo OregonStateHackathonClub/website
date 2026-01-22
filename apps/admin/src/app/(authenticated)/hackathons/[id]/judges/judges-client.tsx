@@ -6,7 +6,6 @@ import {
   User,
   ClipboardList,
   Star,
-  Shield,
   Plus,
   Trash2,
   ChevronDown,

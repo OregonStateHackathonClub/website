@@ -110,16 +110,22 @@ export function EmailClient({ hackathons }: { hackathons: Hackathon[] }) {
   const [subject, setSubject] = useState("");
   const [html, setHtml] = useState(DEFAULT_HTML);
   const [showPreview, setShowPreview] = useState(true);
-  const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [hackathonOpen, setHackathonOpen] = useState(false);
   const [statusOpen, setStatusOpen] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
-    if (selectedHackathon) {
-      loadRecipients();
+    async function loadRecipients() {
+      if (!selectedHackathon) return;
+      try {
+        const data = await getEmailRecipients(selectedHackathon.id);
+        setRecipients(data);
+      } catch {
+        toast.error("Failed to load recipients");
+      }
     }
+    loadRecipients();
   }, [selectedHackathon]);
 
   useEffect(() => {
@@ -132,19 +138,6 @@ export function EmailClient({ hackathons }: { hackathons: Hackathon[] }) {
       }
     }
   }, [html, showPreview]);
-
-  const loadRecipients = async () => {
-    if (!selectedHackathon) return;
-    setLoading(true);
-    try {
-      const data = await getEmailRecipients(selectedHackathon.id);
-      setRecipients(data);
-    } catch (error) {
-      toast.error("Failed to load recipients");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const filteredRecipients =
     statusFilter === "ALL"
@@ -177,7 +170,7 @@ export function EmailClient({ hackathons }: { hackathons: Hackathon[] }) {
         );
         console.error("Email errors:", result.errors);
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to send emails");
     } finally {
       setSending(false);

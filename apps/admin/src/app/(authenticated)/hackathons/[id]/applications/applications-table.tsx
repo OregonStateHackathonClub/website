@@ -272,7 +272,6 @@ export function ApplicationsTable({
               filtered.map((app) => {
                 const isSelected = selectedIds.has(app.id);
                 const statusConfig = STATUS_CONFIG[app.status as ApplicationStatus] || STATUS_CONFIG.APPLIED;
-                const StatusIcon = statusConfig.icon;
 
                 return (
                   <tr

@@ -73,14 +73,14 @@ export async function createHackathon(data: {
 
     revalidatePath("/hackathons");
     return { success: true, id: hackathon.id };
-  } catch (error) {
+  } catch {
     return { success: false, error: "Failed to create hackathon" };
   }
 }
 
 export async function updateHackathon(
   id: string,
-  data: { name?: string; description?: string }
+  data: { name?: string; description?: string },
 ): Promise<{ success: boolean; error?: string }> {
   await requireAdmin();
 
@@ -96,13 +96,13 @@ export async function updateHackathon(
     revalidatePath(`/hackathons/${id}`);
     revalidatePath("/hackathons");
     return { success: true };
-  } catch (error) {
+  } catch {
     return { success: false, error: "Failed to update hackathon" };
   }
 }
 
 export async function deleteHackathon(
-  id: string
+  id: string,
 ): Promise<{ success: boolean; error?: string }> {
   await requireAdmin();
 
@@ -141,7 +141,7 @@ export async function deleteHackathon(
 
     revalidatePath("/hackathons");
     return { success: true };
-  } catch (error) {
+  } catch {
     return { success: false, error: "Failed to delete hackathon" };
   }
 }
@@ -176,9 +176,7 @@ export async function getHackathonApplications(hackathonId: string) {
   });
 
   // Create a map for quick lookup
-  const participantMap = new Map(
-    participants.map((p) => [p.userId, p])
-  );
+  const participantMap = new Map(participants.map((p) => [p.userId, p]));
 
   // Combine the data
   return applications.map((app) => ({
@@ -323,9 +321,7 @@ export async function getAvailableParticipantsForJudge(hackathonId: string) {
   });
 
   // Create a map for quick lookup
-  const applicationMap = new Map(
-    applications.map((a) => [a.userId, a])
-  );
+  const applicationMap = new Map(applications.map((a) => [a.userId, a]));
 
   // Combine the data
   return participants.map((p) => ({
@@ -338,7 +334,7 @@ export async function getAvailableParticipantsForJudge(hackathonId: string) {
 export async function addJudge(
   hackathonId: string,
   participantId: string,
-  role: "JUDGE" | "MANAGER" = "JUDGE"
+  role: "JUDGE" | "MANAGER" = "JUDGE",
 ): Promise<{ success: boolean; error?: string }> {
   await requireAdmin();
 
@@ -371,7 +367,7 @@ export async function addJudge(
 
     revalidatePath(`/hackathons/${hackathonId}/judges`);
     return { success: true };
-  } catch (error) {
+  } catch {
     return { success: false, error: "Failed to add judge" };
   }
 }
@@ -379,7 +375,7 @@ export async function addJudge(
 // Remove a judge
 export async function removeJudge(
   hackathonId: string,
-  judgeId: string
+  judgeId: string,
 ): Promise<{ success: boolean; error?: string }> {
   await requireAdmin();
 
@@ -411,7 +407,7 @@ export async function removeJudge(
 
     revalidatePath(`/hackathons/${hackathonId}/judges`);
     return { success: true };
-  } catch (error) {
+  } catch {
     return { success: false, error: "Failed to remove judge" };
   }
 }
@@ -420,7 +416,7 @@ export async function removeJudge(
 export async function updateJudgeRole(
   hackathonId: string,
   judgeId: string,
-  role: "JUDGE" | "MANAGER"
+  role: "JUDGE" | "MANAGER",
 ): Promise<{ success: boolean; error?: string }> {
   await requireAdmin();
 
@@ -445,7 +441,7 @@ export async function updateJudgeRole(
 
     revalidatePath(`/hackathons/${hackathonId}/judges`);
     return { success: true };
-  } catch (error) {
+  } catch {
     return { success: false, error: "Failed to update judge role" };
   }
 }
@@ -465,7 +461,7 @@ export async function createTrack(
         maxScore: number;
       }[];
     };
-  }
+  },
 ): Promise<{ success: boolean; error?: string }> {
   await requireAdmin();
 
@@ -507,7 +503,7 @@ export async function updateTrack(
     name?: string;
     description?: string;
     prize?: string | null;
-  }
+  },
 ): Promise<{ success: boolean; error?: string }> {
   await requireAdmin();
 
@@ -531,7 +527,7 @@ export async function updateTrack(
 
     revalidatePath(`/hackathons/${hackathonId}/tracks`);
     return { success: true };
-  } catch (error) {
+  } catch {
     return { success: false, error: "Failed to update track" };
   }
 }
@@ -539,7 +535,7 @@ export async function updateTrack(
 // Delete a track
 export async function deleteTrack(
   hackathonId: string,
-  trackId: string
+  trackId: string,
 ): Promise<{ success: boolean; error?: string }> {
   await requireAdmin();
 
@@ -566,7 +562,7 @@ export async function deleteTrack(
 
     revalidatePath(`/hackathons/${hackathonId}/tracks`);
     return { success: true };
-  } catch (error) {
+  } catch {
     return { success: false, error: "Failed to delete track" };
   }
 }
@@ -575,7 +571,7 @@ export async function deleteTrack(
 export async function updateApplicationStatus(
   hackathonId: string,
   applicationId: string,
-  status: "APPLIED" | "ACCEPTED" | "REJECTED" | "WAITLISTED" | "CHECKED_IN"
+  status: "APPLIED" | "ACCEPTED" | "REJECTED" | "WAITLISTED" | "CHECKED_IN",
 ): Promise<{ success: boolean; error?: string }> {
   await requireAdmin();
 
@@ -590,7 +586,10 @@ export async function updateApplicationStatus(
 
     // Only allow check-in for accepted applications
     if (status === "CHECKED_IN" && application.status !== "ACCEPTED") {
-      return { success: false, error: "Can only check in accepted applications" };
+      return {
+        success: false,
+        error: "Can only check in accepted applications",
+      };
     }
 
     await prisma.application.update({
@@ -600,7 +599,7 @@ export async function updateApplicationStatus(
 
     revalidatePath(`/hackathons/${hackathonId}/applications`);
     return { success: true };
-  } catch (error) {
+  } catch {
     return { success: false, error: "Failed to update application status" };
   }
 }
@@ -609,15 +608,20 @@ export async function updateApplicationStatus(
 export async function bulkUpdateApplicationStatus(
   hackathonId: string,
   applicationIds: string[],
-  status: "ACCEPTED" | "REJECTED" | "WAITLISTED" | "CHECKED_IN"
+  status: "ACCEPTED" | "REJECTED" | "WAITLISTED" | "CHECKED_IN",
 ): Promise<{ success: boolean; count?: number; error?: string }> {
   await requireAdmin();
 
   try {
     // For check-in, only update accepted applications
-    const whereClause = status === "CHECKED_IN"
-      ? { id: { in: applicationIds }, hackathonId, status: ApplicationStatus.ACCEPTED }
-      : { id: { in: applicationIds }, hackathonId };
+    const whereClause =
+      status === "CHECKED_IN"
+        ? {
+            id: { in: applicationIds },
+            hackathonId,
+            status: ApplicationStatus.ACCEPTED,
+          }
+        : { id: { in: applicationIds }, hackathonId };
 
     const result = await prisma.application.updateMany({
       where: whereClause,
@@ -626,8 +630,7 @@ export async function bulkUpdateApplicationStatus(
 
     revalidatePath(`/hackathons/${hackathonId}/applications`);
     return { success: true, count: result.count };
-  } catch (error) {
+  } catch {
     return { success: false, error: "Failed to update applications" };
   }
 }
-

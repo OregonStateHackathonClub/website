@@ -1,6 +1,5 @@
 import { getHackathonSubmissions } from "@/app/actions/hackathons";
-import { Trophy, Github, Video, ExternalLink, Users, Star } from "lucide-react";
-import Link from "next/link";
+import { Trophy, Github, Video, Users, Star } from "lucide-react";
 
 interface SubmissionsPageProps {
   params: Promise<{ id: string }>;
