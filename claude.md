@@ -12,11 +12,27 @@ Hackathon management monorepo for Oregon State University's Hackathon Club.
 
 ## Code Conventions
 
+### General
 - Server components by default, `"use client"` only when needed
-- Server actions for mutations, not API routes
-- Return `{ success: true }` or `{ success: false, error: string }` from actions
 - Use `@repo/ui`, `@repo/auth`, `@repo/database` for shared code
-- Prisma queries: use `select` to limit fields when possible
+- Reference implementation: **apps/admin** is the gold standard
+
+### Server Actions
+- Use server actions for all mutations, not API routes
+- Exception: Binary file downloads, external service redirects (Stripe)
+- Every action starts with auth check (e.g., `await requireAdmin()`)
+- Return `{ success: true }` or `{ success: false, error: string }`
+- Call `revalidatePath()` after mutations
+
+### Prisma
+- Always use `select` to limit fields returned
+- Use `_count` for statistics instead of fetching full records
+- Parallel queries with `Promise.all()` where possible
+
+### Route Protection
+- Use `(authenticated)` route group with auth check in layout
+- Redirect unauthenticated users to login with `callbackURL`
+- Add self-protection for destructive actions (can't delete own account)
 
 ## Auth
 
