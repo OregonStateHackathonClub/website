@@ -1,7 +1,9 @@
 "use server";
 
-import { prisma, JudgingRoundType } from "@repo/database";
+import { auth } from "@repo/auth";
+import { JudgingRoundType, prisma } from "@repo/database";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { requireAdmin } from "./auth";
 
 // Get all data needed for judging configuration
@@ -33,11 +35,7 @@ export async function getJudgingData(hackathonId: string) {
       orderBy: { createdAt: "asc" },
     }),
     prisma.judge.findMany({
-      where: {
-        hackathon_participant: {
-          hackathonId,
-        },
-      },
+      where: { hackathonId },
       include: {
         trackAssignments: true,
         _count: {
@@ -65,10 +63,9 @@ export async function assignJudgeToTrack(
     // Verify judge belongs to this hackathon
     const judge = await prisma.judge.findUnique({
       where: { id: judgeId },
-      include: { hackathon_participant: true },
     });
 
-    if (!judge || judge.hackathon_participant.hackathonId !== hackathonId) {
+    if (!judge || judge.hackathonId !== hackathonId) {
       return { success: false, error: "Judge not found in this hackathon" };
     }
 
@@ -142,14 +139,23 @@ export async function saveJudgingPlan(
   await requireAdmin();
 
   try {
-    // Verify track belongs to this hackathon
+    // Verify track belongs to this hackathon and get its rubric
     const track = await prisma.track.findUnique({
       where: { id: trackId },
-      include: { judgingPlan: true },
+      include: { judgingPlan: true, rubric: true },
     });
 
     if (!track || track.hackathonId !== hackathonId) {
       return { success: false, error: "Track not found in this hackathon" };
+    }
+
+    // Check if any round is RUBRIC type but track has no rubric
+    const hasRubricRound = rounds.some((r) => r.type === "RUBRIC");
+    if (hasRubricRound && !track.rubric) {
+      return {
+        success: false,
+        error: "Track has no rubric. Add a rubric to use RUBRIC rounds.",
+      };
     }
 
     // Delete existing plan if exists
@@ -160,6 +166,7 @@ export async function saveJudgingPlan(
     }
 
     // Create new plan with rounds
+    // For RUBRIC rounds, automatically use the track's rubric
     await prisma.judgingPlan.create({
       data: {
         trackId,
@@ -171,7 +178,7 @@ export async function saveJudgingPlan(
             advancePercent: round.advancePercent,
             judgesPerProject: round.judgesPerProject,
             minutesPerProject: round.minutesPerProject,
-            rubricId: round.rubricId,
+            rubricId: round.type === "RUBRIC" ? track.rubric?.id : undefined,
             rankedSlots: round.rankedSlots,
           })),
         },
@@ -399,10 +406,10 @@ export async function activateRound(
       data: { isActive: false },
     });
 
-    // Activate this round
+    // Activate this round and set startedAt
     await prisma.judgingRound.update({
       where: { id: roundId },
-      data: { isActive: true },
+      data: { isActive: true, startedAt: new Date() },
     });
 
     revalidatePath(`/hackathons/${hackathonId}/judging`);
@@ -605,4 +612,89 @@ export async function getRoundProgress(roundId: string) {
           : 0,
     },
   };
+}
+
+const JUDGE_APP_URL =
+  process.env.NEXT_PUBLIC_JUDGE_URL || "http://localhost:3002";
+
+// Send magic link to a single judge
+export async function sendJudgeMagicLink(
+  hackathonId: string,
+  judgeEmail: string,
+): Promise<{ success: boolean; error?: string }> {
+  await requireAdmin();
+
+  try {
+    // Verify judge exists for this hackathon
+    const judge = await prisma.judge.findUnique({
+      where: { hackathonId_email: { hackathonId, email: judgeEmail } },
+    });
+
+    if (!judge) {
+      return { success: false, error: "Judge not found in this hackathon" };
+    }
+
+    await auth.api.signInMagicLink({
+      body: {
+        email: judgeEmail,
+        callbackURL: `${JUDGE_APP_URL}/judging/${hackathonId}`,
+      },
+      headers: await headers(),
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to send magic link:", error);
+    return { success: false, error: "Failed to send magic link" };
+  }
+}
+
+// Send magic links to all judges with assignments
+export async function sendAllJudgeMagicLinks(hackathonId: string): Promise<{
+  success: boolean;
+  sent?: number;
+  total?: number;
+  error?: string;
+}> {
+  await requireAdmin();
+
+  try {
+    // Get all judges with track assignments for this hackathon
+    const judges = await prisma.judge.findMany({
+      where: {
+        hackathonId,
+        trackAssignments: { some: {} },
+      },
+    });
+
+    if (judges.length === 0) {
+      return {
+        success: false,
+        error: "No judges with track assignments found",
+      };
+    }
+
+    const reqHeaders = await headers();
+    let sent = 0;
+
+    for (const judge of judges) {
+      try {
+        await auth.api.signInMagicLink({
+          body: {
+            email: judge.email,
+            callbackURL: `${JUDGE_APP_URL}/judging/${hackathonId}`,
+          },
+          headers: reqHeaders,
+        });
+        sent++;
+      } catch (error) {
+        console.error(`Failed to send magic link to ${judge.email}:`, error);
+      }
+    }
+
+    return { success: true, sent, total: judges.length };
+  } catch (error) {
+    console.error("Failed to send magic links:", error);
+    return { success: false, error: "Failed to send magic links" };
+  }
 }

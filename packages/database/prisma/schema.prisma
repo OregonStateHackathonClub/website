@@ -138,6 +138,7 @@ model Hackathon {
   tracks       Track[]
   submissions  Submission[]
   sponsors     Sponsor[]
+  judges       Judge[]
 
   @@map("hackathon")
 }
@@ -152,7 +153,6 @@ model HackathonParticipant {
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   hackathon  Hackathon  @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
   teamMember TeamMember?
-  judge      Judge?
 
   @@unique([userId, hackathonId])
   @@map("hackathon_participant")
@@ -235,6 +235,7 @@ model Submission {
   githubUrl   String   @default("")
   videoUrl    String   @default("")
   images      String[] @default([])
+  tableNumber Int?     // Auto-assigned sequentially starting from 1
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -324,11 +325,6 @@ model Sponsor {
 // MULTI-ROUND JUDGING SYSTEM
 // ============================================================================
 
-enum JudgeRole {
-  JUDGE
-  MANAGER
-}
-
 enum JudgingRoundType {
   TRIAGE
   RUBRIC
@@ -336,22 +332,21 @@ enum JudgingRoundType {
 }
 
 model Judge {
-  id                       String    @id @default(cuid())
-  name                     String
-  email                    String    @unique
-  magicLinkToken           String?   @unique
-  hackathon_participant_id String    @unique
-  role                     JudgeRole @default(JUDGE)
-  createdAt                DateTime  @default(now())
+  id          String   @id @default(cuid())
+  hackathonId String
+  name        String
+  email       String
+  createdAt   DateTime @default(now())
 
   // Relations
-  hackathon_participant HackathonParticipant   @relation(fields: [hackathon_participant_id], references: [id], onDelete: Cascade)
-  trackAssignments      JudgeTrackAssignment[]
-  roundAssignments      RoundJudgeAssignment[]
-  triageScores          TriageScore[]
-  scores                Score[]
-  rankedVotes           RankedVote[]
+  hackathon        Hackathon              @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  trackAssignments JudgeTrackAssignment[]
+  roundAssignments RoundJudgeAssignment[]
+  triageScores     TriageScore[]
+  scores           Score[]
+  rankedVotes      RankedVote[]
 
+  @@unique([hackathonId, email])
   @@map("judge")
 }
 
@@ -395,6 +390,7 @@ model JudgingRound {
   rankedSlots       Int?
   isActive          Boolean          @default(false)
   isComplete        Boolean          @default(false)
+  startedAt         DateTime?        // Set when round is started via admin
 
   // Relations
   plan             JudgingPlan            @relation(fields: [planId], references: [id], onDelete: Cascade)
@@ -409,11 +405,14 @@ model JudgingRound {
 
 // Per-round assignment of judge to submission
 model RoundJudgeAssignment {
-  id           String  @id @default(cuid())
-  roundId      String
-  judgeId      String
-  submissionId String
-  completed    Boolean @default(false)
+  id            String  @id @default(cuid())
+  roundId       String
+  judgeId       String
+  submissionId  String
+  completed     Boolean @default(false)
+  skippedReason String? // "team_no_show", "team_not_ready", "technical", "other"
+  skippedNote   String? // Optional note if reason is "other"
+  notes         String? // Private judge notes
 
   // Relations
   round      JudgingRound @relation(fields: [roundId], references: [id], onDelete: Cascade)

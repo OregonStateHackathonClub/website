@@ -1,7 +1,7 @@
 "use server";
 
-import { prisma, JudgeRole, UserRole } from "@repo/database";
 import { auth } from "@repo/auth";
+import { prisma, UserRole } from "@repo/database";
 import { headers } from "next/headers";
 
 export async function isAdmin(): Promise<boolean> {
@@ -22,35 +22,6 @@ export async function isAdmin(): Promise<boolean> {
   }
 
   return user.role === UserRole.ADMIN;
-}
-
-export async function isManager(hackathonId: string): Promise<boolean> {
-  const session = await auth.api.getSession({ headers: await headers() });
-
-  if (!session) {
-    return false;
-  }
-
-  const hackathon_participant = await prisma.hackathonParticipant.findFirst({
-    where: {
-      userId: session.user.id,
-      hackathonId,
-    },
-    select: {
-      judge: {
-        select: {
-          role: true,
-          id: true,
-        },
-      },
-    },
-  });
-
-  if (!hackathon_participant) {
-    return false;
-  }
-
-  return hackathon_participant.judge?.role === JudgeRole.MANAGER;
 }
 
 export async function isTeamMember(teamId: string): Promise<boolean> {
