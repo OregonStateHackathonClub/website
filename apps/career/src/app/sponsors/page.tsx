@@ -1,15 +1,6 @@
 "use client";
 
-import type {
-  Application,
-  Hackathon,
-  HackathonParticipant,
-  Submission,
-  Team,
-  TeamMember,
-  Track,
-  User,
-} from "@repo/database";
+import type { Track } from "@repo/database";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import {
@@ -33,6 +24,7 @@ import {
   SelectValue,
 } from "@repo/ui/components/select";
 import {
+  AlertCircle,
   Building2,
   ChevronLeft,
   ChevronRight,
@@ -42,34 +34,14 @@ import {
   GraduationCap,
   Loader2,
   Mail,
+  RefreshCw,
   Search,
   Users,
 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { Header } from "@/components/header";
-
-type TeamWithSubmission = Team & {
-  submission:
-    | (Submission & {
-        tracks: Track[];
-      })
-    | null;
-};
-
-type TeamMemberWithTeam = TeamMember & {
-  team: TeamWithSubmission;
-};
-
-type HackathonParticipantWithDetails = HackathonParticipant & {
-  hackathon: Hackathon;
-  teamMember: TeamMemberWithTeam | null;
-};
-
-type UserWithDetails = User & {
-  applications: Application[];
-  hackathonParticipants: HackathonParticipantWithDetails[];
-};
+import { type UserWithDetails, getUsers } from "../actions/users";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -82,23 +54,28 @@ export default function SponsorsPage() {
   >("all");
   const [trackFilter, setTrackFilter] = useState<string>("all");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<UserWithDetails | null>(
     null,
   );
 
-  useEffect(() => {
-    async function fetchUsers() {
-      try {
-        const res = await fetch("/api/users");
-        const data = await res.json();
-        setUsers(data.users || []);
-      } catch (error) {
-        console.error("Failed to fetch users:", error);
-      } finally {
-        setLoading(false);
-      }
+  const fetchUsersData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getUsers();
+      setUsers(data);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to load attendees"
+      );
+    } finally {
+      setLoading(false);
     }
-    fetchUsers();
+  };
+
+  useEffect(() => {
+    fetchUsersData();
   }, []);
 
   const tracks = useMemo(() => {
@@ -166,6 +143,28 @@ export default function SponsorsPage() {
         <Header />
         <div className="flex-1 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-neutral-500" />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <AlertCircle className="h-12 w-12 text-red-400 mx-auto" />
+            <p className="text-neutral-400">{error}</p>
+            <Button
+              onClick={fetchUsersData}
+              variant="outline"
+              className="rounded-none border-neutral-800 hover:bg-neutral-800"
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Try Again
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -303,7 +302,7 @@ export default function SponsorsPage() {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
               {paginatedUsers.map((user) => {
-                const application = user.applications[0];
+                const application = user.applications?.[0];
                 return (
                   <Card
                     key={user.id}
@@ -438,7 +437,7 @@ export default function SponsorsPage() {
               </div>
 
               {/* Application Details */}
-              {selectedUser.applications[0] && (
+              {selectedUser.applications?.[0] && (
                 <Card className="rounded-none border-neutral-800 bg-neutral-900/50">
                   <CardHeader>
                     <CardTitle className="text-sm font-medium text-neutral-400">

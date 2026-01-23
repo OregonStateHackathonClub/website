@@ -2,9 +2,13 @@ import { jwtVerify } from "jose";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "your-secret-key-change-this-in-production",
-);
+function getJwtSecret(): Uint8Array {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error("JWT_SECRET environment variable is not set");
+  }
+  return new TextEncoder().encode(secret);
+}
 
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get("sponsor-auth")?.value;
@@ -20,10 +24,9 @@ export async function middleware(request: NextRequest) {
   let isValidToken = false;
   if (token) {
     try {
-      await jwtVerify(token, JWT_SECRET);
+      await jwtVerify(token, getJwtSecret());
       isValidToken = true;
-    } catch (error) {
-      console.error("JWT verification failed:", error);
+    } catch {
       isValidToken = false;
     }
   }

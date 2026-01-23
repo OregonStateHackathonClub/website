@@ -6,6 +6,7 @@ import { Input } from "@repo/ui/components/input";
 import { Briefcase, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { login } from "./actions/auth";
 
 export default function LoginPage() {
   const [password, setPassword] = useState("");
@@ -19,22 +20,15 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
-      });
+      const result = await login(password);
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
+      if (result.success) {
         router.push("/sponsors");
         router.refresh();
       } else {
-        setError(data.error || "Invalid password");
+        setError(result.error);
       }
-    } catch (error) {
-      console.error("Login error:", error);
+    } catch {
       setError("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
