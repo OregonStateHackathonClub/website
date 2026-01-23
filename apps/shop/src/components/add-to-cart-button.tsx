@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Check } from "lucide-react";
 import { Button } from "@repo/ui/components/button";
 import { useCart } from "@/lib/cart";
+import { MAX_CART_ITEMS } from "@/lib/constants";
 import type { Product } from "@/lib/products";
 
 interface AddToCartButtonProps {
@@ -11,11 +12,14 @@ interface AddToCartButtonProps {
   hasVariants: boolean;
 }
 
-const MAX_CART_ITEMS = 3;
-
-export function AddToCartButton({ product, hasVariants }: AddToCartButtonProps) {
+export function AddToCartButton({
+  product,
+  hasVariants,
+}: AddToCartButtonProps) {
   const { addToCart, totalItems } = useCart();
-  const [selectedVariantId, setSelectedVariantId] = useState<string | undefined>();
+  const [selectedVariantId, setSelectedVariantId] = useState<
+    string | undefined
+  >();
   const [added, setAdded] = useState(false);
 
   const variants = product.variants;
@@ -58,15 +62,12 @@ export function AddToCartButton({ product, hasVariants }: AddToCartButtonProps) 
           <div className="flex flex-wrap gap-2">
             {variants.map((variant) => {
               const isSelected = selectedVariantId === variant.id;
-              const inStock = variant.stockLevel > 0;
 
               return (
                 <Button
                   key={variant.id}
                   variant={isSelected ? "default" : "outline"}
                   onClick={() => setSelectedVariantId(variant.id)}
-                  disabled={!inStock}
-                  className={!inStock ? "opacity-40 line-through" : ""}
                 >
                   {variant.name}
                 </Button>

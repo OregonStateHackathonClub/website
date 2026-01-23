@@ -2,7 +2,6 @@ export interface ProductVariant {
   id: string;
   name: string;
   stripePriceId: string;
-  stockLevel: number;
 }
 
 export interface Product {
@@ -27,25 +26,21 @@ export const product: Product = {
       id: "size-s",
       name: "S",
       stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_S || "",
-      stockLevel: 10,
     },
     {
       id: "size-m",
       name: "M",
       stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_M || "",
-      stockLevel: 10,
     },
     {
       id: "size-l",
       name: "L",
       stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_L || "",
-      stockLevel: 10,
     },
     {
       id: "size-xl",
       name: "XL",
       stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_XL || "",
-      stockLevel: 10,
     },
   ],
 };

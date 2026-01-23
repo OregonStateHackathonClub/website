@@ -8,6 +8,7 @@ import { useSession, redirectToLogin } from "@repo/auth/client";
 import { Card } from "@repo/ui/components/card";
 import { Button } from "@repo/ui/components/button";
 import { useCart } from "@/lib/cart";
+import { MAX_CART_ITEMS } from "@/lib/constants";
 
 export default function CartPage() {
   const { items, updateQuantity, removeFromCart, totalPrice, totalItems } =
@@ -165,7 +166,7 @@ export default function CartPage() {
                               item.variantId,
                             )
                           }
-                          disabled={totalItems >= 3}
+                          disabled={totalItems >= MAX_CART_ITEMS}
                         >
                           <Plus className="h-3 w-3" />
                         </Button>

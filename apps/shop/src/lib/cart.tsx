@@ -8,6 +8,7 @@ import {
   useCallback,
   type ReactNode,
 } from "react";
+import { MAX_CART_ITEMS, CART_STORAGE_KEY } from "./constants";
 
 export interface CartItem {
   productId: string;
@@ -36,8 +37,6 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-const CART_STORAGE_KEY = "beaverhacks-shop-cart";
-
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isHydrated, setIsHydrated] = useState(false);
@@ -62,14 +61,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [items, isHydrated]);
 
-  const MAX_TOTAL_ITEMS = 3;
-
   const addToCart = useCallback((item: CartItem) => {
     setItems((prev) => {
       const currentTotal = prev.reduce((sum, i) => sum + i.quantity, 0);
-      if (currentTotal >= MAX_TOTAL_ITEMS) return prev;
+      if (currentTotal >= MAX_CART_ITEMS) return prev;
 
-      const canAdd = Math.min(item.quantity, MAX_TOTAL_ITEMS - currentTotal);
+      const canAdd = Math.min(item.quantity, MAX_CART_ITEMS - currentTotal);
       if (canAdd <= 0) return prev;
 
       const existingIndex = prev.findIndex(
@@ -114,7 +111,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           .filter((i) => !(i.productId === productId && i.variantId === variantId))
           .reduce((sum, i) => sum + i.quantity, 0);
 
-        const maxAllowed = MAX_TOTAL_ITEMS - otherItemsTotal;
+        const maxAllowed = MAX_CART_ITEMS - otherItemsTotal;
         const clampedQuantity = Math.min(quantity, maxAllowed);
 
         return prev.map((i) =>

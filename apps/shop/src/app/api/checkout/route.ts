@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth, getSessionCookie } from "@repo/auth";
 import { stripe } from "@/lib/stripe";
+import type { CartItem } from "@/lib/cart";
 
 export async function POST(request: NextRequest) {
   const sessionCookie = getSessionCookie(request);
@@ -27,11 +28,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate all items have valid Stripe price IDs
+    const invalidItems = items.filter(
+      (item: CartItem) => !item.stripePriceId
+    );
+    if (invalidItems.length > 0) {
+      return NextResponse.json(
+        { error: "Invalid cart items" },
+        { status: 400 }
+      );
+    }
+
     // Create Stripe Checkout Session
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: "payment",
       customer_email: session.user.email || undefined,
-      line_items: items.map((item: { stripePriceId: string; quantity: number }) => ({
+      line_items: items.map((item: CartItem) => ({
         price: item.stripePriceId,
         quantity: item.quantity,
       })),
