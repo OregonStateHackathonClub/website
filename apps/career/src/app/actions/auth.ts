@@ -14,7 +14,7 @@ function getJwtSecret(): Uint8Array {
 }
 
 export async function login(
-  password: string
+  password: string,
 ): Promise<{ success: true } | { success: false; error: string }> {
   if (password !== SPONSOR_PASSWORD) {
     return { success: false, error: "Invalid password" };

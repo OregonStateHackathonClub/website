@@ -66,9 +66,7 @@ export default function SponsorsPage() {
       const data = await getUsers();
       setUsers(data);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to load attendees"
-      );
+      setError(err instanceof Error ? err.message : "Failed to load attendees");
     } finally {
       setLoading(false);
     }
