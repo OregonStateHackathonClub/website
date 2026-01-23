@@ -1,12 +1,81 @@
-export default function Page() {
-  // need roles first
+import { auth } from "@repo/auth";
+import { prisma } from "@repo/database";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { HackathonSelector } from "./components/hackathon-selector";
 
-  // in theory a normal user that tries to go to this page will get some kind of error message
+async function getJudgeHackathons() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user?.email) return null;
 
-  // judge/admin that only has access to one hackathon will be automaticlly redirected to /console/id
+  const judges = await prisma.judge.findMany({
+    where: {
+      email: session.user.email,
+    },
+    include: {
+      hackathon: {
+        select: {
+          id: true,
+          name: true,
+          description: true,
+        },
+      },
+      trackAssignments: {
+        include: {
+          track: {
+            include: {
+              judgingPlan: {
+                include: {
+                  rounds: {
+                    where: { isActive: true },
+                    take: 1,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      roundAssignments: {
+        select: {
+          completed: true,
+        },
+      },
+    },
+    orderBy: {
+      hackathon: {
+        createdAt: "desc",
+      },
+    },
+  });
 
-  // superadmin or judge/admin with multiple hackathons will be able to see a list of them.
-  // superadmins can create new ones
+  return judges.map((judge) => {
+    const totalAssignments = judge.roundAssignments.length;
+    const completedAssignments = judge.roundAssignments.filter(
+      (a) => a.completed,
+    ).length;
 
-  return <div className="flex items-center justify-center">Homepage here</div>;
+    // Check if any track has an active round
+    const hasActiveRound = judge.trackAssignments.some((ta) =>
+      ta.track.judgingPlan?.rounds.some((r) => r.isActive),
+    );
+
+    return {
+      hackathon: judge.hackathon,
+      tracksAssigned: judge.trackAssignments.length,
+      totalAssignments,
+      completedAssignments,
+      hasActiveRound: !!hasActiveRound,
+    };
+  });
+}
+
+export default async function JudgingPage() {
+  const hackathons = await getJudgeHackathons();
+
+  if (!hackathons) {
+    redirect("/login?callbackURL=/judging");
+  }
+
+  return <HackathonSelector hackathons={hackathons} />;
 }

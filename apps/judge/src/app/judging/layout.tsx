@@ -1,7 +1,7 @@
 import { auth } from "@repo/auth";
+import { prisma } from "@repo/database";
 import { headers } from "next/headers";
 import { unauthorized } from "next/navigation";
-import { prisma } from "@repo/database";
 
 export default async function Layout({
   children,
@@ -10,21 +10,21 @@ export default async function Layout({
 }) {
   const session = await auth.api.getSession({ headers: await headers() });
 
-  if (!session) {
+  if (!session?.user?.email) {
     unauthorized();
   }
 
-  const participant = await prisma.hackathonParticipant.findFirst({
-    where: { userId: session.user.id },
-    include: { judge: true },
+  // Check if user is a judge for any hackathon
+  const judge = await prisma.judge.findFirst({
+    where: { email: session.user.email },
   });
 
-  if (!participant?.judge) {
+  if (!judge) {
     unauthorized();
   }
 
   return (
-    <div className="flex min-h-dvh w-full grow bg-zinc-900 text-zinc-50">
+    <div className="min-h-dvh w-full bg-neutral-950 text-neutral-200">
       {children}
     </div>
   );

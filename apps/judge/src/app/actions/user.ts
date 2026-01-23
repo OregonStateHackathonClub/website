@@ -1,26 +1,29 @@
 "use server";
-import { JudgeRole, prisma, UserRole } from "@repo/database";
+import { prisma, UserRole } from "@repo/database";
 import { isAdmin } from "./auth";
-import { JudgeResult } from "./judge";
 
 export type UserSearchResult = {
   id: string;
   name: string;
   email: string;
   role: UserRole;
-  hackathonParticipants: {
+  judges: {
     id: string;
     hackathonId: string;
-    judge: JudgeResult;
   }[];
 };
 
-export async function userSearch(search: string, hackathonId: string = "", role: UserRole | JudgeRole | null = null): Promise <UserSearchResult[] | false> {
-	if (!await isAdmin()) return false;
+export async function userSearch(
+  search: string,
+  hackathonId: string = "",
+  role: UserRole | null = null,
+): Promise<UserSearchResult[] | false> {
+  if (!(await isAdmin())) return false;
+
   const users = await prisma.user.findMany({
     where: {
       AND: [
-        // Filter by hackathon
+        // Filter by hackathon (as participant)
         ...(hackathonId
           ? [
               {
@@ -32,49 +35,16 @@ export async function userSearch(search: string, hackathonId: string = "", role:
               },
             ]
           : []),
-        // Filter by User/Superadmin
+        // Filter by User/Admin role
         ...(role && Object.values(UserRole).includes(role as UserRole)
           ? [{ role: role as UserRole }]
           : []),
-
-        // Filter by Judge/Admin
-        ...(role && Object.values(JudgeRole).includes(role as JudgeRole)
-          ? [
-              {
-                hackathonParticipants: {
-                  some: {
-                    judge: {
-                      is: {
-                        role: role as JudgeRole,
-                      },
-                    },
-                  },
-                },
-              },
-            ]
-          : []),
-
         // Search by name, id, email
         {
           OR: [
-            {
-              name: {
-                contains: search,
-                mode: "insensitive",
-              },
-            },
-            {
-              id: {
-                contains: search,
-                mode: "insensitive",
-              },
-            },
-            {
-              email: {
-                contains: search,
-                mode: "insensitive",
-              },
-            },
+            { name: { contains: search, mode: "insensitive" } },
+            { id: { contains: search, mode: "insensitive" } },
+            { email: { contains: search, mode: "insensitive" } },
           ],
         },
       ],
@@ -84,18 +54,6 @@ export async function userSearch(search: string, hackathonId: string = "", role:
       id: true,
       email: true,
       role: true,
-      hackathonParticipants: {
-        select: {
-          id: true,
-          hackathonId: true,
-          judge: {
-            select: {
-              role: true,
-              id: true,
-            },
-          },
-        },
-      },
     },
   });
 
@@ -103,7 +61,29 @@ export async function userSearch(search: string, hackathonId: string = "", role:
     return false;
   }
 
-  return users;
+  // Fetch judge records for these users by email
+  const emails = users.map((u) => u.email);
+  const judges = await prisma.judge.findMany({
+    where: {
+      email: { in: emails },
+      ...(hackathonId ? { hackathonId } : {}),
+    },
+    select: {
+      id: true,
+      email: true,
+      hackathonId: true,
+    },
+  });
+
+  return users.map((user) => ({
+    ...user,
+    judges: judges
+      .filter((j) => j.email === user.email)
+      .map((j) => ({
+        id: j.id,
+        hackathonId: j.hackathonId,
+      })),
+  }));
 }
 
 export async function removeUser(id: string): Promise<boolean> {
@@ -112,7 +92,7 @@ export async function removeUser(id: string): Promise<boolean> {
 
     if (!user) return false;
 
-    if (!await isAdmin()) return false;
+    if (!(await isAdmin())) return false;
 
     await prisma.user.delete({ where: { id } });
     return true;
@@ -125,9 +105,7 @@ export async function setAdmin(
   adminValue: boolean,
   userId: string,
 ): Promise<boolean> {
-
-  if (!await isAdmin())
-    return false
+  if (!(await isAdmin())) return false;
 
   await prisma.user.update({
     where: {
