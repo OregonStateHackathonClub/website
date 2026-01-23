@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { Input } from "@repo/ui/components/input";
+import { Textarea } from "@repo/ui/components/textarea";
+import { Calendar, Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Pencil, Trash2, Calendar } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
-import { updateHackathon, deleteHackathon } from "@/app/actions/hackathons";
+import { deleteHackathon, updateHackathon } from "@/app/actions/hackathons";
 
 interface HackathonActionsProps {
   hackathon: {
@@ -15,7 +17,10 @@ interface HackathonActionsProps {
   hasData: boolean;
 }
 
-export function HackathonActions({ hackathon, hasData }: HackathonActionsProps) {
+export function HackathonActions({
+  hackathon,
+  hasData,
+}: HackathonActionsProps) {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(hackathon.name);
@@ -47,14 +52,14 @@ export function HackathonActions({ hackathon, hasData }: HackathonActionsProps) 
   const handleDelete = async () => {
     if (hasData) {
       toast.error(
-        "Cannot delete hackathon with existing participants, teams, or submissions"
+        "Cannot delete hackathon with existing participants, teams, or submissions",
       );
       return;
     }
 
     if (
       !confirm(
-        `Are you sure you want to delete "${hackathon.name}"? This cannot be undone.`
+        `Are you sure you want to delete "${hackathon.name}"? This cannot be undone.`,
       )
     ) {
       return;
@@ -81,11 +86,11 @@ export function HackathonActions({ hackathon, hasData }: HackathonActionsProps) 
           </label>
           <div className="relative">
             <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600" />
-            <input
+            <Input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full h-10 pl-10 pr-4 bg-transparent border border-neutral-800 text-white text-sm placeholder:text-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
+              className="bg-transparent dark:bg-transparent w-full h-10 pl-10 pr-4 border-neutral-800 text-white placeholder:text-neutral-600 focus:border-neutral-600 rounded-none focus-visible:ring-0"
             />
           </div>
         </div>
@@ -94,11 +99,11 @@ export function HackathonActions({ hackathon, hasData }: HackathonActionsProps) 
           <label className="block text-xs font-medium text-neutral-400 mb-1.5">
             Description
           </label>
-          <textarea
+          <Textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
-            className="w-full px-4 py-3 bg-transparent border border-neutral-800 text-white text-sm placeholder:text-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors resize-none"
+            className="bg-transparent dark:bg-transparent w-full px-4 py-3 border-neutral-800 text-white placeholder:text-neutral-600 focus:border-neutral-600 rounded-none resize-none focus-visible:ring-0"
           />
         </div>
 
@@ -129,7 +134,7 @@ export function HackathonActions({ hackathon, hasData }: HackathonActionsProps) 
     <div className="flex gap-3">
       <button
         onClick={() => setIsEditing(true)}
-        className="flex items-center gap-2 h-10 px-4 border border-neutral-800 bg-transparent text-white text-sm font-medium hover:bg-neutral-900 transition-colors"
+        className="flex items-center gap-2 h-10 px-4 border border-neutral-800 text-white text-sm font-medium hover:bg-neutral-900 transition-colors"
       >
         <Pencil className="h-4 w-4" />
         Edit Hackathon

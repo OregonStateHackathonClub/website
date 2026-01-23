@@ -1,6 +1,6 @@
 "use server";
 
-import { prisma, ApplicationStatus } from "@repo/database";
+import { ApplicationStatus, prisma } from "@repo/database";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "./auth";
 
@@ -252,16 +252,10 @@ export async function getHackathonJudges(hackathonId: string) {
   await requireAdmin();
 
   return prisma.judge.findMany({
-    where: {
-      hackathon_participant: {
-        hackathonId,
-      },
-    },
+    where: { hackathonId },
     include: {
-      hackathon_participant: {
-        include: {
-          user: true,
-        },
+      trackAssignments: {
+        include: { track: true },
       },
       _count: {
         select: {
@@ -296,72 +290,32 @@ export async function getHackathonTracks(hackathonId: string) {
   });
 }
 
-// Get participants who are not judges (for adding new judges)
-export async function getAvailableParticipantsForJudge(hackathonId: string) {
-  await requireAdmin();
-
-  const participants = await prisma.hackathonParticipant.findMany({
-    where: {
-      hackathonId,
-      judge: null, // Not already a judge
-    },
-    include: {
-      user: true,
-    },
-    orderBy: { joinedAt: "desc" },
-  });
-
-  // Get applications for these users in this hackathon
-  const userIds = participants.map((p) => p.userId);
-  const applications = await prisma.application.findMany({
-    where: {
-      hackathonId,
-      userId: { in: userIds },
-    },
-  });
-
-  // Create a map for quick lookup
-  const applicationMap = new Map(applications.map((a) => [a.userId, a]));
-
-  // Combine the data
-  return participants.map((p) => ({
-    ...p,
-    application: applicationMap.get(p.userId),
-  }));
-}
-
-// Add a participant as a judge
-export async function addJudge(
+// Add a judge by email
+export async function addJudgeByEmail(
   hackathonId: string,
-  participantId: string,
-  role: "JUDGE" | "MANAGER" = "JUDGE",
+  email: string,
+  name: string,
 ): Promise<{ success: boolean; error?: string }> {
   await requireAdmin();
 
   try {
-    const participant = await prisma.hackathonParticipant.findUnique({
-      where: { id: participantId },
-      include: { user: true, judge: true },
+    // Check if judge with this email already exists for this hackathon
+    const existingJudge = await prisma.judge.findUnique({
+      where: { hackathonId_email: { hackathonId, email } },
     });
 
-    if (!participant) {
-      return { success: false, error: "Participant not found" };
-    }
-
-    if (participant.hackathonId !== hackathonId) {
-      return { success: false, error: "Participant not in this hackathon" };
-    }
-
-    if (participant.judge) {
-      return { success: false, error: "Participant is already a judge" };
+    if (existingJudge) {
+      return {
+        success: false,
+        error: "A judge with this email already exists for this hackathon",
+      };
     }
 
     await prisma.judge.create({
       data: {
-        name: participant.user.name,
-        email: participant.user.email,
-        hackathon_participant_id: participantId,
-        role,
+        hackathonId,
+        email,
+        name,
       },
     });
 
@@ -383,7 +337,6 @@ export async function removeJudge(
     const judge = await prisma.judge.findUnique({
       where: { id: judgeId },
       include: {
-        hackathon_participant: true,
         _count: { select: { scores: true } },
       },
     });
@@ -392,7 +345,7 @@ export async function removeJudge(
       return { success: false, error: "Judge not found" };
     }
 
-    if (judge.hackathon_participant.hackathonId !== hackathonId) {
+    if (judge.hackathonId !== hackathonId) {
       return { success: false, error: "Judge not in this hackathon" };
     }
 
@@ -409,40 +362,6 @@ export async function removeJudge(
     return { success: true };
   } catch {
     return { success: false, error: "Failed to remove judge" };
-  }
-}
-
-// Update judge role
-export async function updateJudgeRole(
-  hackathonId: string,
-  judgeId: string,
-  role: "JUDGE" | "MANAGER",
-): Promise<{ success: boolean; error?: string }> {
-  await requireAdmin();
-
-  try {
-    const judge = await prisma.judge.findUnique({
-      where: { id: judgeId },
-      include: { hackathon_participant: true },
-    });
-
-    if (!judge) {
-      return { success: false, error: "Judge not found" };
-    }
-
-    if (judge.hackathon_participant.hackathonId !== hackathonId) {
-      return { success: false, error: "Judge not in this hackathon" };
-    }
-
-    await prisma.judge.update({
-      where: { id: judgeId },
-      data: { role },
-    });
-
-    revalidatePath(`/hackathons/${hackathonId}/judges`);
-    return { success: true };
-  } catch {
-    return { success: false, error: "Failed to update judge role" };
   }
 }
 
@@ -495,7 +414,7 @@ export async function createTrack(
   }
 }
 
-// Update a track
+// Update a track with rubric
 export async function updateTrack(
   hackathonId: string,
   trackId: string,
@@ -503,6 +422,15 @@ export async function updateTrack(
     name?: string;
     description?: string;
     prize?: string | null;
+    rubric?: {
+      name: string;
+      criteria: {
+        id?: string; // existing criterion id, undefined for new
+        name: string;
+        weight: number;
+        maxScore: number;
+      }[];
+    };
   },
 ): Promise<{ success: boolean; error?: string }> {
   await requireAdmin();
@@ -510,12 +438,14 @@ export async function updateTrack(
   try {
     const track = await prisma.track.findUnique({
       where: { id: trackId },
+      include: { rubric: { include: { criteria: true } } },
     });
 
     if (!track || track.hackathonId !== hackathonId) {
       return { success: false, error: "Track not found" };
     }
 
+    // Update track basic info
     await prisma.track.update({
       where: { id: trackId },
       data: {
@@ -525,9 +455,77 @@ export async function updateTrack(
       },
     });
 
+    // Update rubric if provided
+    if (data.rubric) {
+      if (track.rubric) {
+        // Update existing rubric
+        await prisma.rubric.update({
+          where: { id: track.rubric.id },
+          data: { name: data.rubric.name },
+        });
+
+        // Get existing criteria IDs
+        const existingIds = track.rubric.criteria.map((c) => c.id);
+        const newCriteriaIds = data.rubric.criteria
+          .filter((c) => c.id)
+          .map((c) => c.id!);
+
+        // Delete removed criteria
+        const toDelete = existingIds.filter(
+          (id) => !newCriteriaIds.includes(id),
+        );
+        if (toDelete.length > 0) {
+          await prisma.rubricCriteria.deleteMany({
+            where: { id: { in: toDelete } },
+          });
+        }
+
+        // Update existing and create new criteria
+        for (const criterion of data.rubric.criteria) {
+          if (criterion.id) {
+            // Update existing
+            await prisma.rubricCriteria.update({
+              where: { id: criterion.id },
+              data: {
+                name: criterion.name,
+                weight: criterion.weight,
+                maxScore: criterion.maxScore,
+              },
+            });
+          } else {
+            // Create new
+            await prisma.rubricCriteria.create({
+              data: {
+                rubricId: track.rubric.id,
+                name: criterion.name,
+                weight: criterion.weight,
+                maxScore: criterion.maxScore,
+              },
+            });
+          }
+        }
+      } else {
+        // Create new rubric for track
+        await prisma.rubric.create({
+          data: {
+            trackId,
+            name: data.rubric.name,
+            criteria: {
+              create: data.rubric.criteria.map((c) => ({
+                name: c.name,
+                weight: c.weight,
+                maxScore: c.maxScore,
+              })),
+            },
+          },
+        });
+      }
+    }
+
     revalidatePath(`/hackathons/${hackathonId}/tracks`);
     return { success: true };
-  } catch {
+  } catch (error) {
+    console.error("Failed to update track:", error);
     return { success: false, error: "Failed to update track" };
   }
 }

@@ -13,8 +13,8 @@ import { useRef, useState } from "react";
 import type { UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 import type * as z from "zod";
-import { MultiSelect } from "@/components/multi-select";
-import { Separator } from "@/components/ui/separator";
+import { Separator } from "../../../../../components/ui/separator";
+import { MultiSelect } from "../../components/multi-select";
 import { type formSchema, totalImages } from "../schema";
 
 type FormType = UseFormReturn<z.infer<typeof formSchema>>;

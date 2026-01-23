@@ -1,5 +1,5 @@
 import { prisma } from "@repo/database";
-import { EmailClient } from "./email-client";
+import { Composer } from "./components/composer";
 
 export default async function EmailPage() {
   const hackathons = await prisma.hackathon.findMany({
@@ -15,5 +15,5 @@ export default async function EmailPage() {
     },
   });
 
-  return <EmailClient hackathons={hackathons} />;
+  return <Composer hackathons={hackathons} />;
 }

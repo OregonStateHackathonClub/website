@@ -19,8 +19,8 @@ import Image from "next/image";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { ImageCarousel } from "@/components/imageCarousel"; // Or FancyCarousel if you switched back
 import { ProjectLinks } from "@/components/projectLinks";
+import { ImageCarousel } from "./components/image-carousel";
 
 // Define the reusable 'include' object for our query
 const submissionInclude = {
@@ -145,37 +145,45 @@ export default async function ProjectPage(props: {
                       </HoverCardTrigger>
                       <HoverCardContent className="w-80 bg-neutral-900 border-neutral-800 p-4">
                         <div className="space-y-2">
-                          <h4 className="text-sm font-semibold text-white">{link.name}</h4>
+                          <h4 className="text-sm font-semibold text-white">
+                            {link.name}
+                          </h4>
                           <p className="text-xs text-neutral-400">
                             {link.description}
                           </p>
                           {link.prize && (
                             <div className="flex items-center pt-2">
-                              <span className="text-xs font-semibold text-orange-400 mr-2">Prize:</span>
-                              <span className="text-xs text-neutral-300">{link.prize}</span>
+                              <span className="text-xs font-semibold text-orange-400 mr-2">
+                                Prize:
+                              </span>
+                              <span className="text-xs text-neutral-300">
+                                {link.prize}
+                              </span>
                             </div>
                           )}
                           {link.sponsor && (
                             <div className="pt-2 border-t border-neutral-800 mt-2">
-                               <p className="text-xs text-neutral-500 mb-1">Sponsored by</p>
-                               <Link 
+                              <p className="text-xs text-neutral-500 mb-1">
+                                Sponsored by
+                              </p>
+                              <Link
                                 href={`/${params.year}/sponsors/${link.sponsor.id}`}
                                 className="flex items-center gap-2 hover:bg-neutral-800 p-1 rounded transition-colors group"
-                               >
-                                  {link.sponsor.logoUrl && (
-                                    <div className="relative h-6 w-6 rounded overflow-hidden bg-white">
-                                      <Image 
-                                        src={link.sponsor.logoUrl} 
-                                        alt={link.sponsor.name}
-                                        fill
-                                        className="object-contain p-0.5"
-                                      />
-                                    </div>
-                                  )}
-                                  <span className="text-sm font-medium text-orange-400 group-hover:underline">
-                                    {link.sponsor.name}
-                                  </span>
-                               </Link>
+                              >
+                                {link.sponsor.logoUrl && (
+                                  <div className="relative h-6 w-6 rounded overflow-hidden bg-white">
+                                    <Image
+                                      src={link.sponsor.logoUrl}
+                                      alt={link.sponsor.name}
+                                      fill
+                                      className="object-contain p-0.5"
+                                    />
+                                  </div>
+                                )}
+                                <span className="text-sm font-medium text-orange-400 group-hover:underline">
+                                  {link.sponsor.name}
+                                </span>
+                              </Link>
                             </div>
                           )}
                         </div>

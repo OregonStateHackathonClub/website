@@ -169,6 +169,21 @@ export async function createSubmissionFromDraft(draftId: string) {
       };
     }
 
+    // Check if submission already exists to determine if we need a table number
+    const existingSubmission = await prisma.submission.findUnique({
+      where: { teamId: draft.teamId },
+    });
+
+    // Get next table number only if this is a new submission
+    let nextTableNumber: number | undefined;
+    if (!existingSubmission) {
+      const maxTableNumber = await prisma.submission.aggregate({
+        where: { hackathonId: draft.hackathonId },
+        _max: { tableNumber: true },
+      });
+      nextTableNumber = (maxTableNumber._max.tableNumber || 0) + 1;
+    }
+
     // Upsert submission: create if doesn't exist, update if it does
     const submission = await prisma.submission.upsert({
       where: { teamId: draft.teamId },
@@ -182,6 +197,7 @@ export async function createSubmissionFromDraft(draftId: string) {
         githubUrl: draft.githubUrl || "",
         videoUrl: draft.videoUrl || "",
         images: draft.images || [],
+        tableNumber: nextTableNumber,
         tracks: draft.tracks
           ? { connect: draft.tracks.map((t) => ({ id: t.id })) }
           : undefined,
@@ -329,6 +345,14 @@ export async function sendData(data: {
         hackathonId = team.hackathonId;
       }
     }
+
+    // Get next table number
+    const maxTableNumber = await prisma.submission.aggregate({
+      where: { hackathonId },
+      _max: { tableNumber: true },
+    });
+    const nextTableNumber = (maxTableNumber._max.tableNumber || 0) + 1;
+
     const submission = await prisma.submission.create({
       data: {
         id: randomUUID(),
@@ -347,6 +371,7 @@ export async function sendData(data: {
         //score: 0,
         hackathonId,
         teamId: data.teamId!,
+        tableNumber: nextTableNumber,
       },
     });
     console.log("Created submission", submission);

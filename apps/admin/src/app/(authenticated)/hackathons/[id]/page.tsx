@@ -1,8 +1,8 @@
 import { prisma } from "@repo/database";
+import { FileText, Layers, Trophy, UserCheck, Users } from "lucide-react";
 import { notFound } from "next/navigation";
 import { StatsCard } from "@/components/stats-card";
-import { Users, Trophy, FileText, UserCheck, Layers } from "lucide-react";
-import { HackathonActions } from "./actions-client";
+import { HackathonActions } from "./components/hackathon-actions";
 
 interface HackathonDetailPageProps {
   params: Promise<{ id: string }>;
@@ -28,9 +28,7 @@ export default async function HackathonDetailPage({
       },
     }),
     prisma.judge.count({
-      where: {
-        hackathon_participant: { hackathonId: id },
-      },
+      where: { hackathonId: id },
     }),
   ]);
 
@@ -56,11 +54,7 @@ export default async function HackathonDetailPage({
           value={hackathon._count.submissions}
           icon={Trophy}
         />
-        <StatsCard
-          title="Judges"
-          value={judgeCount}
-          icon={UserCheck}
-        />
+        <StatsCard title="Judges" value={judgeCount} icon={UserCheck} />
         <StatsCard
           title="Tracks"
           value={hackathon._count.tracks}
