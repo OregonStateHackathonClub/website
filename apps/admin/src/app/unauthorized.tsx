@@ -13,21 +13,8 @@ export default function Unauthorized() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-6 relative overflow-hidden">
-      {/* Background elements */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-neutral-900/50 via-black to-black" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gradient-to-b from-neutral-800/20 to-transparent rounded-full blur-3xl" />
-
-      {/* Subtle grid */}
-      <div
-        className="absolute inset-0 opacity-[0.015]"
-        style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)`,
-          backgroundSize: "60px 60px",
-        }}
-      />
-
-      <div className="relative z-10 text-center">
+    <div className="min-h-screen bg-black flex items-center justify-center p-6">
+      <div className="text-center">
         <div className="w-16 h-16 bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-6">
           <ShieldX className="h-8 w-8 text-red-500" />
         </div>

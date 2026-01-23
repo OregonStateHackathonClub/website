@@ -4,7 +4,7 @@ import { Form } from "@repo/ui/components/form";
 import { use, useMemo, useState } from "react";
 import { type Resolver, useForm } from "react-hook-form";
 import type * as z from "zod";
-import SubmissionCard from "@/components/submissionCard";
+import SubmissionCard from "../components/submission-card";
 import { MultiStepViewer } from "./components/multiStepViewer";
 import { formSchema } from "./schema";
 

@@ -5,8 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { MultiSelect } from "@/components/multi-select";
-import SubmissionCard from "@/components/submissionCard";
+import { MultiSelect } from "./multi-select";
+import SubmissionCard from "./submission-card";
 
 // Define specific types for your data
 interface Track {
