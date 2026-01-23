@@ -1,9 +1,11 @@
 import { createAuthClient } from "better-auth/react";
+import { magicLinkClient } from "better-auth/client/plugins";
 
 const authURL = process.env.NEXT_PUBLIC_AUTH_URL || "http://localhost:3000";
 
 export const authClient = createAuthClient({
   baseURL: authURL,
+  plugins: [magicLinkClient()],
 });
 
 export const { signIn, signOut, signUp, useSession } = authClient;
