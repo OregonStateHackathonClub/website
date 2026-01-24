@@ -89,7 +89,7 @@ export function ScheduleSidebar({
                     isComplete ? "text-neutral-600" : "text-white"
                   }`}
                 >
-                  {slot.assignment.submission.name}
+                  {slot.assignment.submission.title}
                 </span>
               </div>
             </button>

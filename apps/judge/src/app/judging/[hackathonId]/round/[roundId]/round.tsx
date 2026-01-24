@@ -8,7 +8,7 @@ import {
   skipSubmission,
   submitRubricScores,
   submitTriageScore,
-} from "@/app/actions/scoring";
+} from "@/app/actions/judge";
 import type { Assignment, JudgingRound } from "../../types";
 import { CompletedState } from "./components/completed-state";
 import { EmptyState } from "./components/empty-state";

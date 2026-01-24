@@ -33,7 +33,7 @@ export function ProjectInfo({
             {currentIndex + 1} of {totalCount}
           </span>
         </div>
-        <h1 className="text-2xl font-medium text-white">{submission.name}</h1>
+        <h1 className="text-2xl font-medium text-white">{submission.title}</h1>
         <p className="text-neutral-400 mt-1">{submission.tagline}</p>
         <div className="flex items-center gap-4 mt-3">
           <span className="flex items-center gap-1.5 text-sm text-neutral-500">

@@ -12,7 +12,7 @@ export type Criterion = {
 
 export type Submission = {
   id: string;
-  name: string;
+  title: string;
   tagline: string;
   description: string;
   tableNumber: number | null;
