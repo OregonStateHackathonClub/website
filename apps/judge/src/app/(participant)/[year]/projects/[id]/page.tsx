@@ -19,7 +19,7 @@ import Image from "next/image";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { ProjectLinks } from "@/components/projectLinks";
+import { ProjectLinks } from "@/components/project-links";
 import { ImageCarousel } from "./components/image-carousel";
 
 // Define the reusable 'include' object for our query
@@ -99,7 +99,7 @@ export default async function ProjectPage(props: {
       <main className="mx-auto max-w-7xl px-4 py-10">
         <div className="mb-8">
           <h1 className="font-bold text-3xl text-white sm:text-4xl">
-            {submission.name}
+            {submission.title}
           </h1>
           {submission.tagline && (
             <p className="mt-2 mb-6 max-w-3xl text-base text-neutral-300">
@@ -111,7 +111,7 @@ export default async function ProjectPage(props: {
             <div className="flex grow flex-col gap-2">
               <div className="w-full aspect-video overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900">
                 <ImageCarousel
-                  altText={`${submission.name} showcase`}
+                  altText={`${submission.title} showcase`}
                   imageUrls={
                     submission.images?.length > 0
                       ? submission.images
@@ -209,10 +209,7 @@ export default async function ProjectPage(props: {
 
                 {/* Conditional Edit Button */}
                 {isTeamMember && (
-                  <Link
-                    href={`/${params.year}/submission?edit=${submission.id}`}
-                    className="w-full"
-                  >
+                  <Link href={`/${params.year}/submission`} className="w-full">
                     <Button
                       variant="outline"
                       className="w-full hover:cursor-pointer border-orange-500/50 text-orange-400 hover:bg-orange-500/10 hover:text-orange-300"
@@ -224,7 +221,7 @@ export default async function ProjectPage(props: {
               </div>
 
               <div className="grid gap-8">
-                {submission.team.members &&
+                {submission.team?.members &&
                   submission.team.members.length > 0 && (
                     <Card className="rounded-2xl border border-neutral-800 bg-neutral-900/60">
                       <CardHeader>
@@ -234,7 +231,7 @@ export default async function ProjectPage(props: {
                       </CardHeader>
                       <CardContent>
                         <ul className="space-y-3">
-                          {submission.team.members.map((member, idx) => (
+                          {submission.team?.members.map((member, idx) => (
                             <li
                               key={member.participant.user.id ?? idx}
                               className="flex items-center gap-3 rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2"
@@ -255,10 +252,6 @@ export default async function ProjectPage(props: {
                                 <p className="font-medium text-sm text-white">
                                   {member.participant.user?.name || "Unknown"}
                                 </p>
-                                {/* maybe we can show github username or something */}
-                                {/* <p className="text-xs text-neutral-400">
-                                    {member.judgeProfile.user?.email}
-                                  </p> */}
                               </div>
                             </li>
                           ))}

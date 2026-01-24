@@ -1,12 +1,12 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
-import { isTeamMember } from "@/app/actions/auth";
-import TeamPageClient from "./TeamPageClient";
+import { isTeamMember } from "@/app/actions/participant";
+import { TeamDetails } from "./team-details";
 
 async function TeamLoader({ year, teamId }: { year: string; teamId: string }) {
   const teamMember = await isTeamMember(teamId);
-  return <TeamPageClient year={year} teamId={teamId} teamMember={teamMember} />;
+  return <TeamDetails year={year} teamId={teamId} teamMember={teamMember} />;
 }
 
 export default async function Page({

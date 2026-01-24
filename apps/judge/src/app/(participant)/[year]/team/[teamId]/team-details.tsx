@@ -33,14 +33,14 @@ import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { isTeamMember } from "@/app/actions/auth";
 import {
   getInviteCode,
   getTeamInfo,
+  isTeamMember,
   removeUserFromTeam,
   resetInviteCode,
   updateTeam,
-} from "@/app/actions/team";
+} from "@/app/actions/participant";
 
 const formSchema = z.object({
   name: z.string().min(4),
@@ -69,7 +69,7 @@ type TeamUser = {
   } | null;
 };
 
-export default function TeamPageClient({
+export function TeamDetails({
   teamId,
   year,
   teamMember,
@@ -98,7 +98,6 @@ export default function TeamPageClient({
       try {
         const updatedTeam = await getTeamInfo(teamId);
         if (!updatedTeam) {
-          // Cope with your failures
           toast.error("Failed to find team");
           return false;
         }
@@ -116,8 +115,8 @@ export default function TeamPageClient({
       }
     };
     const fetchInvite = async () => {
-      const code = await getInviteCode(teamId);
-      if (code) setInviteCode(code);
+      const result = await getInviteCode(teamId);
+      if (result.success) setInviteCode(result.code);
     };
     fetchTeam();
     fetchInvite();
@@ -139,7 +138,7 @@ export default function TeamPageClient({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const res = await updateTeam(teamId, values);
-    if (res) {
+    if (res.success) {
       const updatedTeam = await getTeamInfo(teamId);
       setTeam(updatedTeam);
       setEditing(false);
@@ -148,15 +147,12 @@ export default function TeamPageClient({
 
   const removeUser = async (teamMemberId: string) => {
     const result = await removeUserFromTeam(teamMemberId, teamId);
-    if (result) {
+    if (result.success) {
       setTeam((prevTeam) => {
         if (!prevTeam) return prevTeam;
         return {
           ...prevTeam,
-          members: prevTeam.members.filter(
-            // Mapped to 'members' now
-            (u) => u.id !== teamMemberId,
-          ),
+          members: prevTeam.members.filter((u) => u.id !== teamMemberId),
         };
       });
 
@@ -189,7 +185,7 @@ export default function TeamPageClient({
           <div>
             <CardTitle className="text-3xl">{team.name}</CardTitle>
             {team.lookingForTeammates && (
-              <CardDescription className="!mt-2 text-orange-500">
+              <CardDescription className="mt-2 text-orange-500">
                 Looking for teammates
               </CardDescription>
             )}
@@ -288,10 +284,10 @@ export default function TeamPageClient({
                         if (inviteCode === "") return;
 
                         setInviteCode("");
-                        const success = await resetInviteCode(inviteCode);
-                        if (success) {
-                          const code = await getInviteCode(teamId);
-                          if (code) setInviteCode(code);
+                        const resetResult = await resetInviteCode(inviteCode);
+                        if (resetResult.success) {
+                          const result = await getInviteCode(teamId);
+                          if (result.success) setInviteCode(result.code);
                         } else {
                           toast.error("Failed to remove invite.");
                         }

@@ -29,7 +29,7 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { createTeam } from "@/app/actions/team";
+import { createTeam } from "@/app/actions/participant";
 
 const formSchema = z.object({
   name: z
@@ -81,16 +81,15 @@ export default function Home({
       description: values.description,
       contact: values.contact,
       hackathon: { connect: { id: hackathonId } },
-      // leader: { connect: { userId: session?.user.id } },
     };
-    const teamId = await createTeam(teamData, true);
+    const result = await createTeam(teamData, true);
 
-    if (!teamId) {
-      toast.error("Failed to create team");
+    if (!result.success) {
+      toast.error(result.error || "Failed to create team");
       return false;
     }
 
-    router.push(`/${hackathonId}/team/${teamId}`);
+    router.push(`/${hackathonId}/team/${result.teamId}`);
   }
 
   return (
@@ -100,7 +99,7 @@ export default function Home({
           <CardTitle className="text-center text-3xl font-bold">
             Create a Team
           </CardTitle>
-          <CardDescription className="text-center !mt-4">
+          <CardDescription className="text-center mt-4">
             Set up your team and start collaborating with others.
           </CardDescription>
         </CardHeader>

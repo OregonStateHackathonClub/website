@@ -3,7 +3,7 @@ import { prisma } from "@repo/database";
 import { ArrowLeft, SearchX } from "lucide-react";
 import { headers } from "next/headers";
 import Link from "next/link";
-import SubmissionsClient from "./components/submission_client";
+import { ProjectsGallery } from "./components/projects-gallery";
 
 export default async function Page(props: {
   params: Promise<{ year: string }>;
@@ -100,7 +100,7 @@ export default async function Page(props: {
 
   // Pass the fetched data to the client component for rendering
   return (
-    <SubmissionsClient
+    <ProjectsGallery
       hackathon={hackathon}
       tracks={hackathon.tracks}
       year={yearParam}

@@ -2,14 +2,11 @@
 
 import { Tag } from "lucide-react";
 import Image from "next/image";
-import { ProjectLinks } from "../../../../components/projectLinks";
+import { ProjectLinks } from "@/components/project-links";
 
-// Note: Not using Card component to avoid default padding/gap classes
-
-// Define a type for the data this card needs
 type Submission = {
   id: string;
-  name: string;
+  title: string;
   images?: string[];
   tagline?: string;
   githubUrl?: string | null;
@@ -24,7 +21,7 @@ interface SubmissionCardProps {
   showOpenButton: boolean;
 }
 
-export default function SubmissionCard({
+export function SubmissionCard({
   submission,
   onClick,
   index,
@@ -34,14 +31,14 @@ export default function SubmissionCard({
 
   return (
     <div
-      className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl border-2 border-neutral-800 bg-neutral-900/60 backdrop-blur transition hover:border-orange-500/50 hover:bg-neutral-900 hover:shadow-lg hover:shadow-orange-500/10 supports-[backdrop-filter]:bg-neutral-900/50"
+      className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl border-2 border-neutral-800 bg-neutral-900/60 backdrop-blur transition hover:border-orange-500/50 hover:bg-neutral-900 hover:shadow-lg hover:shadow-orange-500/10 supports-backdrop-filter:bg-neutral-900/50"
       onClick={onClick}
     >
       {/* Top Section: Image - Flush to the top */}
       <div className="relative aspect-video w-full overflow-hidden">
         <Image
           src={img}
-          alt={`${submission.name} cover`}
+          alt={`${submission.title} cover`}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover transition duration-500 group-hover:scale-[1.03]"
@@ -52,7 +49,7 @@ export default function SubmissionCard({
       {/* Middle Section: Title and Badges */}
       <div className="p-4 pb-2">
         <h3 className="line-clamp-2 font-bold text-lg text-white leading-snug">
-          {submission.name}
+          {submission.title}
         </h3>
         {submission.tracks && submission.tracks.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-2">
@@ -70,7 +67,7 @@ export default function SubmissionCard({
       </div>
 
       {/* Description Section */}
-      <div className="flex-grow px-4 py-2">
+      <div className="grow px-4 py-2">
         {submission.tagline && (
           <p className="line-clamp-3 text-neutral-400 text-sm">
             {submission.tagline}

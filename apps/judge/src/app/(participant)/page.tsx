@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getCurrentHackathonId } from "@/lib/queries";
+import { getCurrentHackathonId } from "@/app/actions/participant";
 
 export default async function RootPage() {
   // Find the most recent hackathon by ordering by ID in descending order

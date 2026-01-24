@@ -1,10 +1,11 @@
-// Add these imports to fetch user data
+export const dynamic = "force-dynamic";
+
 import { auth } from "@repo/auth";
 import { prisma } from "@repo/database";
 import DotGrid from "@repo/ui/components/DotGrid";
 import { headers } from "next/headers";
 import { Navbar } from "@/components/navbar";
-import { getCurrentHackathonId } from "@/lib/queries";
+import { getCurrentHackathonId } from "@/app/actions/participant";
 
 export default async function Layout({
   children,
