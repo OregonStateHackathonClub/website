@@ -4,55 +4,124 @@ import { auth } from "@repo/auth";
 import { prisma, UserRole } from "@repo/database";
 import { headers } from "next/headers";
 
-export async function isAdmin(): Promise<boolean> {
-  const session = await auth.api.getSession({ headers: await headers() });
+// ============================================================================
+// Session Helpers
+// ============================================================================
 
-  if (!session) {
-    return false;
-  }
+export async function getSession() {
+  return auth.api.getSession({ headers: await headers() });
+}
+
+// ============================================================================
+// Role Checks
+// ============================================================================
+
+export async function isAdmin(): Promise<boolean> {
+  const session = await getSession();
+  if (!session) return false;
 
   const user = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
+    where: { id: session.user.id },
+    select: { role: true },
   });
 
-  if (!user) {
-    return false;
-  }
-
-  return user.role === UserRole.ADMIN;
+  return user?.role === UserRole.ADMIN;
 }
 
 export async function isTeamMember(teamId: string): Promise<boolean> {
-  const session = await auth.api.getSession({ headers: await headers() });
-
-  if (!session) {
-    return false;
-  }
+  const session = await getSession();
+  if (!session) return false;
 
   const team = await prisma.team.findUnique({
-    where: {
-      id: teamId,
-    },
-    include: {
+    where: { id: teamId },
+    select: {
       members: {
-        include: {
+        select: {
           participant: {
-            include: {
-              user: true,
-            },
+            select: { userId: true },
           },
         },
       },
     },
   });
 
-  if (!team) {
-    return false;
-  }
+  if (!team) return false;
 
   return team.members.some(
-    (member) => member.participant.user.id === session.user.id,
+    (member) => member.participant.userId === session.user.id,
   );
+}
+
+// ============================================================================
+// Participant Auth (for submissions)
+// ============================================================================
+
+export async function getParticipant() {
+  const session = await getSession();
+  if (!session) return null;
+
+  const participant = await prisma.hackathonParticipant.findFirst({
+    where: { userId: session.user.id },
+    select: { id: true, hackathonId: true, userId: true },
+  });
+
+  return participant;
+}
+
+export async function verifySubmissionUserTeam(teamId: string): Promise<boolean> {
+  const participant = await getParticipant();
+  if (!participant) return false;
+
+  const isMember = await prisma.teamMember.findFirst({
+    where: {
+      teamId: teamId,
+      participantId: participant.id,
+    },
+    select: { id: true },
+  });
+
+  return !!isMember;
+}
+
+export async function verifySubmissionUserDraft(draftId: string): Promise<boolean> {
+  const participant = await getParticipant();
+  if (!participant) return false;
+
+  const draft = await prisma.draft.findFirst({
+    where: {
+      id: draftId,
+      team: {
+        members: {
+          some: {
+            participantId: participant.id,
+          },
+        },
+      },
+    },
+    select: { id: true },
+  });
+
+  return !!draft;
+}
+
+export async function verifySubmissionUserSubmission(submissionId: string): Promise<boolean> {
+  const participant = await getParticipant();
+  if (!participant) return false;
+
+  // FIXED: Query Submission model, not Draft
+  const submission = await prisma.submission.findFirst({
+    where: {
+      id: submissionId,
+      team: {
+        members: {
+          some: {
+            participantId: participant.id,
+          },
+        },
+      },
+    },
+    select: { id: true },
+  });
+
+  return !!submission;
 }

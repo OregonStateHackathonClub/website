@@ -1,7 +1,7 @@
 import { Button } from "@repo/ui/components/button";
 import Link from "next/link";
 import { Suspense } from "react";
-import { getCurrentHackathonId } from "@/lib/queries";
+import { getCurrentHackathonId } from "@/app/actions/participant";
 
 export default function Unauthorized() {
   return (

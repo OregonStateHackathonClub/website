@@ -1,4 +1,4 @@
-import LoadingIndicator from "@/components/loadingIndicator";
+import LoadingIndicator from "@/components/loading-indicator";
 
 export default function Loading() {
   // This component will be automatically shown by Next.js during page transitions
