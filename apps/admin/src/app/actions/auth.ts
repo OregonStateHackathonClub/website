@@ -48,8 +48,3 @@ export async function requireAdmin(): Promise<AdminUser> {
   }
   return admin;
 }
-
-export async function isAdmin(): Promise<boolean> {
-  const admin = await getAdminUser();
-  return admin !== null;
-}

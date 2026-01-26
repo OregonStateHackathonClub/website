@@ -2,7 +2,7 @@ import { prisma } from "@repo/database";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { HackathonNav } from "./nav";
+import { HackathonNav } from "./components/nav";
 
 interface HackathonLayoutProps {
   children: React.ReactNode;

@@ -26,15 +26,13 @@ export function HackathonNav({ hackathonId }: HackathonNavProps) {
       {tabs.map((tab) => {
         const href = `${basePath}${tab.href}`;
         const isActive =
-          tab.href === ""
-            ? pathname === basePath
-            : pathname.startsWith(href);
+          tab.href === "" ? pathname === basePath : pathname.startsWith(href);
 
         return (
           <Link
             key={tab.name}
             href={href}
-            className={`px-4 py-2 text-sm font-medium border-b-2 -mb-[1px] transition-colors ${
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
               isActive
                 ? "border-white text-white"
                 : "border-transparent text-neutral-500 hover:text-white"

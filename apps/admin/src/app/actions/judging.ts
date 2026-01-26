@@ -459,16 +459,25 @@ export async function completeRound(
 
     if (round.type === "TRIAGE") {
       // Average star ratings and take top N
-      const scores = await prisma.triageScore.groupBy({
-        by: ["submissionId"],
+      const assignments = await prisma.roundJudgeAssignment.findMany({
         where: { roundId },
-        _avg: { stars: true },
+        include: { triageScore: true },
       });
 
-      const sorted = scores
-        .map((s) => ({
-          submissionId: s.submissionId,
-          score: s._avg.stars || 0,
+      // Group by submission and calculate average
+      const submissionScores = new Map<string, number[]>();
+      for (const a of assignments) {
+        if (a.triageScore) {
+          const scores = submissionScores.get(a.submissionId) || [];
+          scores.push(a.triageScore.stars);
+          submissionScores.set(a.submissionId, scores);
+        }
+      }
+
+      const sorted = [...submissionScores.entries()]
+        .map(([submissionId, scores]) => ({
+          submissionId,
+          score: scores.reduce((a, b) => a + b, 0) / scores.length,
         }))
         .sort((a, b) => b.score - a.score);
 
@@ -482,19 +491,23 @@ export async function completeRound(
       }));
     } else if (round.type === "RUBRIC") {
       // Sum up all criteria scores per submission
-      const scores = await prisma.score.groupBy({
-        by: ["submissionId"],
-        where: {
-          roundId,
-        },
-        _sum: { value: true },
+      const assignments = await prisma.roundJudgeAssignment.findMany({
+        where: { roundId },
+        include: { rubricScores: true },
       });
 
-      const sorted = scores
-        .map((s) => ({
-          submissionId: s.submissionId,
-          score: s._sum.value || 0,
-        }))
+      // Group by submission and sum scores
+      const submissionScores = new Map<string, number>();
+      for (const a of assignments) {
+        const total = a.rubricScores.reduce((sum, s) => sum + s.value, 0);
+        submissionScores.set(
+          a.submissionId,
+          (submissionScores.get(a.submissionId) || 0) + total,
+        );
+      }
+
+      const sorted = [...submissionScores.entries()]
+        .map(([submissionId, score]) => ({ submissionId, score }))
         .sort((a, b) => b.score - a.score);
 
       const advanceCount =
@@ -507,20 +520,23 @@ export async function completeRound(
       }));
     } else if (round.type === "RANKED") {
       // Borda count from ranked votes
-      const votes = await prisma.rankedVote.findMany({
+      const assignments = await prisma.roundJudgeAssignment.findMany({
         where: { roundId },
+        include: { rankedVote: true },
       });
 
       const rankedSlots = round.rankedSlots || 3;
       const pointsMap = new Map<string, number>();
 
-      for (const vote of votes) {
-        // Points: 1st gets rankedSlots points, 2nd gets rankedSlots-1, etc.
-        const points = rankedSlots - vote.rank + 1;
-        pointsMap.set(
-          vote.submissionId,
-          (pointsMap.get(vote.submissionId) || 0) + points,
-        );
+      for (const a of assignments) {
+        if (a.rankedVote) {
+          // Points: 1st gets rankedSlots points, 2nd gets rankedSlots-1, etc.
+          const points = rankedSlots - a.rankedVote.rank + 1;
+          pointsMap.set(
+            a.submissionId,
+            (pointsMap.get(a.submissionId) || 0) + points,
+          );
+        }
       }
 
       const sorted = [...pointsMap.entries()]
@@ -571,52 +587,6 @@ export async function completeRound(
   }
 }
 
-// Get round status and progress
-export async function getRoundProgress(roundId: string) {
-  await requireAdmin();
-
-  const round = await prisma.judgingRound.findUnique({
-    where: { id: roundId },
-    include: {
-      judgeAssignments: {
-        include: {
-          judge: true,
-          submission: true,
-        },
-      },
-      triageScores: true,
-      rankedVotes: true,
-      advancements: {
-        include: {
-          submission: true,
-        },
-      },
-    },
-  });
-
-  if (!round) return null;
-
-  const totalAssignments = round.judgeAssignments.length;
-  const completedAssignments = round.judgeAssignments.filter(
-    (a) => a.completed,
-  ).length;
-
-  return {
-    ...round,
-    progress: {
-      total: totalAssignments,
-      completed: completedAssignments,
-      percent:
-        totalAssignments > 0
-          ? Math.round((completedAssignments / totalAssignments) * 100)
-          : 0,
-    },
-  };
-}
-
-const JUDGE_APP_URL =
-  process.env.NEXT_PUBLIC_JUDGE_URL || "http://localhost:3002";
-
 // Send magic link to a single judge
 export async function sendJudgeMagicLink(
   hackathonId: string,
@@ -637,7 +607,7 @@ export async function sendJudgeMagicLink(
     await auth.api.signInMagicLink({
       body: {
         email: judgeEmail,
-        callbackURL: `${JUDGE_APP_URL}/judging/${hackathonId}`,
+        callbackURL: `${process.env.NEXT_PUBLIC_JUDGE_URL || "http://localhost:3002"}/judging/${hackathonId}`,
       },
       headers: await headers(),
     });

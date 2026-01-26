@@ -4,59 +4,6 @@ import { ApplicationStatus, prisma } from "@repo/database";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "./auth";
 
-export type HackathonWithStats = {
-  id: string;
-  name: string;
-  description: string | null;
-  createdAt: Date;
-  _count: {
-    participants: number;
-    teams: number;
-    submissions: number;
-    tracks: number;
-  };
-};
-
-export async function getHackathons(): Promise<HackathonWithStats[]> {
-  await requireAdmin();
-
-  return prisma.hackathon.findMany({
-    select: {
-      id: true,
-      name: true,
-      description: true,
-      createdAt: true,
-      _count: {
-        select: {
-          participants: true,
-          teams: true,
-          submissions: true,
-          tracks: true,
-        },
-      },
-    },
-    orderBy: { createdAt: "desc" },
-  });
-}
-
-export async function getHackathonById(id: string) {
-  await requireAdmin();
-
-  return prisma.hackathon.findUnique({
-    where: { id },
-    include: {
-      _count: {
-        select: {
-          participants: true,
-          teams: true,
-          submissions: true,
-          tracks: true,
-        },
-      },
-    },
-  });
-}
-
 export async function createHackathon(data: {
   name: string;
   description?: string;

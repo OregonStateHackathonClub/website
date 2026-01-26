@@ -1,5 +1,5 @@
 import { getUsers } from "@/app/actions/users";
-import { UsersTable } from "./components/users-table";
+import { Table } from "./components/table";
 
 export default async function UsersPage() {
   const { users, total } = await getUsers({ limit: 50 });
@@ -13,7 +13,7 @@ export default async function UsersPage() {
         </p>
       </div>
 
-      <UsersTable initialUsers={users} />
+      <Table initialUsers={users} />
     </div>
   );
 }

@@ -24,7 +24,7 @@ export function Header({ user }: HeaderProps) {
 
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-neutral-800 border border-neutral-700 flex items-center justify-center flex-shrink-0 relative overflow-hidden">
+          <div className="w-8 h-8 bg-neutral-800 border border-neutral-700 flex items-center justify-center shrink-0 relative overflow-hidden">
             {user.image ? (
               <Image
                 src={user.image}

@@ -54,7 +54,7 @@ export function Editor({
           <Textarea
             value={html}
             onChange={(e) => onHtmlChange(e.target.value)}
-            className="w-full h-full p-4 bg-neutral-900/30 border-0 text-neutral-300 text-sm font-mono resize-none rounded-none focus-visible:ring-0 leading-relaxed bg-transparent dark:bg-transparent"
+            className="w-full h-full p-4 border-0 text-neutral-300 text-sm font-mono resize-none rounded-none focus-visible:ring-0 leading-relaxed bg-transparent dark:bg-transparent"
             spellCheck={false}
           />
         </div>

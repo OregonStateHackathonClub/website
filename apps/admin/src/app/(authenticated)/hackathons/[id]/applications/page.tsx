@@ -1,16 +1,18 @@
 import { getHackathonApplications } from "@/app/actions/hackathons";
-import { ApplicationsTable } from "./applications-table";
+import { ApplicationsTable } from "./components/table";
 
 interface ApplicationsPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function ApplicationsPage({ params }: ApplicationsPageProps) {
+export default async function ApplicationsPage({
+  params,
+}: ApplicationsPageProps) {
   const { id } = await params;
   const applications = await getHackathonApplications(id);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-medium text-white">Applications</h2>

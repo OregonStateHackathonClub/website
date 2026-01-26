@@ -5,17 +5,17 @@ import { Layers, Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { deleteTrack } from "@/app/actions/hackathons";
-import { AddTrackModal } from "./components/add-track-modal";
-import { EditTrackModal } from "./components/edit-track-modal";
-import { TrackCard } from "./components/track-card";
-import type { Track } from "./components/types";
+import { AddTrackModal } from "./add-track-modal";
+import { EditTrackModal } from "./edit-track-modal";
+import { TrackCard } from "./track-card";
+import type { Track } from "./types";
 
-interface TracksClientProps {
+interface TracksManagerProps {
   hackathonId: string;
   tracks: Track[];
 }
 
-export function TracksClient({ hackathonId, tracks }: TracksClientProps) {
+export function TracksManager({ hackathonId, tracks }: TracksManagerProps) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingTrack, setEditingTrack] = useState<Track | null>(null);
 
@@ -31,7 +31,7 @@ export function TracksClient({ hackathonId, tracks }: TracksClientProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-medium text-white">Tracks</h2>
