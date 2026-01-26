@@ -652,7 +652,7 @@ export async function sendAllJudgeMagicLinks(hackathonId: string): Promise<{
         await auth.api.signInMagicLink({
           body: {
             email: judge.email,
-            callbackURL: `${JUDGE_APP_URL}/judging/${hackathonId}`,
+            callbackURL: `${process.env.NEXT_PUBLIC_JUDGE_URL || "http://localhost:3002"}/judging/${hackathonId}`,
           },
           headers: reqHeaders,
         });

@@ -23,9 +23,23 @@ import {
   completeRound,
   removeJudgeFromTrack,
 } from "@/app/actions/judging";
+import type { Judge, Track } from "./config";
 import { TimeEstimate } from "./time-estimate";
-import type { Judge, Track } from "./types";
-import { ROUND_TYPE_CONFIG } from "./types";
+
+const ROUND_TYPE_CONFIG = {
+  TRIAGE: {
+    label: "Triage",
+    description: "Quick 1-5 star screening",
+  },
+  RUBRIC: {
+    label: "Rubric",
+    description: "Full rubric-based scoring",
+  },
+  RANKED: {
+    label: "Ranked",
+    description: "Final ranked choice voting",
+  },
+} as const;
 
 const ROUND_TYPE_ICONS = {
   TRIAGE: Star,

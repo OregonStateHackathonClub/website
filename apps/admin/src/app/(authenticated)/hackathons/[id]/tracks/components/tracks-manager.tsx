@@ -1,5 +1,6 @@
 "use client";
 
+import type { Prisma } from "@repo/database";
 import { Button } from "@repo/ui/components/button";
 import { Layers, Plus } from "lucide-react";
 import { useState } from "react";
@@ -8,7 +9,13 @@ import { deleteTrack } from "@/app/actions/hackathons";
 import { AddTrackModal } from "./add-track-modal";
 import { EditTrackModal } from "./edit-track-modal";
 import { TrackCard } from "./track-card";
-import type { Track } from "./types";
+
+export type Track = Prisma.TrackGetPayload<{
+  include: {
+    rubric: { include: { criteria: true } };
+    _count: { select: { submissions: true } };
+  };
+}>;
 
 interface TracksManagerProps {
   hackathonId: string;

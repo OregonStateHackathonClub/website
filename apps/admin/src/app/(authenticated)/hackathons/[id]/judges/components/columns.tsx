@@ -2,7 +2,7 @@
 
 import { Checkbox } from "@repo/ui/components/checkbox";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ClipboardList, Mail, Send, Star, Trash2, User } from "lucide-react";
+import { ClipboardList, Mail, Send, Trash2, User } from "lucide-react";
 import type { Judge } from "./table";
 
 interface ColumnActions {
@@ -92,16 +92,6 @@ export function createColumns(actions: ColumnActions): ColumnDef<Judge>[] {
       ),
     },
     {
-      id: "scores",
-      header: "Scores",
-      cell: ({ row }) => (
-        <div className="flex items-center gap-1.5 text-sm text-neutral-400">
-          <Star className="h-4 w-4 text-neutral-600" />
-          {row.original._count.scores}
-        </div>
-      ),
-    },
-    {
       id: "actions",
       header: () => <span className="sr-only">Actions</span>,
       cell: ({ row }) => {
@@ -122,13 +112,8 @@ export function createColumns(actions: ColumnActions): ColumnDef<Judge>[] {
             </button>
             <button
               onClick={() => onRemove(judge.id, judge.name)}
-              disabled={judge._count.scores > 0}
-              className="p-2 text-neutral-500 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              title={
-                judge._count.scores > 0
-                  ? "Cannot remove judge with scores"
-                  : "Remove judge"
-              }
+              className="p-2 text-neutral-500 hover:text-white transition-colors"
+              title="Remove judge"
             >
               <Trash2 className="h-4 w-4" />
             </button>

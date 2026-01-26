@@ -1,5 +1,5 @@
 import { getHackathonSubmissions } from "@/app/actions/hackathons";
-import { Trophy, Github, Video, Users, Star } from "lucide-react";
+import { Trophy, Github, Video, Users } from "lucide-react";
 
 interface SubmissionsPageProps {
   params: Promise<{ id: string }>;
@@ -11,15 +11,13 @@ export default async function SubmissionsPage({
   const { id } = await params;
   const submissions = await getHackathonSubmissions(id);
 
-  const scoredCount = submissions.filter((s) => s._count.scores > 0).length;
-
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-medium text-white">Submissions</h2>
           <p className="text-sm text-neutral-500">
-            {submissions.length} submissions • {scoredCount} scored
+            {submissions.length} submission{submissions.length !== 1 ? "s" : ""}
           </p>
         </div>
       </div>
@@ -57,13 +55,6 @@ export default async function SubmissionsPage({
                       <Users className="h-4 w-4" />
                       {submission.team?.name ?? "Solo"}
                     </div>
-                    {submission._count.scores > 0 && (
-                      <div className="flex items-center gap-1.5 text-sm text-neutral-500">
-                        <Star className="h-4 w-4" />
-                        {submission._count.scores} score
-                        {submission._count.scores !== 1 ? "s" : ""}
-                      </div>
-                    )}
                   </div>
                 </div>
 

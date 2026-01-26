@@ -14,7 +14,12 @@ import { X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { createTrack } from "@/app/actions/hackathons";
-import type { CriterionInput } from "./types";
+
+export type CriterionInput = {
+  name: string;
+  weight: number;
+  maxScore: number;
+};
 
 interface AddTrackModalProps {
   hackathonId: string;

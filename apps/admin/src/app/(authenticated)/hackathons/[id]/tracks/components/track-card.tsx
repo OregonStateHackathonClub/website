@@ -1,7 +1,7 @@
 "use client";
 
 import { Award, ListChecks, Edit, Trash2, Trophy } from "lucide-react";
-import type { Track } from "./types";
+import type { Track } from "./tracks-manager";
 
 interface TrackCardProps {
   track: Track;

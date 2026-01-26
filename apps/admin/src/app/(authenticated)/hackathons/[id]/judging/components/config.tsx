@@ -1,5 +1,6 @@
 "use client";
 
+import type { Prisma } from "@repo/database";
 import { Button } from "@repo/ui/components/button";
 import { Loader2, Mail, Scale, Settings, Users } from "lucide-react";
 import { useState } from "react";
@@ -7,7 +8,21 @@ import { toast } from "sonner";
 import { sendAllJudgeMagicLinks } from "@/app/actions/judging";
 import { ConfigurePlanModal } from "./configure-plan-modal";
 import { TrackCard } from "./track-card";
-import type { Judge, Track } from "./types";
+
+export type Track = Prisma.TrackGetPayload<{
+  include: {
+    judgingPlan: { include: { rounds: true } };
+    judgeAssignments: { include: { judge: true } };
+    _count: { select: { submissions: true } };
+  };
+}>;
+
+export type Judge = Prisma.JudgeGetPayload<{
+  include: {
+    trackAssignments: true;
+    _count: { select: { roundAssignments: true } };
+  };
+}>;
 
 interface JudgingConfigProps {
   hackathonId: string;

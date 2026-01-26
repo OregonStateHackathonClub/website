@@ -1,5 +1,6 @@
 "use client";
 
+import type { Prisma } from "@repo/database";
 import { Button } from "@repo/ui/components/button";
 import {
   Table,
@@ -25,21 +26,12 @@ import { AddJudgeModal } from "./add-judge-modal";
 import { createColumns } from "./columns";
 import { Toolbar } from "./toolbar";
 
-export type Judge = {
-  id: string;
-  name: string;
-  email: string;
-  trackAssignments: {
-    track: {
-      id: string;
-      name: string;
-    };
-  }[];
-  _count: {
-    roundAssignments: number;
-    scores: number;
+export type Judge = Prisma.JudgeGetPayload<{
+  include: {
+    trackAssignments: { include: { track: true } };
+    _count: { select: { roundAssignments: true } };
   };
-};
+}>;
 
 interface JudgesTableProps {
   hackathonId: string;
@@ -139,15 +131,7 @@ export function JudgesTable({ hackathonId, judges }: JudgesTableProps) {
     const selectedRows = table.getFilteredSelectedRowModel().rows;
     if (selectedRows.length === 0) return;
 
-    const judgesWithScores = selectedRows.filter(
-      (row) => row.original._count.scores > 0,
-    );
-    if (judgesWithScores.length > 0) {
-      toast.error(
-        `Cannot remove ${judgesWithScores.length} judge(s) with existing scores`,
-      );
-      return;
-    }
+    // Let server action handle validation for judges with completed assignments
 
     if (
       !confirm(`Remove ${selectedRows.length} judge(s)? This cannot be undone.`)
