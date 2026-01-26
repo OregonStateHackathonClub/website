@@ -6,17 +6,17 @@ import { Round } from "./round";
 export default async function Page({
   params,
 }: {
-  params: Promise<{ year: string; roundId: string }>;
+  params: Promise<{ hackathonId: string; roundId: string }>;
 }) {
-  const { year, roundId } = await params;
-  const result = await getRoundTimeline(year, roundId);
+  const { hackathonId, roundId } = await params;
+  const result = await getRoundTimeline(hackathonId, roundId);
 
   if (!result.success) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
         <p className="text-neutral-400">{result.error}</p>
         <Link
-          href={`/judging/${year}`}
+          href={`/judging/${hackathonId}`}
           className="mt-4 text-sm text-neutral-500 hover:text-white flex items-center gap-1"
         >
           <ChevronLeft className="h-4 w-4" />
@@ -28,7 +28,7 @@ export default async function Page({
 
   return (
     <Round
-      hackathonId={year}
+      hackathonId={hackathonId}
       round={result.round!}
       assignments={result.assignments || []}
     />

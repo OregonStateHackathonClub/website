@@ -12,12 +12,13 @@ export default async function TeamsPage({ params }: TeamsPageProps) {
   const teamsWithSubmissions = teams.filter((t) => t.submission);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-medium text-white">Teams</h2>
           <p className="text-sm text-neutral-500">
-            {teams.length} teams • {teamsWithSubmissions.length} with submissions
+            {teams.length} teams • {teamsWithSubmissions.length} with
+            submissions
           </p>
         </div>
       </div>
@@ -45,7 +46,8 @@ export default async function TeamsPage({ params }: TeamsPageProps) {
                     {team.name}
                   </h3>
                   <p className="text-xs text-neutral-500 mt-0.5">
-                    {team._count.members} member{team._count.members !== 1 ? "s" : ""}
+                    {team._count.members} member
+                    {team._count.members !== 1 ? "s" : ""}
                   </p>
                 </div>
                 {team.submission ? (
@@ -67,10 +69,7 @@ export default async function TeamsPage({ params }: TeamsPageProps) {
                 </p>
                 <div className="space-y-1">
                   {team.members.map((member) => (
-                    <div
-                      key={member.id}
-                      className="text-sm text-neutral-400"
-                    >
+                    <div key={member.id} className="text-sm text-neutral-400">
                       {member.participant.user.name}
                     </div>
                   ))}
@@ -82,7 +81,7 @@ export default async function TeamsPage({ params }: TeamsPageProps) {
                   <div className="flex items-center gap-2 text-sm">
                     <Trophy className="h-4 w-4 text-neutral-600" />
                     <span className="text-white font-medium">
-                      {team.submission.name}
+                      {team.submission.title}
                     </span>
                   </div>
                 </div>

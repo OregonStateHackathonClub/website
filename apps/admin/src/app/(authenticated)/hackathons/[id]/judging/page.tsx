@@ -1,5 +1,5 @@
 import { getJudgingData } from "@/app/actions/judging";
-import { JudgingConfig } from "./components/judging-config";
+import { JudgingConfig } from "./components/config";
 
 interface JudgingPageProps {
   params: Promise<{ id: string }>;

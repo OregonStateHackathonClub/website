@@ -4,59 +4,6 @@ import { ApplicationStatus, prisma } from "@repo/database";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "./auth";
 
-export type HackathonWithStats = {
-  id: string;
-  name: string;
-  description: string | null;
-  createdAt: Date;
-  _count: {
-    participants: number;
-    teams: number;
-    submissions: number;
-    tracks: number;
-  };
-};
-
-export async function getHackathons(): Promise<HackathonWithStats[]> {
-  await requireAdmin();
-
-  return prisma.hackathon.findMany({
-    select: {
-      id: true,
-      name: true,
-      description: true,
-      createdAt: true,
-      _count: {
-        select: {
-          participants: true,
-          teams: true,
-          submissions: true,
-          tracks: true,
-        },
-      },
-    },
-    orderBy: { createdAt: "desc" },
-  });
-}
-
-export async function getHackathonById(id: string) {
-  await requireAdmin();
-
-  return prisma.hackathon.findUnique({
-    where: { id },
-    include: {
-      _count: {
-        select: {
-          participants: true,
-          teams: true,
-          submissions: true,
-          tracks: true,
-        },
-      },
-    },
-  });
-}
-
 export async function createHackathon(data: {
   name: string;
   description?: string;
@@ -232,16 +179,6 @@ export async function getHackathonSubmissions(hackathonId: string) {
           },
         },
       },
-      scores: {
-        include: {
-          judge: true,
-        },
-      },
-      _count: {
-        select: {
-          scores: true,
-        },
-      },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -260,7 +197,6 @@ export async function getHackathonJudges(hackathonId: string) {
       _count: {
         select: {
           roundAssignments: true,
-          scores: true,
         },
       },
     },
@@ -336,9 +272,6 @@ export async function removeJudge(
   try {
     const judge = await prisma.judge.findUnique({
       where: { id: judgeId },
-      include: {
-        _count: { select: { scores: true } },
-      },
     });
 
     if (!judge) {
@@ -349,10 +282,18 @@ export async function removeJudge(
       return { success: false, error: "Judge not in this hackathon" };
     }
 
-    if (judge._count.scores > 0) {
+    // Check if judge has any completed assignments (which would have scores)
+    const completedAssignments = await prisma.roundJudgeAssignment.count({
+      where: {
+        judgeId,
+        completed: true,
+      },
+    });
+
+    if (completedAssignments > 0) {
       return {
         success: false,
-        error: `Cannot remove judge with ${judge._count.scores} existing scores`,
+        error: `Cannot remove judge with ${completedAssignments} completed assignments`,
       };
     }
 

@@ -28,7 +28,18 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 import { deleteJudgingPlan, saveJudgingPlan } from "@/app/actions/judging";
-import type { JudgingRoundType, RoundInput, Track } from "./types";
+import type { JudgingRoundType } from "@repo/database";
+import type { Track } from "./config";
+
+type RoundInput = {
+  type: JudgingRoundType;
+  advanceCount?: number;
+  advancePercent?: number;
+  judgesPerProject: number;
+  minutesPerProject: number;
+  rubricId?: string;
+  rankedSlots?: number;
+};
 
 const ROUND_TYPE_ICONS = {
   TRIAGE: Star,

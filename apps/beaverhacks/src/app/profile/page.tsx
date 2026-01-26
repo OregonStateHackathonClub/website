@@ -120,7 +120,7 @@ const Profile = async () => {
           <div className="p-6 border-b border-neutral-800">
             <div className="flex items-center gap-4">
               {/* Avatar */}
-              <div className="w-14 h-14 bg-neutral-800 border border-neutral-700 flex items-center justify-center flex-shrink-0 relative overflow-hidden">
+              <div className="w-14 h-14 bg-neutral-800 border border-neutral-700 flex items-center justify-center shrink-0 relative overflow-hidden">
                 {user.image ? (
                   <Image
                     src={user.image}
@@ -177,7 +177,7 @@ const Profile = async () => {
             <div className="space-y-4">
               {/* University */}
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 bg-neutral-900 border border-neutral-800 flex items-center justify-center flex-shrink-0">
+                <div className="w-9 h-9 bg-neutral-900 border border-neutral-800 flex items-center justify-center shrink-0">
                   <Building2 className="w-4 h-4 text-neutral-500" />
                 </div>
                 <div>
@@ -188,7 +188,7 @@ const Profile = async () => {
 
               {/* Graduation Year */}
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 bg-neutral-900 border border-neutral-800 flex items-center justify-center flex-shrink-0">
+                <div className="w-9 h-9 bg-neutral-900 border border-neutral-800 flex items-center justify-center shrink-0">
                   <GraduationCap className="w-4 h-4 text-neutral-500" />
                 </div>
                 <div>
@@ -201,7 +201,7 @@ const Profile = async () => {
 
               {/* Resume */}
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 bg-neutral-900 border border-neutral-800 flex items-center justify-center flex-shrink-0">
+                <div className="w-9 h-9 bg-neutral-900 border border-neutral-800 flex items-center justify-center shrink-0">
                   <FileText className="w-4 h-4 text-neutral-500" />
                 </div>
                 <div>
@@ -219,7 +219,7 @@ const Profile = async () => {
 
               {/* Submitted Date */}
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 bg-neutral-900 border border-neutral-800 flex items-center justify-center flex-shrink-0">
+                <div className="w-9 h-9 bg-neutral-900 border border-neutral-800 flex items-center justify-center shrink-0">
                   <Calendar className="w-4 h-4 text-neutral-500" />
                 </div>
                 <div>

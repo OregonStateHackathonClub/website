@@ -66,7 +66,9 @@ export async function isTeamMember(teamId: string): Promise<boolean> {
 export async function createTeam(
   teamData: Omit<Prisma.TeamCreateInput, "creatorId">,
   addSelf: boolean = false,
-): Promise<{ success: true; teamId: string } | { success: false; error: string }> {
+): Promise<
+  { success: true; teamId: string } | { success: false; error: string }
+> {
   const authResult = await requireSession();
   if (!authResult.success) return authResult;
   const { session } = authResult;
@@ -89,7 +91,10 @@ export async function createTeam(
     });
 
     if (existingTeam) {
-      return { success: false, error: "You already have a team in this hackathon" };
+      return {
+        success: false,
+        error: "You already have a team in this hackathon",
+      };
     }
 
     const newTeam = await prisma.team.create({
@@ -162,7 +167,9 @@ export async function updateTeam(
 
 export async function joinTeam(
   inviteCode: string,
-): Promise<{ success: true; teamId: string } | { success: false; error: string }> {
+): Promise<
+  { success: true; teamId: string } | { success: false; error: string }
+> {
   const authResult = await requireSession();
   if (!authResult.success) return authResult;
   const { session } = authResult;
@@ -344,7 +351,9 @@ export async function removeUserFromTeam(
 
 export async function getInviteCode(
   teamId: string,
-): Promise<{ success: true; code: string } | { success: false; error: string }> {
+): Promise<
+  { success: true; code: string } | { success: false; error: string }
+> {
   if (!(await isTeamMember(teamId))) {
     return { success: false, error: "Not a team member" };
   }
@@ -366,7 +375,9 @@ export async function getInviteCode(
 
 export async function getTeamIdFromInvite(
   inviteCode: string,
-): Promise<{ success: true; teamId: string } | { success: false; error: string }> {
+): Promise<
+  { success: true; teamId: string } | { success: false; error: string }
+> {
   const team = await prisma.team.findFirst({
     where: {
       invites: {
@@ -404,144 +415,4 @@ export async function resetInviteCode(
     console.error("Reset invite error:", error);
     return { success: false, error: "Failed to reset invite code" };
   }
-}
-
-// ============================================================================
-// File Upload Actions
-// ============================================================================
-
-const ALLOWED_MIME = new Set([
-  "image/png",
-  "image/jpeg",
-  "image/webp",
-  "application/pdf",
-]);
-const MAX_BYTES = 5 * 1024 * 1024; // 5MB
-
-function isVercelBlobUrl(urlStr: string): boolean {
-  try {
-    const u = new URL(urlStr);
-    return u.host.endsWith("vercel-storage.com");
-  } catch {
-    return false;
-  }
-}
-
-function guessExt(file: File): string {
-  const fromName = file.name?.split(".").pop()?.toLowerCase();
-  if (fromName) return fromName;
-  if (file.type === "image/png") return "png";
-  if (file.type === "image/jpeg") return "jpg";
-  if (file.type === "image/webp") return "webp";
-  if (file.type === "application/pdf") return "pdf";
-  return "bin";
-}
-
-export async function uploadFile(
-  formData: FormData,
-): Promise<{ success: true; url: string } | { success: true; urls: string[] } | { success: false; error: string }> {
-  const authResult = await requireSession();
-  if (!authResult.success) {
-    return { success: false, error: "Unauthorized. Please log in to upload files." };
-  }
-
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    return { success: false, error: "Server not configured for Blob uploads." };
-  }
-
-  const entries = formData.getAll("file");
-  const files: File[] = entries.filter((f): f is File => f instanceof File);
-
-  if (files.length === 0) {
-    return { success: false, error: "Missing file" };
-  }
-
-  for (const file of files) {
-    if (file.size > MAX_BYTES) {
-      return {
-        success: false,
-        error: `File too large. Max ${Math.floor(MAX_BYTES / (1024 * 1024))}MB`,
-      };
-    }
-    if (!ALLOWED_MIME.has(file.type)) {
-      return { success: false, error: "Unsupported file type" };
-    }
-  }
-
-  try {
-    const { put } = await import("@vercel/blob");
-
-    const uploads = await Promise.all(
-      files.map(async (file) => {
-        const ext = guessExt(file);
-        const filename = `uploads/${crypto.randomUUID()}.${ext}`;
-        const blob = await put(filename, file, {
-          access: "public",
-          contentType: file.type,
-          token: process.env.BLOB_READ_WRITE_TOKEN,
-          addRandomSuffix: false,
-        });
-        return blob.url;
-      }),
-    );
-
-    if (uploads.length === 1) {
-      return { success: true, url: uploads[0] };
-    }
-    return { success: true, urls: uploads };
-  } catch {
-    return { success: false, error: "Upload failed" };
-  }
-}
-
-export async function deleteFile(
-  url: string,
-): Promise<{ success: true } | { success: false; error: string }> {
-  const authResult = await requireSession();
-  if (!authResult.success) {
-    return { success: false, error: "Unauthorized. Please log in to delete files." };
-  }
-
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    return { success: false, error: "Server not configured for Blob deletes." };
-  }
-
-  if (!url || !isVercelBlobUrl(url)) {
-    return { success: false, error: "Invalid URL" };
-  }
-
-  try {
-    const { del } = await import("@vercel/blob");
-    await del(url, { token: process.env.BLOB_READ_WRITE_TOKEN });
-    return { success: true };
-  } catch {
-    return { success: false, error: "Delete failed" };
-  }
-}
-
-// ============================================================================
-// Submission Actions (authenticated access)
-// ============================================================================
-
-export async function getSubmission(submissionId: string) {
-  // Note: This is a public read for viewing submissions in gallery
-  // No auth check needed for viewing published submissions
-  const submission = await prisma.submission.findUnique({
-    where: { id: submissionId },
-    select: {
-      id: true,
-      title: true,
-      tagline: true,
-      description: true,
-      githubUrl: true,
-      videoUrl: true,
-      images: true,
-    },
-  });
-
-  if (!submission) {
-    return { success: false, error: "Submission not found" };
-  }
-
-  return { success: true, submission };
 }

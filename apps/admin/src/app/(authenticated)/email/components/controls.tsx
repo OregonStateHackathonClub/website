@@ -52,7 +52,7 @@ export function Controls({
 
       {/* Status Filter */}
       <Select value={statusFilter} onValueChange={onStatusFilterChange}>
-        <SelectTrigger className="w-[160px] bg-transparent border-neutral-700 text-white rounded-none">
+        <SelectTrigger className="w-40] bg-transparent border-neutral-700 text-white rounded-none">
           <SelectValue />
         </SelectTrigger>
         <SelectContent className="bg-neutral-900 border-neutral-700 rounded-none">

@@ -1,5 +1,5 @@
 import { getUsers } from "@/app/actions/users";
-import { UsersTable } from "./components/users-table";
+import { UsersTable } from "./components/table";
 
 export default async function UsersPage() {
   const { users, total } = await getUsers({ limit: 50 });

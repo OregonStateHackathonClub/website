@@ -6,10 +6,10 @@ import { Dashboard } from "./components/dashboard";
 export default async function Page({
   params,
 }: {
-  params: Promise<{ year: string }>;
+  params: Promise<{ hackathonId: string }>;
 }) {
-  const { year } = await params;
-  const result = await getJudgeDashboard(year);
+  const { hackathonId } = await params;
+  const result = await getJudgeDashboard(hackathonId);
 
   if (!result.success) {
     return (
@@ -28,7 +28,7 @@ export default async function Page({
 
   return (
     <Dashboard
-      hackathonId={year}
+      hackathonId={hackathonId}
       hackathonName={result.hackathonName || "Hackathon"}
       rounds={result.rounds || []}
     />

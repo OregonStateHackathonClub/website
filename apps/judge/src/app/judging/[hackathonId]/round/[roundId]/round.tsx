@@ -1,5 +1,6 @@
 "use client";
 
+import type { Prisma } from "@repo/database";
 import { Scale, Star, Trophy } from "lucide-react";
 import { useCallback } from "react";
 import { toast } from "sonner";
@@ -9,7 +10,36 @@ import {
   submitRubricScores,
   submitTriageScore,
 } from "@/app/actions/judge";
-import type { Assignment, JudgingRound } from "../../types";
+
+type Assignment = Prisma.RoundJudgeAssignmentGetPayload<{
+  include: {
+    submission: {
+      include: {
+        team: {
+          include: {
+            members: {
+              include: {
+                participant: {
+                  include: { user: { select: { name: true; image: true } } };
+                };
+              };
+            };
+          };
+        };
+        tracks: true;
+      };
+    };
+    triageScore: true;
+    rubricScores: true;
+  };
+}>;
+
+type JudgingRound = Prisma.JudgingRoundGetPayload<{
+  include: {
+    plan: { include: { track: true } };
+    rubric: { include: { criteria: true } };
+  };
+}>;
 import { CompletedState } from "./components/completed-state";
 import { EmptyState } from "./components/empty-state";
 import { HeaderBar } from "./components/header-bar";
@@ -144,7 +174,7 @@ export function Round({
       <HeaderBar
         hackathonId={hackathonId}
         roundNumber={round.roundNumber}
-        trackName={round.trackName}
+        trackName={round.plan.track.name}
         Icon={Icon}
         completedCount={completedCount}
         totalCount={totalCount}

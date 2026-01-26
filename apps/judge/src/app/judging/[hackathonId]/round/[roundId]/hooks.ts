@@ -1,5 +1,28 @@
+import type { Prisma } from "@repo/database";
 import { useCallback, useEffect, useState } from "react";
-import type { Assignment } from "../../types";
+
+type Assignment = Prisma.RoundJudgeAssignmentGetPayload<{
+  include: {
+    submission: {
+      include: {
+        team: {
+          include: {
+            members: {
+              include: {
+                participant: {
+                  include: { user: { select: { name: true; image: true } } };
+                };
+              };
+            };
+          };
+        };
+        tracks: true;
+      };
+    };
+    triageScore: true;
+    rubricScores: true;
+  };
+}>;
 
 export interface TimeSlot {
   assignment: Assignment;
@@ -80,15 +103,13 @@ export function useJudgingState({
       setSelectedImage(0);
 
       if (roundType === "TRIAGE") {
-        setTriageScore(
-          typeof selectedAssignment.score === "number"
-            ? selectedAssignment.score
-            : null,
-        );
+        setTriageScore(selectedAssignment.triageScore?.stars ?? null);
       } else if (roundType === "RUBRIC") {
         setRubricScores(
-          typeof selectedAssignment.score === "object"
-            ? (selectedAssignment.score as Record<string, number>)
+          selectedAssignment.rubricScores.length > 0
+            ? Object.fromEntries(
+                selectedAssignment.rubricScores.map((s) => [s.criteriaId, s.value]),
+              )
             : {},
         );
       }

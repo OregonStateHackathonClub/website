@@ -1,10 +1,10 @@
 "use client";
 
+import type { RubricCriteria } from "@repo/database";
 import { Slider } from "@repo/ui/components/slider";
-import type { Criterion } from "../../../types";
 
 interface RubricScoringProps {
-  criteria: Criterion[];
+  criteria: RubricCriteria[];
   scores: Record<string, number>;
   onChange: (scores: Record<string, number>) => void;
   disabled?: boolean;
@@ -75,7 +75,7 @@ export function RubricScoring({
                   handleScoreChange(criterion.id, values[0])
                 }
                 disabled={disabled}
-                className="[&_[data-slot=slider-track]]:bg-neutral-800 [&_[data-slot=slider-track]]:h-2 [&_[data-slot=slider-track]]:rounded-none [&_[data-slot=slider-range]]:bg-white [&_[data-slot=slider-thumb]]:border-white [&_[data-slot=slider-thumb]]:bg-white [&_[data-slot=slider-thumb]]:rounded-none"
+                className="`**:data-[slot=slider-track]:bg-neutral-800 **:data-[slot=slider-track]:h-2 **:data-[slot=slider-track]:rounded-none **:data-[slot=slider-range]:bg-white **:data-[slot=slider-thumb]:border-white **:data-[slot=slider-thumb]:bg-white **:data-[slot=slider-thumb]:rounded-none"
               />
             </div>
           );

@@ -260,7 +260,7 @@ export default function SponsorsPage() {
               setPage(1);
             }}
           >
-            <SelectTrigger className="rounded-none h-9 min-w-[160px] border-neutral-800 bg-neutral-900 text-white">
+            <SelectTrigger className="rounded-none h-9 min-w-40 border-neutral-800 bg-neutral-900 text-white">
               <SelectValue>
                 {trackFilter === "all"
                   ? "All Tracks"
@@ -309,7 +309,7 @@ export default function SponsorsPage() {
                   >
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3 mb-3">
-                        <div className="w-10 h-10 bg-neutral-800 border border-neutral-700 flex items-center justify-center flex-shrink-0 rounded-none">
+                        <div className="w-10 h-10 bg-neutral-800 border border-neutral-700 flex items-center justify-center shrink-0 rounded-none">
                           <span className="text-sm font-medium text-white">
                             {user.name?.charAt(0).toUpperCase()}
                           </span>
@@ -356,7 +356,7 @@ export default function SponsorsPage() {
                                 >
                                   {
                                     participant.teamMember?.team?.submission
-                                      ?.name
+                                      ?.title
                                   }
                                 </Badge>
                               ))}
@@ -498,7 +498,7 @@ export default function SponsorsPage() {
                             <div className="flex items-start justify-between gap-4">
                               <div>
                                 <h4 className="font-medium text-white">
-                                  {submission.name}
+                                  {submission.title}
                                 </h4>
                                 <p className="text-sm text-neutral-500">
                                   Team: {team.name}
@@ -533,11 +533,11 @@ export default function SponsorsPage() {
                                     .map((img, idx) => (
                                       <div
                                         key={idx}
-                                        className="w-24 h-16 flex-shrink-0 bg-neutral-800 overflow-hidden rounded-none"
+                                        className="w-24 h-16 shrink-0 bg-neutral-800 overflow-hidden rounded-none"
                                       >
                                         <Image
                                           src={img}
-                                          alt={`${submission.name} screenshot`}
+                                          alt={`${submission.title} screenshot`}
                                           width={96}
                                           height={64}
                                           className="w-full h-full object-cover"

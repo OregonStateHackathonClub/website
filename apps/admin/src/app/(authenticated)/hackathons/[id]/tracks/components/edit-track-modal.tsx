@@ -14,7 +14,8 @@ import { X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { updateTrack } from "@/app/actions/hackathons";
-import type { CriterionInput, Track } from "./types";
+import type { CriterionInput } from "./add-track-modal";
+import type { Track } from "./tracks-manager";
 
 interface EditTrackModalProps {
   hackathonId: string;

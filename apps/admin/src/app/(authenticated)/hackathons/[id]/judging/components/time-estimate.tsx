@@ -1,10 +1,10 @@
 "use client";
 
+import type { JudgingRound } from "@repo/database";
 import { Clock } from "lucide-react";
-import type { Round } from "./types";
 
 interface TimeEstimateProps {
-  rounds: Round[];
+  rounds: JudgingRound[];
   submissions: number;
   judges: number;
 }
