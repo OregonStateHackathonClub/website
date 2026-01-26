@@ -2,8 +2,22 @@
 
 import { ChevronLeft, Scale } from "lucide-react";
 import Link from "next/link";
-import { DashboardRound } from "../types";
 import { RoundCard } from "./round-card";
+
+// Dashboard-specific round type (includes progress info from server action)
+export type DashboardRound = {
+  id: string;
+  roundNumber: number;
+  type: "TRIAGE" | "RUBRIC" | "RANKED";
+  trackId: string;
+  trackName: string;
+  minutesPerProject: number;
+  isActive: boolean;
+  isComplete: boolean;
+  startedAt: Date | null;
+  totalAssignments: number;
+  completedAssignments: number;
+};
 
 interface DashboardProps {
   hackathonId: string;

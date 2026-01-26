@@ -2,12 +2,33 @@
 
 import { CheckCircle2, Circle, Clock, Scale, Star, Trophy } from "lucide-react";
 import Link from "next/link";
-import { DashboardRound, ROUND_TYPE_CONFIG } from "../types";
+import type { DashboardRound } from "./dashboard";
 
-const ROUND_ICONS = {
-  TRIAGE: Star,
-  RUBRIC: Scale,
-  RANKED: Trophy,
+const ROUND_CONFIG = {
+  TRIAGE: {
+    Icon: Star,
+    label: "Triage",
+    description: "Quick 1-5 star screening",
+    color: "text-yellow-400",
+    bgColor: "bg-yellow-400/10",
+    borderColor: "border-yellow-400/30",
+  },
+  RUBRIC: {
+    Icon: Scale,
+    label: "Rubric",
+    description: "Detailed criteria-based scoring",
+    color: "text-blue-400",
+    bgColor: "bg-blue-400/10",
+    borderColor: "border-blue-400/30",
+  },
+  RANKED: {
+    Icon: Trophy,
+    label: "Finals",
+    description: "Ranked choice voting",
+    color: "text-purple-400",
+    bgColor: "bg-purple-400/10",
+    borderColor: "border-purple-400/30",
+  },
 } as const;
 
 function getStatusInfo(round: DashboardRound) {
@@ -36,8 +57,8 @@ interface RoundCardProps {
 }
 
 export function RoundCard({ round, hackathonId }: RoundCardProps) {
-  const config = ROUND_TYPE_CONFIG[round.type];
-  const Icon = ROUND_ICONS[round.type];
+  const config = ROUND_CONFIG[round.type];
+  const { Icon } = config;
   const status = getStatusInfo(round);
   const progress =
     round.totalAssignments > 0

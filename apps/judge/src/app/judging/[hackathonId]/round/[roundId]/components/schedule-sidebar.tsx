@@ -1,7 +1,30 @@
 "use client";
 
+import type { Prisma } from "@repo/database";
 import { AlertTriangle, CheckCircle2, Circle, Clock } from "lucide-react";
-import type { Assignment } from "../../../types";
+
+type Assignment = Prisma.RoundJudgeAssignmentGetPayload<{
+  include: {
+    submission: {
+      include: {
+        team: {
+          include: {
+            members: {
+              include: {
+                participant: {
+                  include: { user: { select: { name: true; image: true } } };
+                };
+              };
+            };
+          };
+        };
+        tracks: true;
+      };
+    };
+    triageScore: true;
+    rubricScores: true;
+  };
+}>;
 
 interface TimeSlot {
   assignment: Assignment;

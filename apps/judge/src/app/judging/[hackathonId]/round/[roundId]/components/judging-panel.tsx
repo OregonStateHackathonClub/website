@@ -1,12 +1,19 @@
 "use client";
 
+import type { Prisma } from "@repo/database";
 import { Button } from "@repo/ui/components/button";
 import { SkipForward } from "lucide-react";
-import type { JudgingRound } from "../../../types";
 import { JudgingTimer } from "./judging-timer";
 import { NotesInput } from "./notes-input";
 import { RubricScoring } from "./rubric-scoring";
 import { TriageScoring } from "./triage-scoring";
+
+type JudgingRound = Prisma.JudgingRoundGetPayload<{
+  include: {
+    plan: { include: { track: true } };
+    rubric: { include: { criteria: true } };
+  };
+}>;
 
 interface JudgingPanelProps {
   round: JudgingRound;

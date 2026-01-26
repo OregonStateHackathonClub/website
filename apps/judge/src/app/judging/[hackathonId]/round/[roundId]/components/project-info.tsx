@@ -1,8 +1,25 @@
 "use client";
 
+import type { Prisma } from "@repo/database";
 import { ExternalLink, Github, Users, Video } from "lucide-react";
 import Image from "next/image";
-import type { Submission } from "../../../types";
+
+type Submission = Prisma.SubmissionGetPayload<{
+  include: {
+    team: {
+      include: {
+        members: {
+          include: {
+            participant: {
+              include: { user: { select: { name: true; image: true } } };
+            };
+          };
+        };
+      };
+    };
+    tracks: true;
+  };
+}>;
 
 interface ProjectInfoProps {
   submission: Submission;
@@ -38,7 +55,7 @@ export function ProjectInfo({
         <div className="flex items-center gap-4 mt-3">
           <span className="flex items-center gap-1.5 text-sm text-neutral-500">
             <Users className="h-4 w-4" />
-            {submission.teamName}
+            {submission.team?.name || "Solo"}
           </span>
           {submission.githubUrl && (
             <a
