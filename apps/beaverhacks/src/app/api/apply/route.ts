@@ -69,9 +69,16 @@ export async function POST(request: Request): Promise<Response> {
       },
     });
 
-    // Also create hackathon participant record
-    await tx.hackathonParticipant.create({
-      data: {
+    // Also create hackathon participant record (upsert in case it already exists)
+    await tx.hackathonParticipant.upsert({
+      where: {
+        userId_hackathonId: {
+          userId: user.id,
+          hackathonId: hackathon.id,
+        },
+      },
+      update: {},
+      create: {
         userId: user.id,
         hackathonId: hackathon.id,
       },
