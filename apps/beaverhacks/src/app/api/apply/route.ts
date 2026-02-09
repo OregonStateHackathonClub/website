@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { Resend } from "resend";
-import { prisma } from "@repo/database";
+import { prisma, type ShirtSize } from "@repo/database";
 import { uploadFile } from "@repo/storage";
 import { auth } from "@repo/auth";
 
@@ -64,7 +64,7 @@ export async function POST(request: Request): Promise<Response> {
         name,
         university: formData.get("university") as string,
         graduationYear: parseInt(formData.get("graduationYear") as string),
-        shirtSize: formData.get("shirtSize") as string,
+        shirtSize: formData.get("shirtSize") as ShirtSize,
         resumePath: path,
       },
     });
