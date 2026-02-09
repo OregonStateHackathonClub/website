@@ -9,6 +9,7 @@ import {
   FileText,
   CheckCircle2,
   Clock,
+  Shirt,
 } from "lucide-react";
 
 import { auth } from "@repo/auth";
@@ -196,6 +197,17 @@ const Profile = async () => {
                   <p className="text-sm text-white">
                     {application.graduationYear}
                   </p>
+                </div>
+              </div>
+
+              {/* T-Shirt Size */}
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-neutral-900 border border-neutral-800 flex items-center justify-center shrink-0">
+                  <Shirt className="w-4 h-4 text-neutral-500" />
+                </div>
+                <div>
+                  <p className="text-xs text-neutral-500">T-Shirt Size</p>
+                  <p className="text-sm text-white">{application.shirtSize}</p>
                 </div>
               </div>
 

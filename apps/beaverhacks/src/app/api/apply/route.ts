@@ -64,7 +64,7 @@ export async function POST(request: Request): Promise<Response> {
         name,
         university: formData.get("university") as string,
         graduationYear: parseInt(formData.get("graduationYear") as string),
-        shirtSize: "M",
+        shirtSize: formData.get("shirtSize") as string,
         resumePath: path,
       },
     });

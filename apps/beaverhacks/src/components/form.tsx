@@ -12,16 +12,20 @@ import {
   Loader2,
   User,
   Mail,
+  Shirt,
 } from "lucide-react";
 
 const MAX_FILE_SIZE = 1024 * 1024 * 5; // 5MB
 const ACCEPTED_FILE_TYPES = ["application/pdf", "image/jpeg", "image/png"];
+
+const SHIRT_SIZES = ["XS", "S", "M", "L", "XL"] as const;
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   email: z.string().email({ message: "Valid email is required" }),
   university: z.string().min(1, { message: "University is required" }),
   graduationYear: z.string().min(1, { message: "Graduation year is required" }),
+  shirtSize: z.string().min(1, { message: "T-shirt size is required" }),
   resume: z
     .instanceof(File)
     .optional()
@@ -54,6 +58,7 @@ export const ApplicationForm = ({
       email,
       university: "",
       graduationYear: "",
+      shirtSize: "",
       resume: undefined,
     },
   });
@@ -74,6 +79,7 @@ export const ApplicationForm = ({
     formData.append("email", values.email);
     formData.append("university", values.university);
     formData.append("graduationYear", values.graduationYear);
+    formData.append("shirtSize", values.shirtSize);
     formData.append("resume", values.resume!);
 
     try {
@@ -196,6 +202,35 @@ export const ApplicationForm = ({
           {errors.graduationYear && (
             <p className="text-xs text-red-500 mt-1">
               {errors.graduationYear.message}
+            </p>
+          )}
+        </div>
+
+        {/* T-Shirt Size */}
+        <div>
+          <label className="block text-xs font-medium text-neutral-400 mb-1.5">
+            T-Shirt Size
+          </label>
+          <div className="relative">
+            <Shirt className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600" />
+            <select
+              {...register("shirtSize")}
+              disabled={!applicationsOpen}
+              className={`w-full h-10 pl-10 pr-3 bg-transparent border border-neutral-800 text-sm focus:outline-none transition-colors appearance-none ${!applicationsOpen ? "text-neutral-500 cursor-not-allowed" : "text-white focus:border-neutral-600 cursor-pointer"}`}
+            >
+              <option value="" disabled className="bg-neutral-900">
+                Select size
+              </option>
+              {SHIRT_SIZES.map((size) => (
+                <option key={size} value={size} className="bg-neutral-900">
+                  {size}
+                </option>
+              ))}
+            </select>
+          </div>
+          {errors.shirtSize && (
+            <p className="text-xs text-red-500 mt-1">
+              {errors.shirtSize.message}
             </p>
           )}
         </div>
