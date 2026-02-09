@@ -57,11 +57,10 @@ const MOTD = () => (
     </div>
     <div className="mt-2 text-amber-muted border-l-2 border-amber-muted/30 ml-1 pl-2">
       <p>
-        <span className="text-amber-dim">Date:</span> April 17-18, 2026
+        <span className="text-amber-dim">Date:</span> April 18-19, 2026
       </p>
       <p>
-        <span className="text-amber-dim">Location:</span> Kelley Engineering
-        Center
+        <span className="text-amber-dim">Location:</span> TBD
       </p>
       <p>
         <span className="text-amber-dim">Status:</span>{" "}
@@ -90,7 +89,7 @@ const BeavfetchOutput = () => (
         <p>
           <span className="text-amber-bright">Host</span>
           <span className="text-amber-dim">:</span>{" "}
-          <span className="text-amber-normal">Kelley Engineering Center</span>
+          <span className="text-amber-normal">TBD</span>
         </p>
         <p>
           <span className="text-amber-bright">Kernel</span>

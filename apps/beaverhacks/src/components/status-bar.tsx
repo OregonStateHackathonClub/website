@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 
-const HACK_START = new Date("2026-04-17T17:00:00");
+const HACK_START = new Date("2026-04-18T12:00:00");
 
 const getTimeUntilHack = () => {
   const now = new Date();
