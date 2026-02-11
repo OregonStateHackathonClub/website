@@ -227,7 +227,7 @@ const TeamOutput = () => (
   <div className="text-[10px] md:text-xs py-1 font-secondary">
     <pre className="text-amber-bright">{`
 ╭─ LEADERSHIP ─────────────────────────────────────╮`}</pre>
-    <pre className="text-amber-normal">{`│  Havel Kondah        President                   │
+    <pre className="text-amber-normal">{`│  Havel Konda         President                   │
 │  Owen Krause         Vice President              │
 │  Violette Davis      Marketing Director          │
 │  Caleb Chia          Production Director         │
@@ -235,19 +235,20 @@ const TeamOutput = () => (
     <pre className="text-amber-bright">{`╰──────────────────────────────────────────────────╯
 
 ╭─ MARKETING ──────────────────────────────────────╮`}</pre>
-    <pre className="text-amber-normal">{`│  Ally Chen     Alyssa       Ben                  │
-│  Claire        Kiarra       Zakia                │`}</pre>
+    <pre className="text-amber-normal">{`│  Ally Chen           Alysa Renacia               |
+|  Claire Quang        Kiarra Ruff                 │
+│  Noam Yaffe          Benjamin Smithynunta        │`}</pre>
     <pre className="text-amber-bright">{`╰──────────────────────────────────────────────────╯
 
 ╭─ EVENTS ─────────────────────────────────────────╮`}</pre>
-    <pre className="text-amber-normal">{`│  Ireland       Joshua                            │`}</pre>
+    <pre className="text-amber-normal">{`│  Ireland Gerber      Joshua Wright               │`}</pre>
     <pre className="text-amber-bright">{`╰──────────────────────────────────────────────────╯
 
 ╭─ DEVELOPERS ─────────────────────────────────────╮`}</pre>
     <pre className="text-amber-normal">{`│  Lukas Sueffert      Lead                        │
-│  Noam Yaffe          Lead                        │
-│  Aadarsh      Brandon      Faith                 │
-│  Kishore      Pedro        Stanley               │`}</pre>
+│  Aadarsh Rajput      Brandon Gill                │
+│  Stanley Eng         Pedro Blanco Jaramillo      │
+|  Faith Nambasa       Kishore Kumar A             |`}</pre>
     <pre className="text-amber-bright">{`╰──────────────────────────────────────────────────╯`}</pre>
   </div>
 );
