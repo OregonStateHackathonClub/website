@@ -235,8 +235,8 @@ const TeamOutput = () => (
     <pre className="text-amber-bright">{`╰──────────────────────────────────────────────────╯
 
 ╭─ MARKETING ──────────────────────────────────────╮`}</pre>
-    <pre className="text-amber-normal">{`│  Ally Chen           Alysa Renacia               |
-|  Claire Quang        Kiarra Ruff                 │
+    <pre className="text-amber-normal">{`│  Ally Chen           Alysa Renacia               │
+│  Claire Quang        Kiarra Ruff                 │
 │  Noam Yaffe          Benjamin Smithynunta        │`}</pre>
     <pre className="text-amber-bright">{`╰──────────────────────────────────────────────────╯
 
@@ -248,7 +248,7 @@ const TeamOutput = () => (
     <pre className="text-amber-normal">{`│  Lukas Sueffert      Lead                        │
 │  Aadarsh Rajput      Brandon Gill                │
 │  Stanley Eng         Pedro Blanco Jaramillo      │
-|  Faith Nambasa       Kishore Kumar A             |`}</pre>
+│  Faith Nambasa       Kishore Kumar A             │`}</pre>
     <pre className="text-amber-bright">{`╰──────────────────────────────────────────────────╯`}</pre>
   </div>
 );
