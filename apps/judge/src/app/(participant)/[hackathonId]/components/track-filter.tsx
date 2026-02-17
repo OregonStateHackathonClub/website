@@ -63,12 +63,12 @@ export function TrackFilter({
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"
-        className="border-neutral-700 bg-neutral-800"
+        className="border-neutral-800 bg-neutral-950 rounded-none"
       >
         <DropdownMenuCheckboxItem
           checked={isAllSelected}
           onCheckedChange={() => handleToggle("all")}
-          className="text-neutral-200 focus:bg-neutral-700 focus:text-white"
+          className="text-neutral-200 focus:bg-neutral-900 focus:text-white"
         >
           All Tracks
         </DropdownMenuCheckboxItem>
@@ -77,7 +77,7 @@ export function TrackFilter({
             key={track.id}
             checked={!isAllSelected && selectedTracks.includes(track.id)}
             onCheckedChange={() => handleToggle(track.id)}
-            className="text-neutral-200 focus:bg-neutral-700 focus:text-white"
+            className="text-neutral-200 focus:bg-neutral-900 focus:text-white"
           >
             {track.name}
           </DropdownMenuCheckboxItem>

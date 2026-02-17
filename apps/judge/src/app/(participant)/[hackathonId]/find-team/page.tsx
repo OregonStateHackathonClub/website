@@ -22,25 +22,24 @@ export default async function FindTeamPage(props: {
   return (
     <div className="min-h-screen py-10">
       <div className="mx-auto w-full max-w-3xl px-4">
-        <h1 className="mb-6 text-center font-bold text-4xl text-neutral-50">
-          Find a Team
-        </h1>
-
-        <p className="mb-8 text-center text-neutral-400 text-lg">
+        <h1 className="mb-2 text-xl font-semibold text-white">Find a Team</h1>
+        <p className="mb-6 text-sm text-neutral-500">
           Browse groups searching for teammates and join a project!
         </p>
 
         {teams.length === 0 ? (
-          <p className="text-center text-neutral-500">
-            No teams are currently looking for teammates.
-          </p>
+          <div className="border border-neutral-800 bg-neutral-950/80 backdrop-blur-sm p-12 text-center">
+            <p className="text-neutral-500">
+              No teams are currently looking for teammates.
+            </p>
+          </div>
         ) : (
           <div className="grid gap-4">
             {teams.map((team) => (
               <Link key={team.id} href={`/${hackathonId}/team/${team.id}`}>
-                <div className="cursor-pointer rounded-xl border border-neutral-800 bg-neutral-900 p-4 shadow-sm transition-all duration-200 hover:bg-neutral-800/50 hover:shadow-md">
+                <div className="cursor-pointer border border-neutral-800 bg-neutral-950/80 backdrop-blur-sm p-4 transition-colors hover:border-neutral-700">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-neutral-200 text-lg">
+                    <h3 className="font-medium text-white text-lg">
                       {team.name}
                     </h3>
                     <span className="text-neutral-500 text-sm">

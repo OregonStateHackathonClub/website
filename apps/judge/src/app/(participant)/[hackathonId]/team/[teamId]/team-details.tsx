@@ -177,9 +177,9 @@ export function TeamDetails({
     return (
       <>
         {loading ? (
-          <div className="py-10 text-center">Loading Team...</div>
+          <div className="py-10 text-center text-neutral-500">Loading Team...</div>
         ) : (
-          <div className="py-10 text-center">Team Not Found.</div>
+          <div className="py-10 text-center text-neutral-500">Team Not Found.</div>
         )}
       </>
     );
@@ -187,12 +187,12 @@ export function TeamDetails({
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6 py-10">
       {/* Team Header */}
-      <Card>
+      <Card className="rounded-none border-neutral-800 bg-neutral-950/80 backdrop-blur-sm">
         <CardHeader className="flex-row items-center justify-between">
           <div>
-            <CardTitle className="text-3xl">{team.name}</CardTitle>
+            <CardTitle className="text-xl text-white">{team.name}</CardTitle>
             {team.lookingForTeammates && (
-              <CardDescription className="mt-2 text-orange-500">
+              <CardDescription className="mt-1 text-neutral-400">
                 Looking for teammates
               </CardDescription>
             )}
@@ -201,7 +201,7 @@ export function TeamDetails({
             <Button
               variant="outline"
               onClick={() => setEditing(true)}
-              className="hover:cursor-pointer"
+              className="hover:cursor-pointer rounded-none border-neutral-800 hover:bg-neutral-900"
             >
               Edit
             </Button>
@@ -214,26 +214,26 @@ export function TeamDetails({
         <>
           {/* Team Description */}
           {team.description && (
-            <Card>
+            <Card className="rounded-none border-neutral-800 bg-neutral-950/80 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="text-xl">Description</CardTitle>
+                <CardTitle className="text-lg text-white">Description</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">{team.description}</p>
+                <p className="text-neutral-400">{team.description}</p>
               </CardContent>
             </Card>
           )}
 
           {/* Members */}
-          <Card>
+          <Card className="rounded-none border-neutral-800 bg-neutral-950/80 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="text-xl">Members</CardTitle>
+              <CardTitle className="text-lg text-white">Members</CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
                 {team.members.map((u) => (
                   <li key={u.id} className="flex items-center justify-between">
-                    <span className="flex gap-2">
+                    <span className="flex gap-2 text-neutral-200">
                       {u.participant?.user.name}
 
                       {teamMember && u.id === team.creatorId && (
@@ -278,15 +278,15 @@ export function TeamDetails({
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className="mt-4 w-full hover:cursor-pointer"
+                      className="mt-4 w-full hover:cursor-pointer rounded-none border-neutral-800 hover:bg-neutral-900"
                     >
                       + Add Teammates
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="relative w-80">
+                  <PopoverContent className="relative w-80 rounded-none border-neutral-800 bg-neutral-950">
                     <button
                       type="button"
-                      className="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded hover:bg-neutral-700"
+                      className="absolute top-2 right-2 flex h-8 w-8 items-center justify-center hover:bg-neutral-800"
                       onClick={async () => {
                         if (inviteCode === "") return;
 
@@ -303,7 +303,7 @@ export function TeamDetails({
                       <span className="text-2xl">&#10227;</span>
                     </button>
 
-                    <p className="mb-2 text-sm">
+                    <p className="mb-2 text-sm text-neutral-400">
                       Send this invite link to friends:
                     </p>
                     <div className="flex gap-2">
@@ -311,9 +311,13 @@ export function TeamDetails({
                         type="text"
                         value={getLink()}
                         readOnly
-                        className="flex-1"
+                        className="flex-1 rounded-none border-neutral-800 bg-transparent"
                       />
-                      <Button size="sm" onClick={copyLink}>
+                      <Button
+                        size="sm"
+                        onClick={copyLink}
+                        className="rounded-none bg-white text-black hover:bg-neutral-200"
+                      >
                         {copied ? "Copied!" : "Copy"}
                       </Button>
                     </div>
@@ -325,12 +329,12 @@ export function TeamDetails({
 
           {/* Contact Info */}
           {team.contact && (
-            <Card>
+            <Card className="rounded-none border-neutral-800 bg-neutral-950/80 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="text-xl">Contact</CardTitle>
+                <CardTitle className="text-lg text-white">Contact</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">{team.contact}</p>
+                <p className="text-neutral-400">{team.contact}</p>
               </CardContent>
             </Card>
           )}
@@ -339,7 +343,7 @@ export function TeamDetails({
 
       {/* --- Edit Mode --- */}
       {editing && (
-        <Card>
+        <Card className="rounded-none border-neutral-800 bg-neutral-950/80 backdrop-blur-sm">
           <CardContent className="p-6">
             <Form {...form}>
               <form
@@ -359,9 +363,13 @@ export function TeamDetails({
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Team Name</FormLabel>
+                      <FormLabel className="text-neutral-400">Team Name</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Team Name" />
+                        <Input
+                          {...field}
+                          placeholder="Team Name"
+                          className="rounded-none border-neutral-800 bg-transparent"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -378,7 +386,7 @@ export function TeamDetails({
                         checked={field.value}
                         onCheckedChange={field.onChange}
                       />
-                      <FormLabel>Looking for teammates</FormLabel>
+                      <FormLabel className="text-neutral-400">Looking for teammates</FormLabel>
                     </FormItem>
                   )}
                 />
@@ -389,9 +397,13 @@ export function TeamDetails({
                   name="contact"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Contact</FormLabel>
+                      <FormLabel className="text-neutral-400">Contact</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Email" />
+                        <Input
+                          {...field}
+                          placeholder="Email"
+                          className="rounded-none border-neutral-800 bg-transparent"
+                        />
                       </FormControl>
                     </FormItem>
                   )}
@@ -403,11 +415,12 @@ export function TeamDetails({
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel className="text-neutral-400">Description</FormLabel>
                       <FormControl>
                         <Textarea
                           {...field}
                           placeholder="Brief description..."
+                          className="rounded-none border-neutral-800 bg-transparent"
                         />
                       </FormControl>
                     </FormItem>
@@ -418,7 +431,7 @@ export function TeamDetails({
                 <div className="flex gap-4">
                   <Button
                     type="submit"
-                    className="bg-orange-500 hover:bg-orange-600"
+                    className="bg-white text-black hover:bg-neutral-200 rounded-none"
                     disabled={loading}
                   >
                     <span className="inline-flex min-w-[90px] items-center justify-center">
@@ -433,6 +446,7 @@ export function TeamDetails({
                     type="button"
                     variant="outline"
                     onClick={() => setEditing(false)}
+                    className="rounded-none border-neutral-800 hover:bg-neutral-900"
                   >
                     Cancel
                   </Button>
