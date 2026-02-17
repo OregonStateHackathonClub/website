@@ -60,11 +60,7 @@ export default async function Page(props: {
       submissions: {
         include: {
           tracks: true,
-        },
-      },
-      sponsors: {
-        orderBy: {
-          id: "asc",
+          trackWins: true,
         },
       },
     },
@@ -87,7 +83,7 @@ export default async function Page(props: {
           </p>
           <Link
             href="/"
-            className="mt-8 inline-flex items-center rounded-xl border border-neutral-800 bg-neutral-900 px-4 py-2 font-medium text-neutral-200 text-sm transition hover:border-orange-500/50 hover:text-orange-400"
+            className="mt-8 inline-flex items-center border border-neutral-800 bg-neutral-950/80 px-4 py-2 font-medium text-neutral-200 text-sm transition hover:border-neutral-700 hover:text-white"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Return Home
