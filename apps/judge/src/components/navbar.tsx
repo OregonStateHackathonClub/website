@@ -20,7 +20,7 @@ export const Navbar = ({
     <nav className="fixed top-0 z-50 w-full border-b border-neutral-800 bg-neutral-950/80 backdrop-blur-sm">
       <div className="flex h-14 items-center justify-between px-6">
         <Link
-          href={`/${currentHackathonId}`}
+          href="/"
           className="flex items-center gap-2"
         >
           <span className="text-lg font-semibold text-white">BeaverHacks</span>

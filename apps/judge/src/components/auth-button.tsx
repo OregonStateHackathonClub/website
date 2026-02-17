@@ -5,7 +5,11 @@ import { Button } from "@repo/ui/components/button";
 import { LogOut } from "lucide-react";
 
 export function AuthButton() {
-  const { data: session } = useSession();
+  const { data: session, isPending } = useSession();
+
+  if (isPending) {
+    return <div className="h-9 w-[88px]" />;
+  }
 
   if (session?.user) {
     return (

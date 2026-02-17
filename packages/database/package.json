@@ -10,6 +10,7 @@
     "db:migrate": "dotenv -e ../../.env.local -- prisma migrate dev",
     "db:studio": "dotenv -e ../../.env.local -- prisma studio",
     "db:format": "dotenv -e ../../.env.local -- prisma format",
+    "db:seed": "dotenv -e ../../.env.local -- tsx prisma/seed.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {
@@ -17,6 +18,7 @@
     "prisma": "^6.15.0"
   },
   "devDependencies": {
-    "dotenv-cli": "^11.0.0"
+    "dotenv-cli": "^11.0.0",
+    "tsx": "^4.0.0"
   }
 }

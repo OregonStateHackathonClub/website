@@ -13,11 +13,13 @@ Hackathon management monorepo for Oregon State University's Hackathon Club.
 ## Code Conventions
 
 ### General
+
 - Server components by default, `"use client"` only when needed
 - Use `@repo/ui`, `@repo/auth`, `@repo/database` for shared code
 - Reference implementation: **apps/admin** is the gold standard
 
 ### Server Actions
+
 - Use server actions for all mutations, not API routes
 - Exception: Binary file downloads, external service redirects (Stripe)
 - Every action starts with auth check (e.g., `await requireAdmin()`)
@@ -25,14 +27,28 @@ Hackathon management monorepo for Oregon State University's Hackathon Club.
 - Call `revalidatePath()` after mutations
 
 ### Prisma
+
 - Always use `select` to limit fields returned
 - Use `_count` for statistics instead of fetching full records
 - Parallel queries with `Promise.all()` where possible
 
 ### Route Protection
+
 - Use `(authenticated)` route group with auth check in layout
 - Redirect unauthenticated users to login with `callbackURL`
 - Add self-protection for destructive actions (can't delete own account)
+
+### Git
+
+- Commit messages: short, one-line, no "Co-Authored-By"
+- Prefixes: `feat:`, `fix:`, `chore:`, `refactor:`
+
+### Branch Naming
+
+- Format: `<app>/<type>/<description>` — e.g. `judge/feat/project-redesign`
+- Apps: `beaverhacks`, `judge`, `admin`, `shop`, `career`
+- For shared/cross-app changes: `shared/<type>/<description>`
+- Types: `feat`, `fix`, `chore`, `refactor`
 
 ## Auth
 
