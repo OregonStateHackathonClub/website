@@ -1,6 +1,7 @@
 "use client";
 
 import type { Prisma } from "@repo/database";
+import { Badge } from "@repo/ui/components/badge";
 import { Tag } from "lucide-react";
 import Image from "next/image";
 import { ProjectLinks } from "../components/project-links";
@@ -26,10 +27,10 @@ export function SubmissionCard({
 
   return (
     <div
-      className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl border-2 border-neutral-800 bg-neutral-900/60 backdrop-blur transition hover:border-orange-500/50 hover:bg-neutral-900 hover:shadow-lg hover:shadow-orange-500/10 supports-backdrop-filter:bg-neutral-900/50"
+      className="group flex h-full cursor-pointer flex-col overflow-hidden border border-neutral-800 bg-neutral-950/80 backdrop-blur-sm transition-colors hover:border-neutral-700"
       onClick={onClick}
     >
-      {/* Top Section: Image - Flush to the top */}
+      {/* Image */}
       <div className="relative aspect-video w-full overflow-hidden">
         <Image
           src={img}
@@ -41,7 +42,7 @@ export function SubmissionCard({
         />
       </div>
 
-      {/* Middle Section: Title and Badges */}
+      {/* Title and Badges */}
       <div className="p-4 pb-2">
         <h3 className="line-clamp-2 font-bold text-lg text-white leading-snug">
           {submission.title}
@@ -49,19 +50,19 @@ export function SubmissionCard({
         {submission.tracks && submission.tracks.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-2">
             {submission.tracks.map(({ id, name }) => (
-              <span
+              <Badge
                 key={id}
-                className="inline-flex items-center gap-1 rounded-full border border-neutral-800 bg-neutral-900 px-2 py-0.5 text-[10px] text-neutral-300 uppercase tracking-wide"
+                className="rounded-none border border-neutral-800 bg-neutral-900 px-2 py-0.5 text-[10px] text-neutral-300 uppercase tracking-wide"
               >
-                <Tag className="h-3 w-3" />
+                <Tag className="h-3 w-3 mr-1" />
                 {name}
-              </span>
+              </Badge>
             ))}
           </div>
         )}
       </div>
 
-      {/* Description Section */}
+      {/* Description */}
       <div className="grow px-4 py-2">
         {submission.tagline && (
           <p className="line-clamp-3 text-neutral-400 text-sm">
@@ -70,7 +71,7 @@ export function SubmissionCard({
         )}
       </div>
 
-      {/* Bottom Section: Links */}
+      {/* Links */}
       <div className="p-4 pt-0">
         <div className="flex w-full items-center justify-between gap-3">
           <ProjectLinks
@@ -80,7 +81,7 @@ export function SubmissionCard({
           {showOpenButton && (
             <button
               type="button"
-              className="ml-auto inline-flex items-center rounded-xl border border-neutral-800 bg-neutral-900 px-2.5 py-1.5 text-neutral-200 text-xs transition hover:cursor-pointer hover:border-orange-500/50 hover:bg-neutral-800"
+              className="ml-auto inline-flex items-center border border-neutral-800 bg-neutral-900 px-2.5 py-1.5 text-neutral-200 text-xs transition-colors hover:cursor-pointer hover:border-neutral-700 hover:bg-neutral-800"
               onClick={(e) => {
                 e.stopPropagation();
                 onClick();

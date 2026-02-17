@@ -20,7 +20,7 @@ export function SaveIndicator({ status }: SaveIndicatorProps) {
         </span>
       )}
       {status === "saved" && (
-        <span className="flex items-center gap-2 text-sm text-green-500">
+        <span className="flex items-center gap-2 text-sm text-emerald-500">
           <Check className="h-4 w-4" />
           Saved
         </span>

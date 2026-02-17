@@ -2,7 +2,6 @@ export const dynamic = "force-dynamic";
 
 import { auth } from "@repo/auth";
 import { prisma } from "@repo/database";
-import DotGrid from "@repo/ui/components/DotGrid";
 import { headers } from "next/headers";
 import { Navbar } from "@/components/navbar";
 import { getCurrentHackathonId } from "@/app/actions/participant";
@@ -56,29 +55,14 @@ export default async function Layout({
   // -------------------------------------------
 
   return (
-    <main className="flex min-h-dvh flex-col text-neutral-200 pt-16">
-      <div className="fixed inset-0 -z-10">
-        <DotGrid
-          dotSize={1.9}
-          gap={29}
-          baseColor="#27272a"
-          activeColor="#f97316"
-          proximity={100}
-          shockRadius={200}
-          shockStrength={3}
-          resistance={500}
-          returnDuration={1}
-        />
-      </div>
-
-      {/* Pass the new props to Navbar */}
+    <main className="flex min-h-dvh flex-col text-neutral-200 pt-14">
       <Navbar
         currentHackathonId={currentHackathonId || ""}
         userTeamId={userTeamId}
         teamSubmissionId={teamSubmissionId}
       />
 
-      <div className="relative z-10 flex grow flex-col">{children}</div>
+      <div className="flex grow flex-col">{children}</div>
     </main>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useSession, signOut, redirectToLogin } from "@repo/auth/client";
 import { Button } from "@repo/ui/components/button";
+import { LogOut } from "lucide-react";
 
 export function AuthButton() {
   const { data: session } = useSession();
@@ -13,9 +14,11 @@ export function AuthButton() {
           await signOut();
           window.location.href = "/";
         }}
-        className="hover:cursor-pointer bg-orange-500 hover:bg-orange-300 text-white hover:text-black"
+        variant="ghost"
+        className="rounded-none flex items-center gap-2 px-3 py-1.5 text-sm text-neutral-500 hover:text-white border border-neutral-800 hover:bg-neutral-900 transition-colors"
       >
-        Sign Out
+        <LogOut className="h-4 w-4" />
+        <span className="hidden sm:inline">Sign out</span>
       </Button>
     );
   }
@@ -23,7 +26,7 @@ export function AuthButton() {
   return (
     <Button
       onClick={() => redirectToLogin()}
-      className="bg-orange-500 hover:bg-orange-300 text-white hover:text-black"
+      className="rounded-none bg-white text-black hover:bg-neutral-200"
     >
       Sign In
     </Button>

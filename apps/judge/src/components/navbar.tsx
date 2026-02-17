@@ -1,7 +1,7 @@
 "use client";
 
+import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
-import Image from "next/image";
 import Link from "next/link";
 import { AuthButton } from "./auth-button";
 
@@ -17,24 +17,36 @@ export const Navbar = ({
   teamSubmissionId,
 }: NavbarProps) => {
   return (
-    <nav className="fixed top-0 z-50 w-full border-b border-neutral-800 bg-neutral-900/75 px-4 backdrop-blur-lg md:px-8">
-      <div className="flex h-16 w-full items-center justify-between max-w-7xl mx-auto">
-        <HackathonHomepageButton link={`/${currentHackathonId}`} />
+    <nav className="fixed top-0 z-50 w-full border-b border-neutral-800 bg-neutral-950/80 backdrop-blur-sm">
+      <div className="flex h-14 items-center justify-between px-6">
+        <Link
+          href={`/${currentHackathonId}`}
+          className="flex items-center gap-2"
+        >
+          <span className="text-lg font-semibold text-white">BeaverHacks</span>
+          <Badge className="rounded-none px-2 py-0.5 text-xs font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+            Judge
+          </Badge>
+        </Link>
 
-        <div className="flex items-center gap-4">
-          <Link href={`/${currentHackathonId}/sponsors`}>
-            <Button variant="ghost" className="hover:cursor-pointer">Sponsors</Button>
-          </Link>
-          {/* Conditional Team/Submission Buttons */}
+        <div className="flex items-center gap-3">
           {userTeamId && (
             <>
+              <Link href={`/${currentHackathonId}/team/${userTeamId}`}>
+                <Button
+                  variant="outline"
+                  className="hidden sm:flex rounded-none border-neutral-800 text-white hover:bg-neutral-900"
+                >
+                  Your Team
+                </Button>
+              </Link>
               {!teamSubmissionId ? (
                 <Link
                   href={`/${currentHackathonId}/submission?teamId=${userTeamId}`}
                 >
                   <Button
                     variant="outline"
-                    className="hidden sm:flex border-orange-500/50 text-orange-500 hover:bg-orange-500/10 hover:text-orange-400 hover:cursor-pointer"
+                    className="hidden sm:flex rounded-none border-neutral-800 text-white hover:bg-neutral-900"
                   >
                     Create Submission
                   </Button>
@@ -45,7 +57,7 @@ export const Navbar = ({
                 >
                   <Button
                     variant="outline"
-                    className="hidden sm:flex border-orange-500/50 text-orange-500 hover:bg-orange-500/10 hover:text-orange-400 hover:cursor-pointer"
+                    className="hidden sm:flex rounded-none border-neutral-800 text-white hover:bg-neutral-900"
                   >
                     View Submission
                   </Button>
@@ -53,31 +65,10 @@ export const Navbar = ({
               )}
             </>
           )}
+
           <AuthButton />
         </div>
       </div>
     </nav>
   );
 };
-
-const HackathonHomepageButton = ({ link = "/" }: { link?: string }) => (
-  <Link href={{ pathname: link }} className="group flex items-center gap-5">
-    <div className="relative h-10 w-10">
-      {/* 1. The default gradient image (bottom layer) */}
-      <Image
-        src="/beaverhacks_gradient.png"
-        alt="BeaverHacks Gradient Logo"
-        fill
-        className="transition-opacity duration-300 ease-in-out"
-      />
-      {/* 2. The white hover image (top layer) */}
-      <Image
-        src="/beaverhacks_white.png"
-        alt="BeaverHacks White Logo"
-        fill
-        className="opacity-0 transition-opacity duration-800 ease-in-out group-hover:opacity-100"
-      />
-    </div>
-    <h1>BeaverHacks Official Judging Platform</h1>
-  </Link>
-);
