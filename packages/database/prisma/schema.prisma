@@ -155,6 +155,7 @@ model HackathonParticipant {
   teamMember TeamMember?
   draft      Draft?
   submission Submission?
+  likes      Like[]
 
   @@unique([userId, hackathonId])
   @@map("hackathon_participant")
@@ -253,6 +254,7 @@ model Submission {
   participant HackathonParticipant? @relation(fields: [participantId], references: [id], onDelete: Cascade)
   hackathon   Hackathon             @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
   tracks      Track[]
+  likes       Like[]
 
   // Multi-round judging
   roundAssignments RoundJudgeAssignment[]
@@ -496,4 +498,21 @@ model TrackWinner {
 
   @@unique([trackId, submissionId])
   @@map("track_winner")
+}
+
+// ============================================================================
+// LIKES
+// ============================================================================
+
+model Like {
+  id            String   @id @default(cuid())
+  submissionId  String
+  participantId String
+  createdAt     DateTime @default(now())
+
+  submission  Submission           @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  participant HackathonParticipant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+
+  @@unique([submissionId, participantId])
+  @@map("like")
 }

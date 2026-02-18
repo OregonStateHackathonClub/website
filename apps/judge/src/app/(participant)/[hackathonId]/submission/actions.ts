@@ -2,7 +2,7 @@
 
 import { auth } from "@repo/auth";
 import { prisma } from "@repo/database";
-import { del, put } from "@vercel/blob";
+import { del } from "@vercel/blob";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { type DraftInput, draftSchema, submissionSchema } from "./schema";
@@ -191,50 +191,6 @@ export async function submitProject(
   } catch (error) {
     console.error("Submit project error:", error);
     return { success: false, error: "Failed to submit project" };
-  }
-}
-
-export async function uploadImages(
-  hackathonId: string,
-  formData: FormData
-): Promise<ActionResult<{ urls: string[] }>> {
-  const context = await getSubmissionContext(hackathonId);
-  if (!context.success) {
-    return { success: false, error: context.error };
-  }
-
-  const files = formData.getAll("file") as File[];
-  if (files.length === 0) {
-    return { success: false, error: "No files provided" };
-  }
-
-  const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
-  const maxSize = 5 * 1024 * 1024; // 5MB
-
-  for (const file of files) {
-    if (!allowedTypes.includes(file.type)) {
-      return { success: false, error: "Invalid file type. Use PNG, JPG, or WEBP" };
-    }
-    if (file.size > maxSize) {
-      return { success: false, error: "File too large. Maximum 5MB" };
-    }
-  }
-
-  try {
-    const urls: string[] = [];
-
-    for (const file of files) {
-      const blob = await put(file.name, file, {
-        access: "public",
-        addRandomSuffix: true,
-      });
-      urls.push(blob.url);
-    }
-
-    return { success: true, data: { urls } };
-  } catch (error) {
-    console.error("Upload error:", error);
-    return { success: false, error: "Failed to upload images" };
   }
 }
 

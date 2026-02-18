@@ -21,7 +21,7 @@ export const submissionSchema = z.object({
       (url) => /youtube\.com|youtu\.be/.test(url),
       "Must be a YouTube link"
     ),
-  images: z.array(z.string().url()).max(5, "Maximum 5 images allowed"),
+  images: z.array(z.string().url()).max(10, "Maximum 10 images allowed"),
   githubUrl: z
     .string()
     .min(1, "GitHub repository is required")
@@ -36,7 +36,20 @@ export const submissionSchema = z.object({
   trackIds: z.array(z.string()).min(1, "Select at least one track"),
 });
 
-export const draftSchema = submissionSchema.partial();
+export const draftSchema = z.object({
+  title: z.string().max(100).optional(),
+  tagline: z.string().max(200).optional(),
+  description: z.string().max(10000).optional(),
+  videoUrl: z.string().optional(),
+  images: z.array(z.string()).optional(),
+  githubUrl: z.string().optional(),
+  deploymentUrl: z.string().optional(),
+  otherLinks: z
+    .array(z.string())
+    .transform((links) => links.filter((l) => l.trim() !== ""))
+    .optional(),
+  trackIds: z.array(z.string()).optional(),
+});
 
 export type SubmissionInput = z.infer<typeof submissionSchema>;
 export type DraftInput = z.infer<typeof draftSchema>;

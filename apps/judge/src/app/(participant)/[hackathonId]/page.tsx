@@ -1,106 +1,88 @@
-import { auth } from "@repo/auth";
-import { prisma } from "@repo/database";
-import { ArrowLeft, SearchX } from "lucide-react";
-import { headers } from "next/headers";
-import Link from "next/link";
-import { ProjectsGallery } from "./components/projects-gallery";
+import { Skeleton } from "@repo/ui/components/skeleton";
+import { ChevronDown, Filter, Heart, Trophy } from "lucide-react";
+import { Suspense } from "react";
+import { GalleryContent } from "./components/gallery-content";
+
+function GallerySkeleton() {
+  return (
+    <div className="min-h-screen text-neutral-200">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-6">
+          <Skeleton className="h-7 w-48 rounded-none bg-neutral-800" />
+          <Skeleton className="mt-2 h-4 w-72 rounded-none bg-neutral-800" />
+        </div>
+
+        {/* Filter bar — static text, no loading state */}
+        <div className="mb-8 flex flex-wrap items-center gap-4">
+          <div className="inline-flex items-center border border-neutral-800 bg-neutral-950/80 text-sm text-neutral-200">
+            <div className="flex items-center gap-2 px-4 py-2">
+              <Filter className="h-4 w-4" />
+              <span className="whitespace-nowrap">Filter by track:</span>
+            </div>
+            <div className="h-5 w-px bg-neutral-800" />
+            <div className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-400">
+              <span>All Tracks</span>
+              <ChevronDown className="h-4 w-4" />
+            </div>
+          </div>
+
+          <div className="inline-flex items-center gap-2 border border-neutral-800 bg-neutral-950/80 px-4 py-2 text-sm text-neutral-200">
+            <Trophy className="h-4 w-4" />
+            Winners
+          </div>
+
+          <div className="inline-flex items-center gap-2 border border-neutral-800 bg-neutral-950/80 px-4 py-2 text-sm text-neutral-200">
+            <Heart className="h-4 w-4" />
+            Most Liked
+          </div>
+        </div>
+
+        {/* Cards grid */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 md:gap-6 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              className="flex h-full flex-col overflow-hidden border border-neutral-800 bg-neutral-950/80 backdrop-blur-sm"
+            >
+              <Skeleton className="aspect-video w-full rounded-none bg-neutral-900" />
+
+              <div className="p-4 pb-2">
+                <Skeleton className="h-[27px] w-3/4 rounded-none bg-neutral-800" />
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  <Skeleton className="h-[22px] w-24 rounded-none bg-neutral-800" />
+                </div>
+              </div>
+
+              <div className="grow px-4 py-2">
+                <Skeleton className="h-5 w-full rounded-none bg-neutral-800" />
+              </div>
+
+              <div className="p-4 pt-0">
+                <div className="flex w-full items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="h-[30px] w-[82px] rounded-none bg-neutral-800" />
+                    <Skeleton className="h-[30px] w-[90px] rounded-none bg-neutral-800" />
+                  </div>
+                  <Skeleton className="h-[30px] w-[42px] rounded-none bg-neutral-800" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default async function Page(props: {
   params: Promise<{ hackathonId: string }>;
 }) {
-  const params = await props.params;
-  const hackathonId = params.hackathonId;
+  const { hackathonId } = await props.params;
 
-  let session: Awaited<ReturnType<typeof auth.api.getSession>> | null = null;
-  try {
-    session = await auth.api.getSession({
-      headers: await headers(),
-    });
-  } catch (e) {
-    console.error("Session retrieval failed", e);
-    session = null;
-  }
-
-  let userTeamId: string | null = null;
-  // Status does not exist
-  let teamSubmission: { id: string } | null = null;
-  if (session?.user) {
-    const teamMembership = await prisma.team.findFirst({
-      where: {
-        hackathonId,
-        members: {
-          some: {
-            participant: {
-              userId: session.user.id,
-            },
-          },
-        },
-      },
-      select: {
-        id: true,
-        submission: {
-          select: { id: true },
-        },
-      },
-    });
-    if (teamMembership) {
-      userTeamId = teamMembership.id;
-      if (teamMembership.submission) {
-        teamSubmission = {
-          id: teamMembership.submission.id,
-        };
-      }
-    }
-  }
-
-  const hackathon = await prisma.hackathon.findFirst({
-    where: { id: hackathonId },
-    include: {
-      tracks: true,
-      submissions: {
-        include: {
-          tracks: true,
-          trackWins: true,
-        },
-      },
-    },
-  });
-
-  if (!hackathon) {
-    return (
-      <div className="flex min-h-[calc(100vh-80px)] flex-col items-center justify-center p-4 text-center">
-        <div className="max-w-md">
-          <SearchX
-            className="mx-auto h-16 w-16 text-neutral-600"
-            aria-hidden="true"
-          />
-          <h1 className="mt-6 font-bold text-3xl text-white tracking-tight">
-            Hackathon Not Found
-          </h1>
-          <p className="mt-3 text-base text-neutral-400">
-            Sorry, we could not find any hackathon data for{" "}
-            <strong>{hackathonId}</strong>. It might not exist or may be archived.
-          </p>
-          <Link
-            href="/"
-            className="mt-8 inline-flex items-center border border-neutral-800 bg-neutral-950/80 px-4 py-2 font-medium text-neutral-200 text-sm transition hover:border-neutral-700 hover:text-white"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Return Home
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  // Pass the fetched data to the client component for rendering
   return (
-    <ProjectsGallery
-      hackathon={hackathon}
-      tracks={hackathon.tracks}
-      hackathonId={hackathonId}
-      userTeamId={userTeamId}
-      teamSubmission={teamSubmission}
-    />
+    <Suspense fallback={<GallerySkeleton />}>
+      <GalleryContent hackathonId={hackathonId} />
+    </Suspense>
   );
 }

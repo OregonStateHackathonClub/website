@@ -1,10 +1,18 @@
 "use client";
 
+import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
-import { ArrowLeft, Loader2 } from "lucide-react";
-import Image from "next/image";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@repo/ui/components/card";
+import { ExternalLink, Globe, Loader2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { ProjectLinks } from "../../components/project-links";
+import { ImageCarousel } from "../../projects/[id]/components/image-carousel";
 import type { SubmissionInput } from "../schema";
 
 interface ReviewStepProps {
@@ -27,146 +35,95 @@ export function ReviewStep({
   const selectedTracks = tracks.filter((t) => data.trackIds.includes(t.id));
 
   return (
-    <div className="space-y-6">
-      <button
-        type="button"
-        onClick={onBack}
-        className="flex items-center gap-2 text-sm text-neutral-500 hover:text-neutral-400"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to editing
-      </button>
+    <div className="space-y-4">
+      <h1 className="font-bold text-xl text-white sm:text-2xl">
+        {data.title || "Untitled Project"}
+      </h1>
+      {data.tagline && (
+        <p className="mt-1 mb-4 max-w-3xl text-sm text-neutral-300">
+          {data.tagline}
+        </p>
+      )}
 
-      <div className="border border-neutral-800 bg-neutral-950/80 p-6">
-        <h2 className="mb-4 text-xs font-medium uppercase tracking-wider text-neutral-500">
-          Review Your Submission
-        </h2>
-
-        <div className="space-y-6">
-          <div>
-            <p className="text-xs text-neutral-500">Title</p>
-            <p className="text-lg font-medium text-white">
-              {data.title || "—"}
-            </p>
-          </div>
-
-          <div>
-            <p className="text-xs text-neutral-500">Tagline</p>
-            <p className="text-neutral-300">{data.tagline || "—"}</p>
-          </div>
-
-          <div>
-            <p className="text-xs text-neutral-500">Description</p>
-            <div className="prose prose-sm prose-invert mt-1 max-w-none">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {data.description || "*No description*"}
-              </ReactMarkdown>
-            </div>
-          </div>
-
-          <div>
-            <p className="text-xs text-neutral-500">Demo Video</p>
-            <a
-              href={data.videoUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-400 hover:underline"
-            >
-              {data.videoUrl || "—"}
-            </a>
-          </div>
-
-          <div>
-            <p className="text-xs text-neutral-500">
-              Images ({data.images.length})
-            </p>
-            {data.images.length > 0 ? (
-              <div className="mt-2 flex gap-2">
-                {data.images.map((url, i) => (
-                  <div
-                    key={url}
-                    className="relative h-20 w-32 overflow-hidden bg-black"
-                  >
-                    <Image
-                      src={url}
-                      alt={`Image ${i + 1}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-neutral-500">No images</p>
-            )}
-          </div>
-
-          <div>
-            <p className="text-xs text-neutral-500">GitHub</p>
-            <a
-              href={data.githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-400 hover:underline"
-            >
-              {data.githubUrl || "—"}
-            </a>
-          </div>
-
-          {data.deploymentUrl && (
-            <div>
-              <p className="text-xs text-neutral-500">Deployment</p>
-              <a
-                href={data.deploymentUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-400 hover:underline"
+      <div className="flex flex-wrap items-center gap-3">
+        {selectedTracks.length > 0 && (
+          <>
+            {selectedTracks.map((track) => (
+              <Badge
+                key={track.id}
+                className="bg-neutral-800 text-neutral-300 hover:bg-neutral-700"
               >
-                {data.deploymentUrl}
-              </a>
-            </div>
-          )}
+                {track.name}
+              </Badge>
+            ))}
+            <div className="h-4 w-px bg-neutral-700" />
+          </>
+        )}
 
-          {data.otherLinks.length > 0 && (
-            <div>
-              <p className="text-xs text-neutral-500">Other Links</p>
-              <ul className="mt-1 space-y-1">
-                {data.otherLinks.map((link, i) => (
-                  <li key={i}>
-                    <a
-                      href={link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-400 hover:underline"
-                    >
-                      {link}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+        <ProjectLinks
+          githubURL={data.githubUrl}
+          ytVideo={data.videoUrl}
+        />
 
-          <div>
-            <p className="text-xs text-neutral-500">Tracks</p>
-            <div className="mt-1 flex flex-wrap gap-2">
-              {selectedTracks.map((track) => (
-                <span
-                  key={track.id}
-                  className="border border-neutral-700 px-2 py-1 text-sm text-neutral-300"
-                >
-                  {track.name}
-                </span>
-              ))}
-              {selectedTracks.length === 0 && (
-                <p className="text-neutral-500">No tracks selected</p>
-              )}
-            </div>
-          </div>
-        </div>
+        {data.deploymentUrl && (
+          <a
+            href={data.deploymentUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex items-center gap-1.5 border border-neutral-800 bg-neutral-900 px-2.5 py-1.5 text-neutral-200 text-xs transition-colors duration-200 hover:border-neutral-700 hover:text-white"
+          >
+            <Globe className="h-4 w-5 text-neutral-200 transition-colors duration-200 group-hover:text-white" />
+            Live Demo
+          </a>
+        )}
+
+        {data.otherLinks.map((link, i) => (
+          <a
+            key={i}
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex items-center gap-1.5 border border-neutral-800 bg-neutral-900 px-2.5 py-1.5 text-neutral-200 text-xs transition-colors duration-200 hover:border-neutral-700 hover:text-white"
+          >
+            <ExternalLink className="h-4 w-5 text-neutral-200 transition-colors duration-200 group-hover:text-white" />
+            {(() => {
+              try {
+                return new URL(link).hostname;
+              } catch {
+                return link;
+              }
+            })()}
+          </a>
+        ))}
       </div>
 
-      <div className="flex justify-end gap-3">
+      <div className="flex flex-col gap-4">
+        <div className="w-full border border-neutral-800 bg-neutral-900">
+          <ImageCarousel
+            altText={`${data.title} showcase`}
+            imageUrls={
+              data.images.length > 0
+                ? data.images
+                : ["/placeholder_project.png"]
+            }
+            videoUrl={data.videoUrl}
+          />
+        </div>
+        <Card className="rounded-none border border-neutral-800 bg-neutral-950/80 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="text-lg text-white">
+              About This Project
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="prose prose-invert prose-sm max-w-none leading-relaxed">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {data.description || "*No description*"}
+            </ReactMarkdown>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="flex justify-end gap-3 pt-2">
         <Button
           type="button"
           variant="outline"

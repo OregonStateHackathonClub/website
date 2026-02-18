@@ -3,6 +3,7 @@
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { AuthButton } from "./auth-button";
 
 interface NavbarProps {
@@ -16,6 +17,10 @@ export const Navbar = ({
   userTeamId,
   teamSubmissionId,
 }: NavbarProps) => {
+  const pathname = usePathname();
+  const hackathonId = pathname.split("/")[1] || currentHackathonId;
+  const isOnHackathonPage = pathname !== "/";
+
   return (
     <nav className="fixed top-0 z-50 w-full border-b border-neutral-800 bg-neutral-950/80 backdrop-blur-sm">
       <div className="flex h-14 items-center justify-between px-6">
@@ -30,9 +35,9 @@ export const Navbar = ({
         </Link>
 
         <div className="flex items-center gap-3">
-          {userTeamId && (
+          {isOnHackathonPage && userTeamId && (
             <>
-              <Link href={`/${currentHackathonId}/team/${userTeamId}`}>
+              <Link href={`/${hackathonId}/team/${userTeamId}`}>
                 <Button
                   variant="outline"
                   className="hidden sm:flex rounded-none border-neutral-800 text-white hover:bg-neutral-900"
@@ -42,7 +47,7 @@ export const Navbar = ({
               </Link>
               {!teamSubmissionId ? (
                 <Link
-                  href={`/${currentHackathonId}/submission?teamId=${userTeamId}`}
+                  href={`/${hackathonId}/submission?teamId=${userTeamId}`}
                 >
                   <Button
                     variant="outline"
@@ -53,7 +58,7 @@ export const Navbar = ({
                 </Link>
               ) : (
                 <Link
-                  href={`/${currentHackathonId}/projects/${teamSubmissionId}`}
+                  href={`/${hackathonId}/projects/${teamSubmissionId}`}
                 >
                   <Button
                     variant="outline"

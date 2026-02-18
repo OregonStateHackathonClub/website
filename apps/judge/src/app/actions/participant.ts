@@ -234,6 +234,18 @@ export async function joinTeam(
   }
 }
 
+export async function getTeamsLookingForMembers(hackathonId: string) {
+  return prisma.team.findMany({
+    where: { hackathonId, lookingForTeammates: true },
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      _count: { select: { members: true } },
+    },
+  });
+}
+
 export async function getTeamInfo(teamId: string) {
   const team = await prisma.team.findUnique({
     where: { id: teamId },
@@ -253,6 +265,7 @@ export async function getTeamInfo(teamId: string) {
                 select: {
                   id: true,
                   name: true,
+                  image: true,
                 },
               },
             },
@@ -394,6 +407,69 @@ export async function getTeamIdFromInvite(
   }
 
   return { success: true, teamId: team.id };
+}
+
+// ============================================================================
+// Likes
+// ============================================================================
+
+export async function toggleLike(
+  hackathonId: string,
+  submissionId: string,
+): Promise<
+  { success: true; liked: boolean } | { success: false; error: string }
+> {
+  const session = await getSession();
+  if (!session) {
+    return { success: false, error: "Not authenticated" };
+  }
+
+  const [participant, submission] = await Promise.all([
+    prisma.hackathonParticipant.findFirst({
+      where: { userId: session.user.id, hackathonId },
+      select: { id: true },
+    }),
+    prisma.submission.findUnique({
+      where: { id: submissionId },
+      select: { hackathonId: true },
+    }),
+  ]);
+
+  if (!participant) {
+    return { success: false, error: "Not a participant" };
+  }
+
+  if (!submission || submission.hackathonId !== hackathonId) {
+    return { success: false, error: "Submission not found" };
+  }
+
+  const liked = await prisma.$transaction(async (tx) => {
+    const deleted = await tx.like.deleteMany({
+      where: { submissionId, participantId: participant.id },
+    });
+
+    if (deleted.count > 0) return false;
+
+    try {
+      await tx.like.create({
+        data: { submissionId, participantId: participant.id },
+      });
+      return true;
+    } catch (e: unknown) {
+      if (
+        typeof e === "object" &&
+        e !== null &&
+        "code" in e &&
+        e.code === "P2002"
+      ) {
+        return true;
+      }
+      throw e;
+    }
+  });
+
+  revalidatePath(`/${hackathonId}`);
+  return { success: true, liked };
 }
 
 export async function resetInviteCode(

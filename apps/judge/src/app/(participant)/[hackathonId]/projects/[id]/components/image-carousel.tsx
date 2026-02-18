@@ -72,7 +72,7 @@ export function ImageCarousel({
           alt={`${altText} ${imageIndex + 1}`}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="animate-fade-in object-cover"
+          className="animate-fade-in object-contain"
         />
       )}
 

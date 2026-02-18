@@ -2,17 +2,25 @@
 
 import type { Prisma } from "@repo/database";
 import { Button } from "@repo/ui/components/button";
-import { Filter, Trophy } from "lucide-react";
-import Link from "next/link";
+import { Filter, Heart, Trophy } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
+import { toggleLike } from "@/app/actions/participant";
+import { CreateTeamModal } from "./create-team-modal";
+import { FindTeamModal } from "./find-team-modal";
 import { TrackFilter } from "./track-filter";
 import { SubmissionCard } from "./submission-card";
 
 type Hackathon = Prisma.HackathonGetPayload<{
   include: {
     tracks: true;
-    submissions: { include: { tracks: true; trackWins: true } };
+    submissions: {
+      include: {
+        tracks: true;
+        trackWins: true;
+        _count: { select: { likes: true } };
+      };
+    };
   };
 }>;
 
@@ -23,7 +31,8 @@ interface ProjectsGalleryProps {
   tracks: Track[];
   hackathonId: string;
   userTeamId?: string | null;
-  teamSubmission?: { id: string } | null;
+  likedSubmissionIds?: string[];
+  canLike?: boolean;
 }
 
 export function ProjectsGallery({
@@ -31,13 +40,28 @@ export function ProjectsGallery({
   tracks,
   hackathonId,
   userTeamId = null,
-  teamSubmission = null,
+  likedSubmissionIds = [],
+  canLike = false,
 }: ProjectsGalleryProps) {
   const [selectedTracks, setSelectedTracks] = useState<string[]>(["all"]);
   const [winnersOnly, setWinnersOnly] = useState(false);
+  const [sortByLikes, setSortByLikes] = useState(false);
+  const [likedIds, setLikedIds] = useState<Set<string>>(
+    new Set(likedSubmissionIds),
+  );
+  const [likeCounts, setLikeCounts] = useState<Record<string, number>>(() => {
+    const counts: Record<string, number> = {};
+    for (const s of hackathon.submissions) {
+      counts[s.id] = s._count.likes;
+    }
+    return counts;
+  });
   const [filteredSubmissions, setFilteredSubmissions] = useState(
     hackathon.submissions,
   );
+  const [createTeamOpen, setCreateTeamOpen] = useState(false);
+  const [findTeamOpen, setFindTeamOpen] = useState(false);
+  const [, startTransition] = useTransition();
   const router = useRouter();
 
   useEffect(() => {
@@ -59,8 +83,59 @@ export function ProjectsGallery({
       );
     }
 
+    if (sortByLikes) {
+      filtered = [...filtered].sort(
+        (a, b) => (likeCounts[b.id] ?? 0) - (likeCounts[a.id] ?? 0),
+      );
+    }
+
     setFilteredSubmissions(filtered);
-  }, [selectedTracks, winnersOnly, hackathon.submissions]);
+  }, [
+    selectedTracks,
+    winnersOnly,
+    sortByLikes,
+    likeCounts,
+    hackathon.submissions,
+  ]);
+
+  const handleLike = (submissionId: string) => {
+    const wasLiked = likedIds.has(submissionId);
+
+    // Optimistic update
+    setLikedIds((prev) => {
+      const next = new Set(prev);
+      if (wasLiked) {
+        next.delete(submissionId);
+      } else {
+        next.add(submissionId);
+      }
+      return next;
+    });
+    setLikeCounts((prev) => ({
+      ...prev,
+      [submissionId]: (prev[submissionId] ?? 0) + (wasLiked ? -1 : 1),
+    }));
+
+    startTransition(async () => {
+      const result = await toggleLike(hackathonId, submissionId);
+      if (!result.success) {
+        // Revert on error
+        setLikedIds((prev) => {
+          const next = new Set(prev);
+          if (wasLiked) {
+            next.add(submissionId);
+          } else {
+            next.delete(submissionId);
+          }
+          return next;
+        });
+        setLikeCounts((prev) => ({
+          ...prev,
+          [submissionId]: (prev[submissionId] ?? 0) + (wasLiked ? 1 : -1),
+        }));
+      }
+    });
+  };
 
   const handleProjectClick = (submissionId: string) => {
     router.push(`/${hackathonId}/projects/${submissionId}`);
@@ -71,9 +146,7 @@ export function ProjectsGallery({
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Page Header */}
         <div className="mb-6">
-          <h1 className="text-xl font-semibold text-white">
-            {hackathon.name}
-          </h1>
+          <h1 className="text-xl font-semibold text-white">{hackathon.name}</h1>
           <p className="text-sm text-neutral-500 mt-1">
             Explore projects, filter by track, and discover the builds.
           </p>
@@ -108,35 +181,35 @@ export function ProjectsGallery({
             Winners
           </button>
 
+          <button
+            type="button"
+            onClick={() => setSortByLikes((prev) => !prev)}
+            className={`inline-flex cursor-pointer items-center gap-2 border px-4 py-2 text-sm transition-colors ${
+              sortByLikes
+                ? "border-rose-500/30 bg-rose-500/20 text-rose-400"
+                : "border-neutral-800 bg-neutral-950/80 text-neutral-200 hover:border-neutral-700"
+            }`}
+          >
+            <Heart className="h-4 w-4" />
+            Most Liked
+          </button>
+
           {/* Action Buttons */}
-          {userTeamId ? (
-            <div className="flex flex-wrap gap-3">
-              {!teamSubmission && (
-                <Link href={`/${hackathonId}/submission`}>
-                  <Button
-                    variant="outline"
-                    className="rounded-none border-neutral-800 text-white hover:bg-neutral-900"
-                  >
-                    Create Submission
-                  </Button>
-                </Link>
-              )}
-            </div>
-          ) : (
+          {!userTeamId && (
             <div className="flex gap-3">
-              <Link href={`/${hackathonId}/create-team`}>
-                <Button className="bg-white text-black hover:bg-neutral-200 rounded-none">
-                  Create a Team
-                </Button>
-              </Link>
-              <Link href={`/${hackathonId}/find-team`}>
-                <Button
-                  variant="outline"
-                  className="rounded-none border-neutral-800 text-white hover:bg-neutral-900"
-                >
-                  Find a Team
-                </Button>
-              </Link>
+              <Button
+                onClick={() => setCreateTeamOpen(true)}
+                className="bg-white text-black hover:bg-neutral-200 rounded-none"
+              >
+                Create a Team
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setFindTeamOpen(true)}
+                className="rounded-none border-neutral-800 text-white hover:bg-neutral-900"
+              >
+                Find a Team
+              </Button>
             </div>
           )}
         </div>
@@ -148,8 +221,10 @@ export function ProjectsGallery({
               key={submission.id}
               submission={submission}
               index={index}
-              showOpenButton={true}
               onClick={() => handleProjectClick(submission.id)}
+              likeCount={likeCounts[submission.id] ?? 0}
+              isLiked={likedIds.has(submission.id)}
+              onLike={canLike ? handleLike : undefined}
             />
           ))}
         </div>
@@ -161,6 +236,21 @@ export function ProjectsGallery({
           </div>
         )}
       </div>
+
+      {!userTeamId && (
+        <>
+          <CreateTeamModal
+            hackathonId={hackathonId}
+            open={createTeamOpen}
+            onOpenChange={setCreateTeamOpen}
+          />
+          <FindTeamModal
+            hackathonId={hackathonId}
+            open={findTeamOpen}
+            onOpenChange={setFindTeamOpen}
+          />
+        </>
+      )}
     </div>
   );
 }
