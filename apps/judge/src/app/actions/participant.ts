@@ -234,6 +234,18 @@ export async function joinTeam(
   }
 }
 
+export async function getTeamsLookingForMembers(hackathonId: string) {
+  return prisma.team.findMany({
+    where: { hackathonId, lookingForTeammates: true },
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      _count: { select: { members: true } },
+    },
+  });
+}
+
 export async function getTeamInfo(teamId: string) {
   const team = await prisma.team.findUnique({
     where: { id: teamId },
@@ -253,6 +265,7 @@ export async function getTeamInfo(teamId: string) {
                 select: {
                   id: true,
                   name: true,
+                  image: true,
                 },
               },
             },
@@ -394,6 +407,56 @@ export async function getTeamIdFromInvite(
   }
 
   return { success: true, teamId: team.id };
+}
+
+// ============================================================================
+// Likes
+// ============================================================================
+
+export async function toggleLike(
+  hackathonId: string,
+  submissionId: string,
+): Promise<
+  { success: true; liked: boolean } | { success: false; error: string }
+> {
+  const session = await getSession();
+  if (!session) {
+    return { success: false, error: "Not authenticated" };
+  }
+
+  const participant = await prisma.hackathonParticipant.findFirst({
+    where: { userId: session.user.id, hackathonId },
+    select: { id: true },
+  });
+
+  if (!participant) {
+    return { success: false, error: "Not a participant" };
+  }
+
+  const existing = await prisma.like.findUnique({
+    where: {
+      submissionId_participantId: {
+        submissionId,
+        participantId: participant.id,
+      },
+    },
+  });
+
+  if (existing) {
+    await prisma.like.delete({ where: { id: existing.id } });
+    revalidatePath(`/${hackathonId}`);
+    return { success: true, liked: false };
+  }
+
+  await prisma.like.create({
+    data: {
+      submissionId,
+      participantId: participant.id,
+    },
+  });
+
+  revalidatePath(`/${hackathonId}`);
+  return { success: true, liked: true };
 }
 
 export async function resetInviteCode(

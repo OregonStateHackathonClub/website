@@ -2,7 +2,7 @@
 
 import type { Prisma } from "@repo/database";
 import { Badge } from "@repo/ui/components/badge";
-import { Tag } from "lucide-react";
+import { Heart, Tag } from "lucide-react";
 import Image from "next/image";
 import { ProjectLinks } from "../components/project-links";
 
@@ -14,14 +14,18 @@ interface SubmissionCardProps {
   submission: Submission;
   index: number;
   onClick: () => void;
-  showOpenButton: boolean;
+  likeCount?: number;
+  isLiked?: boolean;
+  onLike?: (submissionId: string) => void;
 }
 
 export function SubmissionCard({
   submission,
   onClick,
   index,
-  showOpenButton,
+  likeCount = 0,
+  isLiked = false,
+  onLike,
 }: SubmissionCardProps) {
   const img = submission.images?.[0] || "/placeholder_project.png";
 
@@ -31,13 +35,13 @@ export function SubmissionCard({
       onClick={onClick}
     >
       {/* Image */}
-      <div className="relative aspect-video w-full overflow-hidden">
+      <div className="relative aspect-video w-full overflow-hidden bg-neutral-900">
         <Image
           src={img}
           alt={`${submission.title} cover`}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-cover transition duration-500 group-hover:scale-[1.03]"
+          className="object-contain transition duration-500 group-hover:scale-[1.03]"
           priority={index < 7}
         />
       </div>
@@ -78,18 +82,31 @@ export function SubmissionCard({
             githubURL={submission.githubUrl ?? null}
             ytVideo={submission.videoUrl ?? null}
           />
-          {showOpenButton && (
-            <button
-              type="button"
-              className="ml-auto inline-flex items-center border border-neutral-800 bg-neutral-900 px-2.5 py-1.5 text-neutral-200 text-xs transition-colors hover:cursor-pointer hover:border-neutral-700 hover:bg-neutral-800"
-              onClick={(e) => {
-                e.stopPropagation();
-                onClick();
-              }}
-            >
-              Open →
-            </button>
-          )}
+          <div className="ml-auto flex items-center gap-2">
+            {onLike ? (
+              <button
+                type="button"
+                className={`inline-flex items-center gap-1 border px-2 py-1.5 text-xs transition-colors hover:cursor-pointer ${
+                  isLiked
+                    ? "border-rose-500/30 bg-rose-500/20 text-rose-400"
+                    : "border-neutral-800 bg-neutral-900 text-neutral-400 hover:border-neutral-700 hover:text-neutral-200"
+                }`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onLike(submission.id);
+                }}
+              >
+                <Heart className={`h-3.5 w-3.5 ${isLiked ? "fill-current" : ""}`} />
+                {likeCount}
+              </button>
+            ) : likeCount > 0 ? (
+              <span className="inline-flex items-center gap-1 text-neutral-500 text-xs">
+                <Heart className="h-3.5 w-3.5" />
+                {likeCount}
+              </span>
+            ) : null}
+
+          </div>
         </div>
       </div>
     </div>
