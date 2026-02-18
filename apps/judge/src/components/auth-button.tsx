@@ -16,7 +16,7 @@ export function AuthButton() {
           window.location.href = "/";
         }}
         variant="ghost"
-        className="w-26 rounded-none flex items-center gap-2 px-3 py-1.5 text-sm text-neutral-500 hover:text-white border border-neutral-800 hover:bg-neutral-900 transition-colors"
+        className="w-28 rounded-none flex items-center gap-2 px-3 py-1.5 text-sm text-neutral-500 hover:text-white border border-neutral-800 hover:bg-neutral-900 transition-colors"
       >
         <LogOut className="h-4 w-4" />
         <span className="hidden sm:inline">Sign out</span>
@@ -30,7 +30,7 @@ export function AuthButton() {
       disabled={isPending}
       className={cn(
         isPending && "opacity-50 cursor-not-allowed",
-        "w-26 rounded-none bg-white text-black hover:bg-neutral-200",
+        "w-28 rounded-none bg-white text-black hover:bg-neutral-200",
       )}
     >
       Sign In

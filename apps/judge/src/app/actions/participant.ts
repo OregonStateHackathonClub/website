@@ -424,39 +424,52 @@ export async function toggleLike(
     return { success: false, error: "Not authenticated" };
   }
 
-  const participant = await prisma.hackathonParticipant.findFirst({
-    where: { userId: session.user.id, hackathonId },
-    select: { id: true },
-  });
+  const [participant, submission] = await Promise.all([
+    prisma.hackathonParticipant.findFirst({
+      where: { userId: session.user.id, hackathonId },
+      select: { id: true },
+    }),
+    prisma.submission.findUnique({
+      where: { id: submissionId },
+      select: { hackathonId: true },
+    }),
+  ]);
 
   if (!participant) {
     return { success: false, error: "Not a participant" };
   }
 
-  const existing = await prisma.like.findUnique({
-    where: {
-      submissionId_participantId: {
-        submissionId,
-        participantId: participant.id,
-      },
-    },
-  });
-
-  if (existing) {
-    await prisma.like.delete({ where: { id: existing.id } });
-    revalidatePath(`/${hackathonId}`);
-    return { success: true, liked: false };
+  if (!submission || submission.hackathonId !== hackathonId) {
+    return { success: false, error: "Submission not found" };
   }
 
-  await prisma.like.create({
-    data: {
-      submissionId,
-      participantId: participant.id,
-    },
+  const liked = await prisma.$transaction(async (tx) => {
+    const deleted = await tx.like.deleteMany({
+      where: { submissionId, participantId: participant.id },
+    });
+
+    if (deleted.count > 0) return false;
+
+    try {
+      await tx.like.create({
+        data: { submissionId, participantId: participant.id },
+      });
+      return true;
+    } catch (e: unknown) {
+      if (
+        typeof e === "object" &&
+        e !== null &&
+        "code" in e &&
+        e.code === "P2002"
+      ) {
+        return true;
+      }
+      throw e;
+    }
   });
 
   revalidatePath(`/${hackathonId}`);
-  return { success: true, liked: true };
+  return { success: true, liked };
 }
 
 export async function resetInviteCode(

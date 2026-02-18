@@ -21,7 +21,6 @@ export async function GalleryContent({
   }
 
   let userTeamId: string | null = null;
-  let teamSubmission: { id: string } | null = null;
   if (session?.user) {
     const teamMembership = await prisma.team.findFirst({
       where: {
@@ -34,18 +33,10 @@ export async function GalleryContent({
           },
         },
       },
-      select: {
-        id: true,
-        submission: {
-          select: { id: true },
-        },
-      },
+      select: { id: true },
     });
     if (teamMembership) {
       userTeamId = teamMembership.id;
-      if (teamMembership.submission) {
-        teamSubmission = { id: teamMembership.submission.id };
-      }
     }
   }
 
@@ -114,7 +105,6 @@ export async function GalleryContent({
       tracks={hackathon.tracks}
       hackathonId={hackathonId}
       userTeamId={userTeamId}
-      teamSubmission={teamSubmission}
       likedSubmissionIds={likedSubmissionIds}
       canLike={canLike}
     />

@@ -31,7 +31,6 @@ interface ProjectsGalleryProps {
   tracks: Track[];
   hackathonId: string;
   userTeamId?: string | null;
-  teamSubmission?: { id: string } | null;
   likedSubmissionIds?: string[];
   canLike?: boolean;
 }
