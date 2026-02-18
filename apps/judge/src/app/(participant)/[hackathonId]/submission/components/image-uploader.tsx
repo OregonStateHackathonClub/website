@@ -24,36 +24,34 @@ export function ImageUploader({
   onReorder,
 }: ImageUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const draggedIndexRef = useRef<number | null>(null);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   const handleDragStart = (index: number) => {
-    draggedIndexRef.current = index;
+    setDraggedIndex(index);
   };
 
   const handleDragOver = (e: React.DragEvent, index: number) => {
     e.preventDefault();
-    if (draggedIndexRef.current === null || draggedIndexRef.current === index)
-      return;
+    if (draggedIndex === null || draggedIndex === index) return;
     setDragOverIndex(index);
   };
 
   const handleDrop = (e: React.DragEvent, index: number) => {
     e.preventDefault();
-    const fromIndex = draggedIndexRef.current;
-    if (fromIndex === null || fromIndex === index) return;
+    if (draggedIndex === null || draggedIndex === index) return;
 
     const reordered = [...images];
-    const draggedItem = reordered[fromIndex];
-    reordered.splice(fromIndex, 1);
+    const draggedItem = reordered[draggedIndex];
+    reordered.splice(draggedIndex, 1);
     reordered.splice(index, 0, draggedItem);
     onReorder(reordered);
-    draggedIndexRef.current = null;
+    setDraggedIndex(null);
     setDragOverIndex(null);
   };
 
   const handleDragEnd = () => {
-    draggedIndexRef.current = null;
+    setDraggedIndex(null);
     setDragOverIndex(null);
   };
 
@@ -111,7 +109,7 @@ export function ImageUploader({
       </div>
 
       {images.length > 0 && (
-        <div className="mt-4 space-y-2">
+        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
           {images.map((url, index) => (
             <div
               key={url}
@@ -120,51 +118,46 @@ export function ImageUploader({
               onDragOver={(e) => handleDragOver(e, index)}
               onDrop={(e) => handleDrop(e, index)}
               onDragEnd={handleDragEnd}
-              className={`flex items-center gap-3 border border-neutral-800 bg-transparent p-2 ${
+              className={`group relative aspect-square border bg-neutral-900 ${
                 dragOverIndex === index
                   ? "border-neutral-500"
-                  : draggedIndexRef.current === index
-                    ? "opacity-50"
-                    : "cursor-grab"
+                  : draggedIndex === index
+                    ? "opacity-50 border-neutral-800"
+                    : "cursor-grab border-neutral-800"
               }`}
             >
-              <span className="w-6 text-center text-sm text-neutral-500">
+              <Image
+                src={url}
+                alt={`Image ${index + 1}`}
+                fill
+                className="object-contain p-1"
+              />
+              <span className="absolute top-1 left-1 bg-black/70 px-1.5 py-0.5 text-xs text-neutral-400">
                 {index + 1}
               </span>
-              <div className="relative h-16 w-24 overflow-hidden bg-black">
-                <Image
-                  src={url}
-                  alt={`Image ${index + 1}`}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <span className="flex-1 truncate text-sm text-neutral-400">
-                Image {index + 1}
-              </span>
-              <div className="flex items-center gap-1">
+              <div className="absolute top-1 right-1 flex gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
                 <button
                   type="button"
                   onClick={() => moveImage(index, index - 1)}
                   disabled={index === 0}
-                  className="p-1 text-neutral-500 hover:text-neutral-300 disabled:opacity-30 disabled:hover:text-neutral-500"
+                  className="bg-black/70 p-1 text-neutral-400 hover:text-white disabled:opacity-30"
                 >
-                  <ArrowUp className="h-4 w-4" />
+                  <ArrowUp className="h-3.5 w-3.5" />
                 </button>
                 <button
                   type="button"
                   onClick={() => moveImage(index, index + 1)}
                   disabled={index === images.length - 1}
-                  className="p-1 text-neutral-500 hover:text-neutral-300 disabled:opacity-30 disabled:hover:text-neutral-500"
+                  className="bg-black/70 p-1 text-neutral-400 hover:text-white disabled:opacity-30"
                 >
-                  <ArrowDown className="h-4 w-4" />
+                  <ArrowDown className="h-3.5 w-3.5" />
                 </button>
                 <button
                   type="button"
                   onClick={() => onDelete(url)}
-                  className="p-1 text-neutral-500 hover:text-red-400"
+                  className="bg-black/70 p-1 text-neutral-400 hover:text-red-400"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-3.5 w-3.5" />
                 </button>
               </div>
             </div>
