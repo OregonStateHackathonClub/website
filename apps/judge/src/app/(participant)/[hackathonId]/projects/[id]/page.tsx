@@ -1,258 +1,76 @@
-import { auth } from "@repo/auth";
-import { type Prisma, prisma } from "@repo/database";
-import { Badge } from "@repo/ui/components/badge";
-import { Button } from "@repo/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@repo/ui/components/card";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@repo/ui/components/hover-card";
-import { ArrowLeft, Users } from "lucide-react";
-import { headers } from "next/headers";
-import Image from "next/image";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { ProjectLinks } from "../../components/project-links";
-import { ImageCarousel } from "./components/image-carousel";
+import { Suspense } from "react";
+import { ProjectContent } from "./components/project-content";
 
-// Define the reusable 'include' object for our query
-const submissionInclude = {
-  tracks: {
-    include: {
-      sponsor: true,
-    },
-  },
-  team: {
-    include: {
-      members: {
-        include: {
-          participant: {
-            include: {
-              user: true,
-            },
-          },
-        },
-      },
-    },
-  },
-};
+function ProjectSkeleton() {
+  return (
+    <>
+      <div className="h-7 w-64 animate-pulse bg-neutral-800 sm:h-8" />
+      <div className="mt-2 mb-4 h-4 w-96 max-w-full animate-pulse bg-neutral-800" />
 
-// Infer the TypeScript type directly from the include object
-type SubmissionWithDetails = Prisma.SubmissionGetPayload<{
-  include: typeof submissionInclude;
-}>;
+      <div className="grid grid-cols-3 gap-6">
+        <div className="col-span-2 flex flex-col gap-4">
+          <div className="aspect-video w-full animate-pulse border border-neutral-800 bg-neutral-800" />
+          <div className="border border-neutral-800 bg-neutral-950/80 p-6">
+            <div className="mb-4 h-6 w-40 animate-pulse bg-neutral-800" />
+            <div className="space-y-2.5">
+              <div className="h-4 w-full animate-pulse bg-neutral-800" />
+              <div className="h-4 w-full animate-pulse bg-neutral-800" />
+              <div className="h-4 w-5/6 animate-pulse bg-neutral-800" />
+              <div className="h-4 w-3/4 animate-pulse bg-neutral-800" />
+            </div>
+          </div>
+        </div>
 
-// This is an async Server Component (no "use client")
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-wrap gap-2">
+            <div className="h-6 w-16 animate-pulse bg-neutral-800" />
+            <div className="h-6 w-20 animate-pulse bg-neutral-800" />
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="h-5 w-32 animate-pulse bg-neutral-800" />
+            <div className="h-8 w-8 animate-pulse bg-neutral-800" />
+          </div>
+          <div className="border border-neutral-800 bg-neutral-950/80 p-6">
+            <div className="mb-4 h-6 w-32 animate-pulse bg-neutral-800" />
+            <div className="space-y-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-3 border border-neutral-800 bg-neutral-900 px-3 py-2"
+                >
+                  <div className="h-10 w-10 animate-pulse bg-neutral-800" />
+                  <div className="h-4 w-24 animate-pulse bg-neutral-800" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
 export default async function ProjectPage(props: {
   params: Promise<{ hackathonId: string; id: string }>;
 }) {
-  const params = await props.params;
-
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  const userId = session?.user?.id;
-
-  const submission: SubmissionWithDetails | null =
-    await prisma.submission.findUnique({
-      where: { id: params.id },
-      include: submissionInclude, // Use the constant for the query
-    });
-
-  if (!submission) {
-    return (
-      <div className="flex min-h-screen items-center justify-center text-red-500">
-        Project not found.
-      </div>
-    );
-  }
-
-  const isTeamMember =
-    userId &&
-    submission.team?.members.some(
-      (member) => member.participant.user.id === userId,
-    );
+  const { hackathonId, id } = await props.params;
 
   return (
     <div className="min-h-screen text-neutral-200">
       <main className="mx-auto max-w-7xl px-4 py-6">
         <Link
-          href={`/${params.hackathonId}`}
+          href={`/${hackathonId}`}
           className="inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-white transition-colors mb-4"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           Back to Projects
         </Link>
 
-        <h1 className="font-bold text-xl text-white sm:text-2xl">
-          {submission.title}
-        </h1>
-        {submission.tagline && (
-          <p className="mt-1 mb-4 max-w-3xl text-sm text-neutral-300">
-            {submission.tagline}
-          </p>
-        )}
-
-        <div className="grid grid-cols-3 gap-6">
-          <div className="col-span-2 flex flex-col gap-4">
-            <div className="w-full max-h-[400px] overflow-hidden border border-neutral-800 bg-neutral-900">
-              <ImageCarousel
-                altText={`${submission.title} showcase`}
-                imageUrls={
-                  submission.images?.length > 0
-                    ? submission.images
-                    : ["/placeholder_project.png"]
-                }
-                videoUrl={submission.videoUrl}
-              />
-            </div>
-            <Card className="rounded-none border border-neutral-800 bg-neutral-950/80 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-lg text-white">
-                  About This Project
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="prose-lg text-neutral-300 text-sm leading-relaxed">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {submission.description}
-                </ReactMarkdown>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-wrap gap-2">
-              {submission.tracks.map(
-                (link: SubmissionWithDetails["tracks"][number]) => (
-                  <HoverCard key={link.id}>
-                    <HoverCardTrigger asChild>
-                      <Badge className="bg-neutral-800 text-neutral-300 hover:bg-neutral-700 hover:cursor-pointer">
-                        {link.name}
-                      </Badge>
-                    </HoverCardTrigger>
-                    <HoverCardContent className="w-80 bg-neutral-950 border-neutral-800 p-4 rounded-none">
-                      <div className="space-y-2">
-                        <h4 className="text-sm font-semibold text-white">
-                          {link.name}
-                        </h4>
-                        <p className="text-xs text-neutral-400">
-                          {link.description}
-                        </p>
-                        {link.prize && (
-                          <div className="flex items-center pt-2">
-                            <span className="text-xs font-semibold text-neutral-400 mr-2">
-                              Prize:
-                            </span>
-                            <span className="text-xs text-neutral-300">
-                              {link.prize}
-                            </span>
-                          </div>
-                        )}
-                        {link.sponsor && (
-                          <div className="pt-2 border-t border-neutral-800 mt-2">
-                            <p className="text-xs text-neutral-500 mb-1">
-                              Sponsored by
-                            </p>
-                            <div className="flex items-center gap-2 p-1">
-                              {link.sponsor.logoUrl && (
-                                <div className="relative h-6 w-6 rounded overflow-hidden bg-white">
-                                  <Image
-                                    src={link.sponsor.logoUrl}
-                                    alt={link.sponsor.name}
-                                    fill
-                                    className="object-contain p-0.5"
-                                  />
-                                </div>
-                              )}
-                              <span className="text-sm font-medium text-white">
-                                {link.sponsor.name}
-                              </span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </HoverCardContent>
-                  </HoverCard>
-                ),
-              )}
-            </div>
-
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                {submission.team && (
-                  <div className="inline-flex items-center gap-2 text-neutral-400">
-                    <Users className="h-4 w-4" />
-                    Team: {submission.team.name}
-                  </div>
-                )}
-                <ProjectLinks
-                  githubURL={submission.githubUrl}
-                  ytVideo={null}
-                />
-              </div>
-
-              {isTeamMember && (
-                <Link
-                  href={`/${params.hackathonId}/submission`}
-                  className="w-full"
-                >
-                  <Button
-                    variant="outline"
-                    className="w-full hover:cursor-pointer rounded-none border-neutral-800 text-white hover:bg-neutral-900"
-                  >
-                    Edit Submission
-                  </Button>
-                </Link>
-              )}
-            </div>
-
-            {submission.team?.members &&
-              submission.team.members.length > 0 && (
-                <Card className="rounded-none border border-neutral-800 bg-neutral-950/80 backdrop-blur-sm">
-                  <CardHeader>
-                    <CardTitle className="text-lg text-white">
-                      Team Members
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-3">
-                      {submission.team?.members.map((member, idx) => (
-                        <li
-                          key={member.participant.user.id ?? idx}
-                          className="flex items-center gap-3 border border-neutral-800 bg-neutral-900 px-3 py-2"
-                        >
-                          <Image
-                            src={
-                              member.participant.user?.image ||
-                              "/beaverhacks_white.png"
-                            }
-                            alt={
-                              member.participant.user?.name || "Team member"
-                            }
-                            width={40}
-                            height={40}
-                            className="h-10 w-10 object-cover"
-                          />
-                          <div>
-                            <p className="font-medium text-sm text-white">
-                              {member.participant.user?.name || "Unknown"}
-                            </p>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              )}
-          </div>
-        </div>
+        <Suspense fallback={<ProjectSkeleton />}>
+          <ProjectContent hackathonId={hackathonId} submissionId={id} />
+        </Suspense>
       </main>
     </div>
   );
