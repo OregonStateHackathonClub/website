@@ -15,7 +15,11 @@ type Hackathon = Prisma.HackathonGetPayload<{
   include: {
     tracks: true;
     submissions: {
-      include: { tracks: true; trackWins: true; _count: { select: { likes: true } } };
+      include: {
+        tracks: true;
+        trackWins: true;
+        _count: { select: { likes: true } };
+      };
     };
   };
 }>;
@@ -37,7 +41,6 @@ export function ProjectsGallery({
   tracks,
   hackathonId,
   userTeamId = null,
-  teamSubmission = null,
   likedSubmissionIds = [],
   canLike = false,
 }: ProjectsGalleryProps) {
@@ -88,7 +91,13 @@ export function ProjectsGallery({
     }
 
     setFilteredSubmissions(filtered);
-  }, [selectedTracks, winnersOnly, sortByLikes, likeCounts, hackathon.submissions]);
+  }, [
+    selectedTracks,
+    winnersOnly,
+    sortByLikes,
+    likeCounts,
+    hackathon.submissions,
+  ]);
 
   const handleLike = (submissionId: string) => {
     const wasLiked = likedIds.has(submissionId);
@@ -138,9 +147,7 @@ export function ProjectsGallery({
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Page Header */}
         <div className="mb-6">
-          <h1 className="text-xl font-semibold text-white">
-            {hackathon.name}
-          </h1>
+          <h1 className="text-xl font-semibold text-white">{hackathon.name}</h1>
           <p className="text-sm text-neutral-500 mt-1">
             Explore projects, filter by track, and discover the builds.
           </p>

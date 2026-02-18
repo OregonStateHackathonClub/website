@@ -2,7 +2,6 @@
 
 import { useSession, signOut, redirectToLogin } from "@repo/auth/client";
 import { Button } from "@repo/ui/components/button";
-import { Skeleton } from "@repo/ui/components/skeleton";
 import { cn } from "@repo/ui/lib/utils";
 import { LogOut } from "lucide-react";
 
