@@ -1,20 +1,21 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { Checkbox } from "@repo/ui/components/checkbox";
 import {
-  FileUp,
-  GraduationCap,
   Building2,
   Calendar,
+  FileUp,
+  GraduationCap,
   Loader2,
-  User,
   Mail,
   Shirt,
+  User,
 } from "lucide-react";
-import { Checkbox } from "@repo/ui/components/checkbox";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const MAX_FILE_SIZE = 1024 * 1024 * 5; // 5MB
 const ACCEPTED_FILE_TYPES = ["application/pdf", "image/jpeg", "image/png"];
@@ -54,6 +55,8 @@ export const ApplicationForm = ({
   applicationsOpen: boolean;
 }) => {
   const router = useRouter();
+  const [inPersonAgreement, setInPersonAgreement] = useState(false);
+  const [inPersonAgreementError, setInPersonAgreementError] = useState("");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -79,6 +82,13 @@ export const ApplicationForm = ({
   const resumeFile = watch("resume");
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (!inPersonAgreement) {
+      setInPersonAgreementError(
+        "You must confirm in-person attendance requirements",
+      );
+      return;
+    }
+
     const formData = new FormData();
     formData.append("name", values.name);
     formData.append("email", values.email);
@@ -295,6 +305,38 @@ export const ApplicationForm = ({
         {/* Agreement */}
         <div>
           <label
+            htmlFor="in-person-agreement"
+            className="flex items-start gap-3 cursor-pointer"
+          >
+            <Checkbox
+              id="in-person-agreement"
+              checked={inPersonAgreement}
+              onCheckedChange={(checked) => {
+                const isChecked = checked === true;
+                setInPersonAgreement(isChecked);
+
+                if (isChecked) {
+                  setInPersonAgreementError("");
+                }
+              }}
+              disabled={!applicationsOpen}
+              aria-invalid={!!inPersonAgreementError}
+              className="mt-0.5"
+            />
+            <span className="text-xs text-neutral-400 leading-relaxed">
+              I understand BeaverHacks is an in-person hackathon, and I am
+              required to be present at check-in and the closing ceremony.
+            </span>
+          </label>
+          {inPersonAgreementError && (
+            <p className="text-xs text-red-500 mt-1">
+              {inPersonAgreementError}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label
             htmlFor="agreement"
             className="flex items-start gap-3 cursor-pointer"
           >
@@ -311,9 +353,9 @@ export const ApplicationForm = ({
               className="mt-0.5"
             />
             <span className="text-xs text-neutral-400 leading-relaxed">
-              I confirm that I am at least 18 years of age, currently enrolled at
-              a college or university, and understand that I may be required to
-              provide proof of enrollment (student ID, transcript, etc.).
+              I confirm that I am at least 18 years of age, currently enrolled
+              at a college or university, and understand that I may be required
+              to provide proof of enrollment (student ID, transcript, etc.).
             </span>
           </label>
           {errors.agreement && (
