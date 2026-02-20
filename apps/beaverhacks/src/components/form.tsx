@@ -14,6 +14,7 @@ import {
   Mail,
   Shirt,
 } from "lucide-react";
+import { Checkbox } from "@repo/ui/components/checkbox";
 
 const MAX_FILE_SIZE = 1024 * 1024 * 5; // 5MB
 const ACCEPTED_FILE_TYPES = ["application/pdf", "image/jpeg", "image/png"];
@@ -40,6 +41,9 @@ const formSchema = z.object({
         return ACCEPTED_FILE_TYPES.includes(file.type);
       }
     }, "Only .pdf, .jpeg and .png formats are supported"),
+  agreement: z
+    .boolean()
+    .refine((val) => val === true, "You must agree to the requirements"),
 });
 
 export const ApplicationForm = ({
@@ -60,6 +64,7 @@ export const ApplicationForm = ({
       graduationYear: "",
       shirtSize: "",
       resume: undefined,
+      agreement: false,
     },
   });
 
@@ -284,6 +289,37 @@ export const ApplicationForm = ({
           </div>
           {errors.resume && (
             <p className="text-xs text-red-500 mt-1">{errors.resume.message}</p>
+          )}
+        </div>
+
+        {/* Agreement */}
+        <div>
+          <label
+            htmlFor="agreement"
+            className="flex items-start gap-3 cursor-pointer"
+          >
+            <Checkbox
+              id="agreement"
+              checked={watch("agreement")}
+              onCheckedChange={(checked) =>
+                setValue("agreement", checked === true, {
+                  shouldValidate: true,
+                })
+              }
+              disabled={!applicationsOpen}
+              aria-invalid={!!errors.agreement}
+              className="mt-0.5"
+            />
+            <span className="text-xs text-neutral-400 leading-relaxed">
+              I confirm that I am at least 18 years of age, currently enrolled at
+              a college or university, and understand that I may be required to
+              provide proof of enrollment (student ID, transcript, etc.).
+            </span>
+          </label>
+          {errors.agreement && (
+            <p className="text-xs text-red-500 mt-1">
+              {errors.agreement.message}
+            </p>
           )}
         </div>
 
