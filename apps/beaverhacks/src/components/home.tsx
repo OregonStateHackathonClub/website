@@ -245,7 +245,7 @@ const TeamOutput = () => (
     <pre className="text-amber-bright">{`╰──────────────────────────────────────────────────╯
 
 ╭─ DEVELOPERS ─────────────────────────────────────╮`}</pre>
-    <pre className="text-amber-normal">{`│  Lukas Sueffert      Lead                        │
+    <pre className="text-amber-normal">{`│  Lukas Sueffert      Adam Bobich                 │
 │  Aadarsh Rajput      Brandon Gill                │
 │  Stanley Eng         Pedro Blanco Jaramillo      │
 │  Faith Nambasa       Kishore Kumar A             │`}</pre>
