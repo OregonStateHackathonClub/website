@@ -9,7 +9,6 @@ export interface Product {
   name: string;
   description: string;
   price: number;
-  compareAtPrice?: number;
   images: string[];
   variants: ProductVariant[];
 }
@@ -18,8 +17,7 @@ export const product: Product = {
   id: "beaverhacks-hoodie",
   name: "BeaverHacks 2026 Hoodie",
   description: "Premium heavyweight hoodie",
-  price: 25.0,
-  compareAtPrice: 45.0,
+  price: 50.0,
   images: ["/hoodie_front.png", "/hoodie_back.png"],
   variants: [
     {
