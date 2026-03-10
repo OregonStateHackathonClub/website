@@ -107,7 +107,10 @@ model Application {
   hackathonId    String
   name           String
   university     String
-  graduationYear Int
+  phoneNumber    String            @default("")
+  levelOfStudy   String            @default("")
+  country        String            @default("")
+  linkedinUrl    String            @default("")
   shirtSize      ShirtSize
   resumePath     String
   status         ApplicationStatus @default(APPLIED)
