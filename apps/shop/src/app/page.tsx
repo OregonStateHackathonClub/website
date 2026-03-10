@@ -69,11 +69,6 @@ export default function HomePage() {
               {/* Badge */}
               <div className="flex items-center gap-2">
                 <Badge variant="secondary">Preorder</Badge>
-                {product.compareAtPrice && (
-                  <Badge className="bg-green-100 text-green-800 border-green-200">
-                    Save ${(product.compareAtPrice - product.price).toFixed(0)}
-                  </Badge>
-                )}
               </div>
 
               {/* Product Name */}
@@ -86,11 +81,6 @@ export default function HomePage() {
                 <p className="text-xl sm:text-2xl font-medium">
                   ${product.price.toFixed(2)}
                 </p>
-                {product.compareAtPrice && (
-                  <p className="text-lg text-muted-foreground line-through">
-                    ${product.compareAtPrice.toFixed(2)}
-                  </p>
-                )}
               </div>
 
               {/* Description */}
