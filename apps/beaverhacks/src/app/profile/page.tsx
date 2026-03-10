@@ -187,15 +187,15 @@ const Profile = async () => {
                 </div>
               </div>
 
-              {/* Graduation Year */}
+              {/* Level of Study */}
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 bg-neutral-900 border border-neutral-800 flex items-center justify-center shrink-0">
                   <GraduationCap className="w-4 h-4 text-neutral-500" />
                 </div>
                 <div>
-                  <p className="text-xs text-neutral-500">Graduation Year</p>
+                  <p className="text-xs text-neutral-500">Level of Study</p>
                   <p className="text-sm text-white">
-                    {application.graduationYear}
+                    {application.levelOfStudy}
                   </p>
                 </div>
               </div>

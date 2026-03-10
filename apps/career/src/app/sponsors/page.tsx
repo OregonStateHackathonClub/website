@@ -334,7 +334,7 @@ export default function SponsorsPage() {
                           </div>
                           <div className="flex items-center gap-2 text-neutral-400">
                             <GraduationCap className="h-3.5 w-3.5 text-neutral-500" />
-                            <span>Class of {application.graduationYear}</span>
+                            <span>{application.levelOfStudy || "N/A"}</span>
                           </div>
                         </div>
                       )}
@@ -451,9 +451,9 @@ export default function SponsorsPage() {
                         </p>
                       </div>
                       <div>
-                        <p className="text-neutral-500">Graduation</p>
+                        <p className="text-neutral-500">Level of Study</p>
                         <p className="text-white">
-                          {selectedUser.applications[0].graduationYear}
+                          {selectedUser.applications[0].levelOfStudy || "N/A"}
                         </p>
                       </div>
                     </div>

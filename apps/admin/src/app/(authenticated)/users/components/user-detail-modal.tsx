@@ -21,7 +21,7 @@ export type UserDetail = {
     id: string;
     name: string;
     university: string;
-    graduationYear: number;
+    levelOfStudy: string;
     status: string;
     createdAt: Date;
     hackathon: {
@@ -159,9 +159,9 @@ export function UserDetailModal({
                             <p className="text-neutral-300">{app.university}</p>
                           </div>
                           <div>
-                            <p className="text-neutral-500">Graduation</p>
+                            <p className="text-neutral-500">Level of Study</p>
                             <p className="text-neutral-300">
-                              {app.graduationYear}
+                              {app.levelOfStudy}
                             </p>
                           </div>
                           <div>

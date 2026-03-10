@@ -39,7 +39,7 @@ export type ApplicationWithParticipant = {
   hackathonId: string;
   name: string;
   university: string;
-  graduationYear: number;
+  levelOfStudy: string;
   resumePath: string;
   status: string;
   user: {
