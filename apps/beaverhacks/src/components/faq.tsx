@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 
-const FAQ_DATA = [
+const FAQ_DATA: {
+  id: string;
+  tag: string;
+  question: string;
+  answer: React.ReactNode;
+}[] = [
   {
     id: "what-is-beaverhacks",
     tag: "about",
@@ -44,6 +49,26 @@ const FAQ_DATA = [
     question: "Do I need coding experience?",
     answer:
       "No prior experience is required! We have workshops and mentors available to help beginners get started. Hackathons are a great way to learn!",
+  },
+  {
+    id: "code-of-conduct",
+    tag: "policy",
+    question: "Is there a code of conduct?",
+    answer: (
+      <>
+        Yes! As an MLH Member Event, all participants must follow the{" "}
+        <a
+          href="https://github.com/MLH/mlh-policies/blob/main/code-of-conduct.md"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-amber-bright underline hover:text-amber-bright/80"
+        >
+          MLH Code of Conduct
+        </a>
+        . We are committed to providing a safe and welcoming environment for
+        everyone.
+      </>
+    ),
   },
 ];
 
