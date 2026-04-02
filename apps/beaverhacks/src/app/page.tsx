@@ -129,15 +129,15 @@ export default function Page() {
               <div className="space-y-2 text-[10px] md:text-xs font-secondary">
                 <div className="flex justify-between">
                   <span className="text-amber-dim">Date</span>
-                  <span className="text-amber-normal">Apr 18-19, 2026</span>
+                  <span className="text-amber-normal">May 2-3, 2026</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-amber-dim">Duration</span>
                   <span className="text-amber-normal">24 Hours</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-amber-dim">Location</span>
-                  <span className="text-amber-normal">TBD</span>
+                <div className="flex justify-between gap-2">
+                  <span className="text-amber-dim shrink-0">Location</span>
+                  <span className="text-amber-normal text-right">Toyota Club @ Reser Stadium</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-amber-dim">Hackers</span>
@@ -173,18 +173,24 @@ export default function Page() {
                 </a>
                 <a
                   href="https://discord.gg/hQaF72fwAr"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="block text-amber-dim hover:text-amber-normal transition-all"
                 >
                   → Discord Server
                 </a>
                 <a
                   href="https://instagram.com/beaverhacks"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="block text-amber-dim hover:text-amber-normal transition-all"
                 >
                   → Instagram
                 </a>
                 <a
                   href="https://github.com/OregonStateHackathonClub"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="block text-amber-dim hover:text-amber-normal transition-all"
                 >
                   → GitHub
