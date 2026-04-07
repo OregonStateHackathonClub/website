@@ -60,7 +60,8 @@ const MOTD = () => (
         <span className="text-amber-dim">Date:</span> May 2-3, 2026
       </p>
       <p>
-        <span className="text-amber-dim">Location:</span> Toyota Club @ Reser Stadium
+        <span className="text-amber-dim">Location:</span> Toyota Club @ Reser
+        Stadium
       </p>
       <p>
         <span className="text-amber-dim">Status:</span>{" "}
@@ -223,33 +224,77 @@ const HelpOutput = () => (
   </div>
 );
 
+const teams = [
+  {
+    name: "LEADERSHIP",
+    members: [
+      ["Havel Konda", "President"],
+      ["Owen Krause", "Vice President"],
+      ["Violette Davis", "Marketing Director"],
+      ["Caleb Chia", "Production Director"],
+      ["Joshua Chilango", "Financial Director"],
+    ],
+  },
+  {
+    name: "MARKETING",
+    members: [
+      ["Ally Chen", "Alysa Renacia"],
+      ["Claire Quang", "Kiarra Ruff"],
+      ["Noam Yaffe", "Benjamin Smithynunta"],
+    ],
+  },
+  {
+    name: "EVENTS",
+    members: [["Ireland Gerber", "Joshua Wright"]],
+  },
+  {
+    name: "DEVELOPERS",
+    members: [
+      ["Lukas Sueffert", "Adam Bobich"],
+      ["Aadarsh Rajput", "Brandon Gill"],
+      ["Stanley Eng", "Pedro Blanco Jaramillo"],
+      ["Faith Nambasa", "Kishore Kumar A"],
+    ],
+  },
+  {
+    name: "INTERNS",
+    members: [
+      ["Panha Sen", "Samantha Ng"],
+      ["Mei Ling Oak", "Kevin Rubio"],
+      ["Nishitha Yalamarthi", ""],
+    ],
+  },
+];
+
+const BOX_WIDTH = 52;
+
+const TeamBox = ({ name, members }: { name: string; members: string[][] }) => {
+  const header = `╭─ ${name} ${"─".repeat(BOX_WIDTH - name.length - 5)}╮`;
+  const footer = `╰${"─".repeat(BOX_WIDTH - 2)}╯`;
+  const rows = members.map(([left, right]) => {
+    const content = `  ${left.padEnd(20)}${right}`;
+    return `│${content.padEnd(BOX_WIDTH - 2)}│`;
+  });
+
+  return (
+    <pre className="text-[10px] md:text-xs font-secondary">
+      <pre className="text-amber-bright">{header}</pre>
+      {rows.map((row, i) => (
+        <pre key={i} className="text-amber-normal">
+          {row}
+          {"\n"}
+        </pre>
+      ))}
+      <pre className="text-amber-bright">{footer}</pre>
+    </pre>
+  );
+};
+
 const TeamOutput = () => (
-  <div className="text-[10px] md:text-xs py-1 font-secondary">
-    <pre className="text-amber-bright">{`
-╭─ LEADERSHIP ─────────────────────────────────────╮`}</pre>
-    <pre className="text-amber-normal">{`│  Havel Konda         President                   │
-│  Owen Krause         Vice President              │
-│  Violette Davis      Marketing Director          │
-│  Caleb Chia          Production Director         │
-│  Joshua Chilango     Financial Director          │`}</pre>
-    <pre className="text-amber-bright">{`╰──────────────────────────────────────────────────╯
-
-╭─ MARKETING ──────────────────────────────────────╮`}</pre>
-    <pre className="text-amber-normal">{`│  Ally Chen           Alysa Renacia               │
-│  Claire Quang        Kiarra Ruff                 │
-│  Noam Yaffe          Benjamin Smithynunta        │`}</pre>
-    <pre className="text-amber-bright">{`╰──────────────────────────────────────────────────╯
-
-╭─ EVENTS ─────────────────────────────────────────╮`}</pre>
-    <pre className="text-amber-normal">{`│  Ireland Gerber      Joshua Wright               │`}</pre>
-    <pre className="text-amber-bright">{`╰──────────────────────────────────────────────────╯
-
-╭─ DEVELOPERS ─────────────────────────────────────╮`}</pre>
-    <pre className="text-amber-normal">{`│  Lukas Sueffert      Adam Bobich                 │
-│  Aadarsh Rajput      Brandon Gill                │
-│  Stanley Eng         Pedro Blanco Jaramillo      │
-│  Faith Nambasa       Kishore Kumar A             │`}</pre>
-    <pre className="text-amber-bright">{`╰──────────────────────────────────────────────────╯`}</pre>
+  <div className="py-1 flex flex-col gap-3">
+    {teams.map((team) => (
+      <TeamBox key={team.name} name={team.name} members={team.members} />
+    ))}
   </div>
 );
 

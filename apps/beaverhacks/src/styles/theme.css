@@ -161,6 +161,20 @@
   animation: blink 1s step-end infinite;
 }
 
+/* sponsor marquee */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@utility animate-marquee {
+  animation: marquee 24s linear infinite;
+}
+
 .scrollbar-hide {
   scrollbar-width: none;
 }

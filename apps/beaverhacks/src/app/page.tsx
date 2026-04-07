@@ -9,6 +9,7 @@ import { StatusBar } from "@/components/status-bar";
 import { SystemStats } from "@/components/system-stats";
 import { Panel } from "@/components/panel";
 import { Ascii } from "@/components/ascii";
+import { SponsorMarquee } from "@/components/sponsor-marquee";
 
 export default function Page() {
   const [currentPage, setCurrentPage] = useState<Page>("home");
@@ -151,16 +152,7 @@ export default function Page() {
             </Panel>
 
             <Panel title="Sponsors" icon="">
-              <div className="space-y-1 text-[10px] font-secondary text-amber-muted">
-                <div className="text-amber-dim">Loading sponsors...</div>
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {["░░░░", "░░░", "░░░░░", "░░░"].map((s, i) => (
-                    <span key={i} className="text-amber-muted/50">
-                      {s}
-                    </span>
-                  ))}
-                </div>
-              </div>
+              <SponsorMarquee />
             </Panel>
 
             <Panel title="Quick Links" icon="">
