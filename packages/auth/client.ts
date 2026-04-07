@@ -8,7 +8,7 @@ export const authClient = createAuthClient({
   plugins: [magicLinkClient()],
 });
 
-export const { signIn, signOut, signUp, useSession } = authClient;
+export const { signIn, signOut, signUp, useSession, forgetPassword, resetPassword } = authClient;
 
 export function redirectToLogin(callbackURL?: string) {
   const url = new URL("/login", authURL);

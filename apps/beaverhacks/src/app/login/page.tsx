@@ -2,7 +2,7 @@
 
 import { useState, Suspense, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { signIn, signUp, useSession } from "@repo/auth/client";
+import { signIn, signUp, useSession, forgetPassword } from "@repo/auth/client";
 import { Mail, Lock, User, Github, Loader2 } from "lucide-react";
 
 function LoginForm() {
@@ -17,13 +17,14 @@ function LoginForm() {
     }
   }, [session, isPending, router]);
 
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [resetSent, setResetSent] = useState(false);
 
   // Show loading while checking session
   if (isPending || session?.user) {
@@ -75,151 +76,254 @@ function LoginForm() {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-xl font-semibold text-white">
-            {mode === "signup" ? "Create an account" : "Sign in"}
+            {mode === "forgot"
+              ? "Reset password"
+              : mode === "signup"
+                ? "Create an account"
+                : "Sign in"}
           </h1>
           <p className="mt-2 text-sm text-neutral-500">
-            {mode === "signup"
-              ? "Enter your details below"
-              : "Welcome back to BeaverHacks"}
+            {mode === "forgot"
+              ? "We'll send you a reset link"
+              : mode === "signup"
+                ? "Enter your details below"
+                : "Welcome back to BeaverHacks"}
           </p>
         </div>
 
-        <button
-          onClick={handleGitHubSignIn}
-          type="button"
-          className="w-full h-10 border border-neutral-800 bg-transparent text-white text-sm font-medium flex items-center justify-center gap-2 hover:bg-neutral-900 transition-colors"
-        >
-          <Github className="w-4 h-4" />
-          Continue with GitHub
-        </button>
-
-        <div className="relative my-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-neutral-800" />
-          </div>
-          <div className="relative flex justify-center">
-            <span className="px-3 text-xs text-neutral-600 bg-neutral-950 uppercase tracking-wide">
-              or
-            </span>
-          </div>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {mode === "signup" && (
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-neutral-400 mb-1.5">
-                  First name
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600" />
-                  <input
-                    type="text"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="John"
-                    className="w-full h-10 pl-10 pr-3 bg-transparent border border-neutral-800 text-white text-sm placeholder:text-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-neutral-400 mb-1.5">
-                  Last name
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600" />
-                  <input
-                    type="text"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Doe"
-                    className="w-full h-10 pl-10 pr-3 bg-transparent border border-neutral-800 text-white text-sm placeholder:text-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div>
-            <label className="block text-xs font-medium text-neutral-400 mb-1.5">
-              Email
-            </label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600" />
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                required
-                className="w-full h-10 pl-10 pr-3 bg-transparent border border-neutral-800 text-white text-sm placeholder:text-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium text-neutral-400 mb-1.5">
-              Password
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600" />
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-                className="w-full h-10 pl-10 pr-3 bg-transparent border border-neutral-800 text-white text-sm placeholder:text-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
-              />
-            </div>
-          </div>
-
-          {error && <p className="text-xs text-red-500">{error}</p>}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full h-10 bg-white text-black text-sm font-medium hover:bg-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {loading
-              ? "Loading..."
-              : mode === "signup"
-                ? "Create account"
-                : "Sign in"}
-          </button>
-        </form>
-
-        <p className="mt-6 text-sm text-neutral-500 text-center">
-          {mode === "signup" ? (
-            <>
-              Have an account?{" "}
+        {mode === "forgot" ? (
+          resetSent ? (
+            <div className="text-center">
+              <p className="text-sm text-neutral-400 mb-6">
+                If an account exists with that email, you&apos;ll receive a reset link shortly.
+              </p>
               <button
                 type="button"
                 onClick={() => {
                   setMode("signin");
+                  setResetSent(false);
                   setError(null);
                 }}
-                className="text-white hover:underline"
+                className="text-sm text-white hover:underline"
               >
-                Sign in
+                Back to sign in
               </button>
-            </>
+            </div>
           ) : (
             <>
-              No account?{" "}
-              <button
-                type="button"
-                onClick={() => {
-                  setMode("signup");
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
                   setError(null);
+                  setLoading(true);
+                  await forgetPassword(
+                    { email, redirectTo: "/reset-password" },
+                    {
+                      onResponse: () => setLoading(false),
+                      onSuccess: () => setResetSent(true),
+                      onError: (ctx) =>
+                        setError(ctx.error.message || "Something went wrong"),
+                    },
+                  );
                 }}
-                className="text-white hover:underline"
+                className="space-y-4"
               >
-                Create one
-              </button>
+                <div>
+                  <label className="block text-xs font-medium text-neutral-400 mb-1.5">
+                    Email
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600" />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      required
+                      className="w-full h-10 pl-10 pr-3 bg-transparent border border-neutral-800 text-white text-sm placeholder:text-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
+                    />
+                  </div>
+                </div>
+
+                {error && <p className="text-xs text-red-500">{error}</p>}
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full h-10 bg-white text-black text-sm font-medium hover:bg-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {loading ? "Loading..." : "Send reset link"}
+                </button>
+              </form>
+
+              <p className="mt-6 text-sm text-neutral-500 text-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode("signin");
+                    setError(null);
+                  }}
+                  className="text-white hover:underline"
+                >
+                  Back to sign in
+                </button>
+              </p>
             </>
-          )}
-        </p>
+          )
+        ) : (
+          <>
+            <button
+              onClick={handleGitHubSignIn}
+              type="button"
+              className="w-full h-10 border border-neutral-800 bg-transparent text-white text-sm font-medium flex items-center justify-center gap-2 hover:bg-neutral-900 transition-colors"
+            >
+              <Github className="w-4 h-4" />
+              Continue with GitHub
+            </button>
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-neutral-800" />
+              </div>
+              <div className="relative flex justify-center">
+                <span className="px-3 text-xs text-neutral-600 bg-neutral-950 uppercase tracking-wide">
+                  or
+                </span>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {mode === "signup" && (
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-neutral-400 mb-1.5">
+                      First name
+                    </label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600" />
+                      <input
+                        type="text"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="John"
+                        className="w-full h-10 pl-10 pr-3 bg-transparent border border-neutral-800 text-white text-sm placeholder:text-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-neutral-400 mb-1.5">
+                      Last name
+                    </label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600" />
+                      <input
+                        type="text"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="Doe"
+                        className="w-full h-10 pl-10 pr-3 bg-transparent border border-neutral-800 text-white text-sm placeholder:text-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-medium text-neutral-400 mb-1.5">
+                  Email
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    required
+                    className="w-full h-10 pl-10 pr-3 bg-transparent border border-neutral-800 text-white text-sm placeholder:text-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-medium text-neutral-400">
+                    Password
+                  </label>
+                  {mode === "signin" && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMode("forgot");
+                        setError(null);
+                      }}
+                      className="text-xs text-neutral-500 hover:text-white transition-colors"
+                    >
+                      Forgot password?
+                    </button>
+                  )}
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600" />
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    required
+                    className="w-full h-10 pl-10 pr-3 bg-transparent border border-neutral-800 text-white text-sm placeholder:text-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
+                  />
+                </div>
+              </div>
+
+              {error && <p className="text-xs text-red-500">{error}</p>}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full h-10 bg-white text-black text-sm font-medium hover:bg-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {loading
+                  ? "Loading..."
+                  : mode === "signup"
+                    ? "Create account"
+                    : "Sign in"}
+              </button>
+            </form>
+
+            <p className="mt-6 text-sm text-neutral-500 text-center">
+              {mode === "signup" ? (
+                <>
+                  Have an account?{" "}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode("signin");
+                      setError(null);
+                    }}
+                    className="text-white hover:underline"
+                  >
+                    Sign in
+                  </button>
+                </>
+              ) : (
+                <>
+                  No account?{" "}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode("signup");
+                      setError(null);
+                    }}
+                    className="text-white hover:underline"
+                  >
+                    Create one
+                  </button>
+                </>
+              )}
+            </p>
+          </>
+        )}
       </div>
     </div>
   );
