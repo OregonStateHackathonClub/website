@@ -90,13 +90,9 @@ const formSchema = z.object({
   agreement: z
     .boolean()
     .refine((val) => val === true, "You must agree to the requirements"),
-  mlhCodeOfConduct: z
+  codeOfConduct: z
     .boolean()
-    .refine((val) => val === true, "You must agree to the MLH Code of Conduct"),
-  mlhPrivacy: z
-    .boolean()
-    .refine((val) => val === true, "You must agree to the MLH Privacy Policy"),
-  mlhMarketing: z.boolean().optional(),
+    .refine((val) => val === true, "You must agree to the Code of Conduct"),
 });
 
 const labelClass = "text-xs font-medium text-neutral-400";
@@ -274,9 +270,7 @@ export const ApplicationForm = ({
       resume: undefined,
       inPersonAgreement: false,
       agreement: false,
-      mlhCodeOfConduct: false,
-      mlhPrivacy: false,
-      mlhMarketing: false,
+      codeOfConduct: false,
     },
   });
 
@@ -654,124 +648,39 @@ export const ApplicationForm = ({
                 )}
               />
 
-              {/* MLH Disclaimers */}
-              <div className="border-t border-neutral-800 pt-4 space-y-4">
-                <p className="text-xs text-neutral-500">
-                  We participate in Major League Hacking (MLH) as a Member
-                  Event. Please review and agree to the following:
-                </p>
-
-                <FormField
-                  control={form.control}
-                  name="mlhCodeOfConduct"
-                  render={({ field }) => (
-                    <FormItem className="flex items-start gap-3 space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          disabled={!applicationsOpen}
-                          className="mt-0.5"
-                        />
-                      </FormControl>
-                      <div className="space-y-1">
-                        <FormLabel className="text-xs text-neutral-400 leading-relaxed font-normal cursor-pointer">
-                          <span>
-                            I have read and agree to the{" "}
-                            <a
-                              href="https://static.mlh.io/docs/mlh-code-of-conduct.pdf"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-white underline hover:text-neutral-300"
-                            >
-                              MLH Code of Conduct
-                            </a>
-                            .
-                          </span>
-                        </FormLabel>
-                        <FormMessage className={messageClass} />
-                      </div>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="mlhPrivacy"
-                  render={({ field }) => (
-                    <FormItem className="flex items-start gap-3 space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          disabled={!applicationsOpen}
-                          className="mt-0.5"
-                        />
-                      </FormControl>
-                      <div className="space-y-1">
-                        <FormLabel className="text-xs text-neutral-400 leading-relaxed font-normal cursor-pointer">
-                          <span>
-                            I authorize you to share my application/registration
-                            information with Major League Hacking for event
-                            administration, ranking, and MLH administration
-                            in-line with the{" "}
-                            <a
-                              href="https://github.com/MLH/mlh-policies/blob/main/privacy-policy.md"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-white underline hover:text-neutral-300"
-                            >
-                              MLH Privacy Policy
-                            </a>
-                            . I further agree to the terms of both the{" "}
-                            <a
-                              href="https://github.com/MLH/mlh-policies/blob/main/contest-terms.md"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-white underline hover:text-neutral-300"
-                            >
-                              MLH Contest Terms and Conditions
-                            </a>{" "}
-                            and the{" "}
-                            <a
-                              href="https://github.com/MLH/mlh-policies/blob/main/privacy-policy.md"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-white underline hover:text-neutral-300"
-                            >
-                              MLH Privacy Policy
-                            </a>
-                            .
-                          </span>
-                        </FormLabel>
-                        <FormMessage className={messageClass} />
-                      </div>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="mlhMarketing"
-                  render={({ field }) => (
-                    <FormItem className="flex items-start gap-3 space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          disabled={!applicationsOpen}
-                          className="mt-0.5"
-                        />
-                      </FormControl>
+              <FormField
+                control={form.control}
+                name="codeOfConduct"
+                render={({ field }) => (
+                  <FormItem className="flex items-start gap-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        disabled={!applicationsOpen}
+                        className="mt-0.5"
+                      />
+                    </FormControl>
+                    <div className="space-y-1">
                       <FormLabel className="text-xs text-neutral-400 leading-relaxed font-normal cursor-pointer">
-                        I authorize MLH to send me occasional emails about
-                        relevant events, career opportunities, and community
-                        announcements. (optional)
+                        <span>
+                          I have read and agree to the{" "}
+                          <a
+                            href="/BeaverHacks Code of Conduct.pdf"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-white underline hover:text-neutral-300"
+                          >
+                            BeaverHacks Code of Conduct
+                          </a>
+                          .
+                        </span>
                       </FormLabel>
-                    </FormItem>
-                  )}
-                />
-              </div>
+                      <FormMessage className={messageClass} />
+                    </div>
+                  </FormItem>
+                )}
+              />
             </>
           )}
 

@@ -56,14 +56,14 @@ const FAQ_DATA: {
     question: "Is there a code of conduct?",
     answer: (
       <>
-        Yes! As an MLH Member Event, all participants must follow the{" "}
+        Yes! All participants must follow the{" "}
         <a
-          href="https://github.com/MLH/mlh-policies/blob/main/code-of-conduct.md"
+          href="/BeaverHacks Code of Conduct.pdf"
           target="_blank"
           rel="noopener noreferrer"
           className="text-amber-bright underline hover:text-amber-bright/80"
         >
-          MLH Code of Conduct
+          BeaverHacks Code of Conduct
         </a>
         . We are committed to providing a safe and welcoming environment for
         everyone.
