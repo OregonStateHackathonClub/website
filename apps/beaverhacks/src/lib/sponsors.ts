@@ -13,7 +13,7 @@ export const sponsors = [
   { name: "Trimble", logo: "/trimble-logo.png", url: "https://trimble.com" },
   {
     name: "ConductorOne",
-    logo: "Conductorone-logo.png",
+    logo: "/conductorone-logo.png",
     url: "https://www.conductorone.com",
   },
 ];
