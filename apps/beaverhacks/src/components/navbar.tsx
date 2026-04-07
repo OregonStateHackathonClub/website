@@ -3,7 +3,7 @@
 const navItems = [
   { id: "home", label: "home", icon: "", file: "index.tsx" },
   { id: "sponsors", label: "sponsors", icon: "", file: "sponsors.tsx" },
-  { id: "faq", label: "faq", icon: "󰋖", file: "faq.md" },
+  { id: "faq", label: "faq", icon: "", file: "faq.md" },
 ] as const;
 
 export type Page = (typeof navItems)[number]["id"];
