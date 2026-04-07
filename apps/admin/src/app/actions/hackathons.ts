@@ -2,8 +2,9 @@
 
 import { ApplicationStatus, prisma } from "@repo/database";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { requireAdmin } from "./auth";
-import { sendStatusEmail } from "./status-emails";
+import { sendBulkStatusEmails, sendStatusEmail } from "./status-emails";
 
 export async function createHackathon(data: {
   name: string;
@@ -546,11 +547,13 @@ export async function updateApplicationStatus(
     });
 
     if (status === "ACCEPTED" || status === "REJECTED" || status === "WAITLISTED") {
-      sendStatusEmail(
-        application.user.email,
-        application.name,
-        application.hackathon.name,
-        status,
+      after(
+        sendStatusEmail(
+          application.user.email,
+          application.name,
+          application.hackathon.name,
+          status,
+        ),
       );
     }
 
@@ -600,10 +603,13 @@ export async function bulkUpdateApplicationStatus(
       data: { status },
     });
 
-    if (shouldEmail) {
-      for (const app of applications) {
-        sendStatusEmail(app.user.email, app.name, app.hackathon.name, status);
-      }
+    if (shouldEmail && applications.length > 0) {
+      const hackathonName = applications[0].hackathon.name;
+      const recipients = applications.map((app) => ({
+        email: app.user.email,
+        name: app.name,
+      }));
+      after(sendBulkStatusEmails(recipients, hackathonName, status));
     }
 
     revalidatePath(`/hackathons/${hackathonId}/applications`);

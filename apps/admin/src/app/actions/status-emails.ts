@@ -131,21 +131,33 @@ function statusUpdateEmailHtml(
 </html>`;
 }
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function buildEmail(
+  name: string,
+  hackathonName: string,
+  status: "ACCEPTED" | "REJECTED" | "WAITLISTED",
+) {
+  const isAccepted = status === "ACCEPTED";
+  return {
+    subject: isAccepted
+      ? `You're in! Welcome to ${hackathonName}`
+      : `${hackathonName} — Application Update`,
+    html: isAccepted
+      ? acceptanceEmailHtml(name, hackathonName)
+      : statusUpdateEmailHtml(name, hackathonName),
+  };
+}
+
 export async function sendStatusEmail(
   email: string,
   name: string,
   hackathonName: string,
   status: "ACCEPTED" | "REJECTED" | "WAITLISTED",
 ): Promise<void> {
-  const isAccepted = status === "ACCEPTED";
-
-  const subject = isAccepted
-    ? `You're in! Welcome to ${hackathonName}`
-    : `${hackathonName} — Application Update`;
-
-  const html = isAccepted
-    ? acceptanceEmailHtml(name, hackathonName)
-    : statusUpdateEmailHtml(name, hackathonName);
+  const { subject, html } = buildEmail(name, hackathonName, status);
 
   try {
     await resend.emails.send({
@@ -156,5 +168,37 @@ export async function sendStatusEmail(
     });
   } catch (error) {
     console.error(`Failed to send ${status} email to ${email}:`, error);
+  }
+}
+
+// Sends emails in batches of 4 with 1s delay to stay under Resend's 5 req/s rate limit.
+export async function sendBulkStatusEmails(
+  recipients: { email: string; name: string }[],
+  hackathonName: string,
+  status: "ACCEPTED" | "REJECTED" | "WAITLISTED",
+): Promise<void> {
+  const batchSize = 4;
+  for (let i = 0; i < recipients.length; i += batchSize) {
+    const batch = recipients.slice(i, i + batchSize);
+
+    await Promise.all(
+      batch.map(async ({ email, name }) => {
+        const { subject, html } = buildEmail(name, hackathonName, status);
+        try {
+          await resend.emails.send({
+            from: "BeaverHacks <info@beaverhacks.org>",
+            to: email,
+            subject,
+            html,
+          });
+        } catch (error) {
+          console.error(`Failed to send ${status} email to ${email}:`, error);
+        }
+      }),
+    );
+
+    if (i + batchSize < recipients.length) {
+      await sleep(1000);
+    }
   }
 }
