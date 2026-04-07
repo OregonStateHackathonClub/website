@@ -3,6 +3,7 @@
 import { ApplicationStatus, prisma } from "@repo/database";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "./auth";
+import { sendStatusEmail } from "./status-emails";
 
 export async function createHackathon(data: {
   name: string;
@@ -517,6 +518,14 @@ export async function updateApplicationStatus(
   try {
     const application = await prisma.application.findUnique({
       where: { id: applicationId },
+      select: {
+        id: true,
+        name: true,
+        status: true,
+        hackathonId: true,
+        user: { select: { email: true } },
+        hackathon: { select: { name: true } },
+      },
     });
 
     if (!application || application.hackathonId !== hackathonId) {
@@ -535,6 +544,15 @@ export async function updateApplicationStatus(
       where: { id: applicationId },
       data: { status },
     });
+
+    if (status === "ACCEPTED" || status === "REJECTED" || status === "WAITLISTED") {
+      sendStatusEmail(
+        application.user.email,
+        application.name,
+        application.hackathon.name,
+        status,
+      );
+    }
 
     revalidatePath(`/hackathons/${hackathonId}/applications`);
     return { success: true };
@@ -562,10 +580,31 @@ export async function bulkUpdateApplicationStatus(
           }
         : { id: { in: applicationIds }, hackathonId };
 
+    // Fetch applicant info before updating so we can send emails
+    const shouldEmail =
+      status === "ACCEPTED" || status === "REJECTED" || status === "WAITLISTED";
+
+    const applications = shouldEmail
+      ? await prisma.application.findMany({
+          where: whereClause,
+          select: {
+            name: true,
+            user: { select: { email: true } },
+            hackathon: { select: { name: true } },
+          },
+        })
+      : [];
+
     const result = await prisma.application.updateMany({
       where: whereClause,
       data: { status },
     });
+
+    if (shouldEmail) {
+      for (const app of applications) {
+        sendStatusEmail(app.user.email, app.name, app.hackathon.name, status);
+      }
+    }
 
     revalidatePath(`/hackathons/${hackathonId}/applications`);
     return { success: true, count: result.count };
