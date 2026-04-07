@@ -12,7 +12,9 @@ import { STATUS_OPTIONS } from "./types";
 interface ControlsProps {
   hackathons: Hackathon[];
   selectedHackathon: Hackathon | null;
-  onHackathonChange: (hackathon: Hackathon) => void;
+  onHackathonChange: (hackathon: Hackathon | null) => void;
+  audienceFilter: string;
+  onAudienceFilterChange: (value: string) => void;
   statusFilter: string;
   onStatusFilterChange: (status: string) => void;
   showPreview: boolean;
@@ -23,25 +25,37 @@ export function Controls({
   hackathons,
   selectedHackathon,
   onHackathonChange,
+  audienceFilter,
+  onAudienceFilterChange,
   statusFilter,
   onStatusFilterChange,
   showPreview,
   onShowPreviewChange,
 }: ControlsProps) {
+  const isHackathonSelected = audienceFilter !== "NOT_APPLIED" && selectedHackathon;
+
   return (
     <div className="flex items-center gap-4 px-6 py-3 border-b border-neutral-800 bg-neutral-950/50">
-      {/* Hackathon Selector */}
+      {/* Audience Selector */}
       <Select
-        value={selectedHackathon?.id || ""}
+        value={audienceFilter}
         onValueChange={(value) => {
-          const hackathon = hackathons.find((h) => h.id === value);
-          if (hackathon) onHackathonChange(hackathon);
+          if (value === "NOT_APPLIED") {
+            onAudienceFilterChange("NOT_APPLIED");
+          } else {
+            const hackathon = hackathons.find((h) => h.id === value);
+            if (hackathon) {
+              onHackathonChange(hackathon);
+              onAudienceFilterChange(value);
+            }
+          }
         }}
       >
-        <SelectTrigger className="w-[200px] bg-transparent border-neutral-700 text-white rounded-none">
-          <SelectValue placeholder="Select Hackathon" />
+        <SelectTrigger className="w-[240px] bg-transparent border-neutral-700 text-white rounded-none">
+          <SelectValue placeholder="Select audience" />
         </SelectTrigger>
         <SelectContent className="bg-neutral-900 border-neutral-700 rounded-none">
+          <SelectItem value="NOT_APPLIED">Not Applied</SelectItem>
           {hackathons.map((h) => (
             <SelectItem key={h.id} value={h.id}>
               {h.name} ({h._count.applications})
@@ -51,8 +65,12 @@ export function Controls({
       </Select>
 
       {/* Status Filter */}
-      <Select value={statusFilter} onValueChange={onStatusFilterChange}>
-        <SelectTrigger className="w-40] bg-transparent border-neutral-700 text-white rounded-none">
+      <Select
+        value={statusFilter}
+        onValueChange={onStatusFilterChange}
+        disabled={!isHackathonSelected}
+      >
+        <SelectTrigger className="w-[160px] bg-transparent border-neutral-700 text-white rounded-none disabled:opacity-40 disabled:cursor-not-allowed">
           <SelectValue />
         </SelectTrigger>
         <SelectContent className="bg-neutral-900 border-neutral-700 rounded-none">

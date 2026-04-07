@@ -19,8 +19,9 @@ interface ComposerProps {
 
 export function Composer({ hackathons }: ComposerProps) {
   const [selectedHackathon, setSelectedHackathon] = useState<Hackathon | null>(
-    hackathons[0] || null,
+    null,
   );
+  const [audienceFilter, setAudienceFilter] = useState<string>("NOT_APPLIED");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [recipients, setRecipients] = useState<
     { email: string; name: string; status: string }[]
@@ -33,9 +34,11 @@ export function Composer({ hackathons }: ComposerProps) {
   const [showPreview, setShowPreview] = useState(true);
   const [sending, setSending] = useState(false);
 
+  const isNotApplied = audienceFilter === "NOT_APPLIED";
+
   useEffect(() => {
     async function loadRecipients() {
-      if (!selectedHackathon) return;
+      if (!selectedHackathon || isNotApplied) return;
       try {
         const data = await getEmailRecipients(selectedHackathon.id);
         setRecipients(data);
@@ -44,27 +47,30 @@ export function Composer({ hackathons }: ComposerProps) {
       }
     }
     loadRecipients();
-  }, [selectedHackathon]);
+  }, [selectedHackathon, isNotApplied]);
 
   useEffect(() => {
     async function loadNonApplicants() {
-      if (!selectedHackathon || statusFilter !== "NOT_APPLIED") return;
+      if (!isNotApplied) return;
       try {
-        const data = await getNonApplicantEmails(selectedHackathon.id);
+        // For "Not Applied", we need a hackathon to compare against.
+        // Use the most recent one (first in list).
+        const hackathonId = hackathons[0]?.id;
+        if (!hackathonId) return;
+        const data = await getNonApplicantEmails(hackathonId);
         setNonApplicants(data);
       } catch {
         toast.error("Failed to load non-applicants");
       }
     }
     loadNonApplicants();
-  }, [selectedHackathon, statusFilter]);
+  }, [isNotApplied, hackathons]);
 
-  const filteredRecipients =
-    statusFilter === "NOT_APPLIED"
-      ? nonApplicants.map((u) => ({ ...u, status: "NOT_APPLIED" as const }))
-      : statusFilter === "ALL"
-        ? recipients
-        : recipients.filter((r) => r.status === statusFilter);
+  const filteredRecipients = isNotApplied
+    ? nonApplicants.map((u) => ({ ...u, status: "NOT_APPLIED" as const }))
+    : statusFilter === "ALL"
+      ? recipients
+      : recipients.filter((r) => r.status === statusFilter);
 
   const handleSend = async () => {
     if (!subject.trim()) {
@@ -111,6 +117,13 @@ export function Composer({ hackathons }: ComposerProps) {
         hackathons={hackathons}
         selectedHackathon={selectedHackathon}
         onHackathonChange={setSelectedHackathon}
+        audienceFilter={audienceFilter}
+        onAudienceFilterChange={(value) => {
+          setAudienceFilter(value);
+          if (value !== "NOT_APPLIED") {
+            setStatusFilter("ALL");
+          }
+        }}
         statusFilter={statusFilter}
         onStatusFilterChange={setStatusFilter}
         showPreview={showPreview}

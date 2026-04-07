@@ -16,7 +16,6 @@ export type Recipient = {
 
 export const STATUS_OPTIONS = [
   { value: "ALL", label: "All Applicants" },
-  { value: "NOT_APPLIED", label: "Not Applied" },
   { value: "APPLIED", label: "Applied" },
   { value: "ACCEPTED", label: "Accepted" },
   { value: "REJECTED", label: "Rejected" },
