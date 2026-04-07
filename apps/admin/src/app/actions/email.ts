@@ -31,8 +31,8 @@ export async function sendEmail({
   const errors: string[] = [];
   let sentCount = 0;
 
-  // Send emails in batches of 10 to avoid rate limits
-  const batchSize = 10;
+  // Send emails in batches of 4 with 1s delay to stay under Resend's 5 req/s rate limit
+  const batchSize = 4;
   for (let i = 0; i < to.length; i += batchSize) {
     const batch = to.slice(i, i + batchSize);
 
@@ -60,6 +60,10 @@ export async function sendEmail({
 
     const results = await Promise.all(promises);
     sentCount += results.filter(Boolean).length;
+
+    if (i + batchSize < to.length) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
   }
 
   return {
