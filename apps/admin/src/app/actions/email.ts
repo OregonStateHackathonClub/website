@@ -78,12 +78,10 @@ export async function getEmailRecipients(hackathonId: string) {
 
   const applications = await prisma.application.findMany({
     where: { hackathonId },
-    include: {
-      user: {
-        select: {
-          email: true,
-        },
-      },
+    select: {
+      name: true,
+      status: true,
+      user: { select: { email: true } },
     },
   });
 
@@ -91,5 +89,26 @@ export async function getEmailRecipients(hackathonId: string) {
     email: app.user.email,
     name: app.name,
     status: app.status,
+  }));
+}
+
+export async function getNonApplicantEmails(hackathonId: string) {
+  await requireAdmin();
+
+  const users = await prisma.user.findMany({
+    where: {
+      applications: {
+        none: { hackathonId },
+      },
+    },
+    select: {
+      email: true,
+      name: true,
+    },
+  });
+
+  return users.map((u) => ({
+    email: u.email,
+    name: u.name,
   }));
 }

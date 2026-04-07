@@ -2,11 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { getEmailRecipients, sendEmail } from "@/app/actions/email";
+import {
+  getEmailRecipients,
+  getNonApplicantEmails,
+  sendEmail,
+} from "@/app/actions/email";
 import { Controls } from "./controls";
 import { Editor } from "./editor";
 import { Header } from "./header";
-import type { Hackathon, Recipient } from "./types";
+import type { Hackathon } from "./types";
 import { DEFAULT_HTML } from "./types";
 
 interface ComposerProps {
@@ -18,7 +22,12 @@ export function Composer({ hackathons }: ComposerProps) {
     hackathons[0] || null,
   );
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
-  const [recipients, setRecipients] = useState<Recipient[]>([]);
+  const [recipients, setRecipients] = useState<
+    { email: string; name: string; status: string }[]
+  >([]);
+  const [nonApplicants, setNonApplicants] = useState<
+    { email: string; name: string }[]
+  >([]);
   const [subject, setSubject] = useState("");
   const [html, setHtml] = useState(DEFAULT_HTML);
   const [showPreview, setShowPreview] = useState(true);
@@ -37,10 +46,25 @@ export function Composer({ hackathons }: ComposerProps) {
     loadRecipients();
   }, [selectedHackathon]);
 
+  useEffect(() => {
+    async function loadNonApplicants() {
+      if (!selectedHackathon || statusFilter !== "NOT_APPLIED") return;
+      try {
+        const data = await getNonApplicantEmails(selectedHackathon.id);
+        setNonApplicants(data);
+      } catch {
+        toast.error("Failed to load non-applicants");
+      }
+    }
+    loadNonApplicants();
+  }, [selectedHackathon, statusFilter]);
+
   const filteredRecipients =
-    statusFilter === "ALL"
-      ? recipients
-      : recipients.filter((r) => r.status === statusFilter);
+    statusFilter === "NOT_APPLIED"
+      ? nonApplicants.map((u) => ({ ...u, status: "NOT_APPLIED" as const }))
+      : statusFilter === "ALL"
+        ? recipients
+        : recipients.filter((r) => r.status === statusFilter);
 
   const handleSend = async () => {
     if (!subject.trim()) {
