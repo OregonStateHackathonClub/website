@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import {
   saveJudgeNotes,
   skipSubmission,
+  submitRankedVotes,
   submitRubricScores,
   submitTriageScore,
 } from "@/app/actions/judge";
@@ -126,12 +127,32 @@ export function Round({
           state.selectedAssignment.submissionId,
           state.rubricScores,
         );
+      } else if (round.type === "RANKED") {
+        if (state.rankedOrder.length !== (round.rankedSlots || 0)) {
+          toast.error("Ranking is incomplete");
+          state.setIsSubmitting(false);
+          return;
+        }
+        result = await submitRankedVotes(
+          hackathonId,
+          round.id,
+          state.rankedOrder,
+        );
       }
 
       if (result?.success) {
-        toast.success("Score submitted");
-        state.markCompleted(state.selectedAssignment.id);
-        state.moveToNextIncomplete();
+        toast.success(
+          round.type === "RANKED" ? "Rankings submitted" : "Score submitted",
+        );
+        if (round.type === "RANKED") {
+          // Mark all assignments as completed for ranked rounds
+          for (const a of state.assignments) {
+            state.markCompleted(a.id);
+          }
+        } else {
+          state.markCompleted(state.selectedAssignment.id);
+          state.moveToNextIncomplete();
+        }
       } else {
         toast.error(result?.error || "Failed to submit score");
       }
@@ -228,6 +249,14 @@ export function Round({
             onTriageScoreChange={state.setTriageScore}
             rubricScores={state.rubricScores}
             onRubricScoresChange={state.setRubricScores}
+            rankedOrder={state.rankedOrder}
+            onRankedOrderChange={state.setRankedOrder}
+            rankedSubmissions={state.assignments.map((a) => ({
+              id: a.submissionId,
+              title: a.submission.title,
+              tagline: a.submission.tagline,
+              teamName: a.submission.team?.name ?? null,
+            })).filter((s, i, arr) => arr.findIndex((x) => x.id === s.id) === i)}
             notes={state.notes}
             onNotesChange={state.setNotes}
             isSubmitting={state.isSubmitting}

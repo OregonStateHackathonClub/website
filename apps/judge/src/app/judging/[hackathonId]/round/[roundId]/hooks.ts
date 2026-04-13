@@ -86,6 +86,12 @@ export function useJudgingState({
 
   const [triageScore, setTriageScore] = useState<number | null>(null);
   const [rubricScores, setRubricScores] = useState<Record<string, number>>({});
+  const [rankedOrder, setRankedOrder] = useState<string[]>(() => {
+    if (roundType === "RANKED") {
+      return [...new Set(initialAssignments.map((a) => a.submissionId))];
+    }
+    return [];
+  });
   const [notes, setNotes] = useState("");
 
   const totalSeconds = minutesPerProject * 60;
@@ -164,6 +170,8 @@ export function useJudgingState({
     setTriageScore,
     rubricScores,
     setRubricScores,
+    rankedOrder,
+    setRankedOrder,
     notes,
     setNotes,
     timerSeconds,

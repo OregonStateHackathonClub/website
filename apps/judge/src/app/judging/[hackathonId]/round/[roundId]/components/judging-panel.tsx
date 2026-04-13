@@ -5,6 +5,7 @@ import { Button } from "@repo/ui/components/button";
 import { SkipForward } from "lucide-react";
 import { JudgingTimer } from "./judging-timer";
 import { NotesInput } from "./notes-input";
+import { RankedScoring } from "./ranked-scoring";
 import { RubricScoring } from "./rubric-scoring";
 import { TriageScoring } from "./triage-scoring";
 
@@ -26,6 +27,9 @@ interface JudgingPanelProps {
   onTriageScoreChange: (score: number | null) => void;
   rubricScores: Record<string, number>;
   onRubricScoresChange: (scores: Record<string, number>) => void;
+  rankedOrder: string[];
+  onRankedOrderChange: (order: string[]) => void;
+  rankedSubmissions: { id: string; title: string; tagline: string; teamName: string | null }[];
   notes: string;
   onNotesChange: (notes: string) => void;
   isSubmitting: boolean;
@@ -43,6 +47,9 @@ export function JudgingPanel({
   onTriageScoreChange,
   rubricScores,
   onRubricScoresChange,
+  rankedOrder,
+  onRankedOrderChange,
+  rankedSubmissions,
   notes,
   onNotesChange,
   isSubmitting,
@@ -80,12 +87,12 @@ export function JudgingPanel({
           </div>
         )}
 
-        {round.type === "RANKED" && (
-          <div className="mb-6 p-4 border border-neutral-800 bg-neutral-950/80 backdrop-blur-sm">
-            <p className="text-neutral-500 text-sm">
-              Ranked voting is done after reviewing all finalists.
-            </p>
-          </div>
+        {round.type === "RANKED" && rankedSubmissions.length > 0 && (
+          <RankedScoring
+            submissions={rankedSubmissions}
+            rankedOrder={rankedOrder}
+            onChange={onRankedOrderChange}
+          />
         )}
 
         <div className="mb-6">
@@ -102,7 +109,11 @@ export function JudgingPanel({
           disabled={isSubmitting}
           className="w-full h-11 bg-white text-black hover:bg-neutral-200 rounded-none"
         >
-          {isSubmitting ? "Submitting..." : "Submit Score"}
+          {isSubmitting
+            ? "Submitting..."
+            : round.type === "RANKED"
+              ? "Submit Rankings"
+              : "Submit Score"}
         </Button>
         <Button
           variant="outline"
