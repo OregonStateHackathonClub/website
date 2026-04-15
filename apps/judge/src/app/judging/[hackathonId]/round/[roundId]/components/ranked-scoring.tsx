@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronUp, Trophy } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 interface RankedSubmission {
   id: string;
@@ -72,9 +72,7 @@ export function RankedScoring({
               </button>
               <button
                 onClick={() => moveDown(index)}
-                disabled={
-                  index === orderedSubmissions.length - 1 || disabled
-                }
+                disabled={index === orderedSubmissions.length - 1 || disabled}
                 className="text-neutral-500 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed"
               >
                 <ChevronDown className="h-3.5 w-3.5" />

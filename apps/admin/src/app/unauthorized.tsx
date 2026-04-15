@@ -5,10 +5,12 @@ import Link from "next/link";
 import { signOut } from "@repo/auth/client";
 
 export default function Unauthorized() {
+  const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || "http://localhost:3000";
+  const adminUrl =
+    process.env.NEXT_PUBLIC_ADMIN_URL || "http://localhost:3004";
+
   const handleSwitchAccount = async () => {
     await signOut();
-    const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || "http://localhost:3000";
-    const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL || "http://localhost:3004";
     window.location.href = `${authUrl}/login?callbackURL=${encodeURIComponent(`${adminUrl}/dashboard`)}`;
   };
 
@@ -21,13 +23,13 @@ export default function Unauthorized() {
 
         <h1 className="text-xl font-semibold text-white mb-2">Access Denied</h1>
         <p className="text-sm text-neutral-500 max-w-sm mb-8">
-          You don&apos;t have permission to access this page.
-          Only administrators can access the admin dashboard.
+          You don&apos;t have permission to access this page. Only
+          administrators can access the admin dashboard.
         </p>
 
         <div className="flex gap-3 justify-center">
           <Link
-            href="https://beaverhacks.org"
+            href={authUrl}
             className="h-10 px-4 border border-neutral-800 bg-transparent text-white text-sm font-medium flex items-center justify-center hover:bg-neutral-900 transition-colors"
           >
             Go to Main Site

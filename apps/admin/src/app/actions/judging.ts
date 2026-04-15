@@ -552,6 +552,9 @@ export async function completeRound(
       }));
     }
 
+    // Clear existing advancements (in case of re-completing)
+    await prisma.roundAdvancement.deleteMany({ where: { roundId } });
+
     // Save advancements
     await prisma.roundAdvancement.createMany({
       data: advancingSubmissions.map((a) => ({

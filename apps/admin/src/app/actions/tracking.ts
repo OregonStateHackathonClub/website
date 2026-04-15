@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { prisma } from "@repo/database";
 import { requireAdmin } from "./auth";
 
@@ -219,4 +220,285 @@ export async function getTrackingData(
   });
 
   return { rounds, projects, stats, tracks };
+}
+
+// Override: assign an additional judge to a project for a round
+export async function assignJudgeToRound(
+  hackathonId: string,
+  roundId: string,
+  submissionId: string,
+  judgeId: string,
+): Promise<{ success: boolean; error?: string }> {
+  await requireAdmin();
+
+  try {
+    const round = await prisma.judgingRound.findUnique({
+      where: { id: roundId },
+      include: { plan: { include: { track: true } } },
+    });
+
+    if (!round || round.plan.track.hackathonId !== hackathonId) {
+      return { success: false, error: "Round not found" };
+    }
+
+    const existing = await prisma.roundJudgeAssignment.findUnique({
+      where: { roundId_judgeId_submissionId: { roundId, judgeId, submissionId } },
+    });
+
+    if (existing) {
+      return { success: false, error: "Judge already assigned to this project" };
+    }
+
+    await prisma.roundJudgeAssignment.create({
+      data: { roundId, judgeId, submissionId },
+    });
+
+    // New incomplete assignment means round is no longer complete
+    if (round.isComplete) {
+      await prisma.judgingRound.update({
+        where: { id: roundId },
+        data: { isComplete: false },
+      });
+    }
+
+    revalidatePath(`/hackathons/${hackathonId}/tracking`);
+    return { success: true };
+  } catch {
+    return { success: false, error: "Failed to assign judge" };
+  }
+}
+
+// Override: skip a judge's assignment
+export async function skipJudgeAssignment(
+  hackathonId: string,
+  assignmentId: string,
+  reason: string,
+  note?: string,
+): Promise<{ success: boolean; error?: string }> {
+  await requireAdmin();
+
+  try {
+    const assignment = await prisma.roundJudgeAssignment.findUnique({
+      where: { id: assignmentId },
+      include: { round: { include: { plan: { include: { track: true } } } } },
+    });
+
+    if (!assignment || assignment.round.plan.track.hackathonId !== hackathonId) {
+      return { success: false, error: "Assignment not found" };
+    }
+
+    await prisma.roundJudgeAssignment.update({
+      where: { id: assignmentId },
+      data: { completed: true, skippedReason: reason, skippedNote: note || null },
+    });
+
+    revalidatePath(`/hackathons/${hackathonId}/tracking`);
+    return { success: true };
+  } catch {
+    return { success: false, error: "Failed to skip assignment" };
+  }
+}
+
+// Override: mark assignment complete
+export async function markAssignmentComplete(
+  hackathonId: string,
+  assignmentId: string,
+): Promise<{ success: boolean; error?: string }> {
+  await requireAdmin();
+
+  try {
+    const assignment = await prisma.roundJudgeAssignment.findUnique({
+      where: { id: assignmentId },
+      include: { round: { include: { plan: { include: { track: true } } } } },
+    });
+
+    if (!assignment || assignment.round.plan.track.hackathonId !== hackathonId) {
+      return { success: false, error: "Assignment not found" };
+    }
+
+    await prisma.roundJudgeAssignment.update({
+      where: { id: assignmentId },
+      data: { completed: true },
+    });
+
+    revalidatePath(`/hackathons/${hackathonId}/tracking`);
+    return { success: true };
+  } catch {
+    return { success: false, error: "Failed to mark complete" };
+  }
+}
+
+// Override: set a triage score for an assignment
+export async function overrideTriageScore(
+  hackathonId: string,
+  assignmentId: string,
+  stars: number,
+): Promise<{ success: boolean; error?: string }> {
+  await requireAdmin();
+
+  try {
+    const assignment = await prisma.roundJudgeAssignment.findUnique({
+      where: { id: assignmentId },
+      include: { round: { include: { plan: { include: { track: true } } } } },
+    });
+
+    if (!assignment || assignment.round.plan.track.hackathonId !== hackathonId) {
+      return { success: false, error: "Assignment not found" };
+    }
+
+    await prisma.triageScore.upsert({
+      where: { assignmentId },
+      create: { assignmentId, stars },
+      update: { stars },
+    });
+
+    await prisma.roundJudgeAssignment.update({
+      where: { id: assignmentId },
+      data: { completed: true },
+    });
+
+    revalidatePath(`/hackathons/${hackathonId}/tracking`);
+    return { success: true };
+  } catch {
+    return { success: false, error: "Failed to override score" };
+  }
+}
+
+// Delete a judge assignment and its scores entirely
+export async function deleteJudgeAssignment(
+  hackathonId: string,
+  assignmentId: string,
+): Promise<{ success: boolean; error?: string }> {
+  await requireAdmin();
+
+  try {
+    const assignment = await prisma.roundJudgeAssignment.findUnique({
+      where: { id: assignmentId },
+      include: { round: { include: { plan: { include: { track: true } } } } },
+    });
+
+    if (!assignment || assignment.round.plan.track.hackathonId !== hackathonId) {
+      return { success: false, error: "Assignment not found" };
+    }
+
+    // Cascade delete handles scores — just delete the assignment
+    await prisma.roundJudgeAssignment.delete({
+      where: { id: assignmentId },
+    });
+
+    revalidatePath(`/hackathons/${hackathonId}/tracking`);
+    return { success: true };
+  } catch {
+    return { success: false, error: "Failed to delete assignment" };
+  }
+}
+
+// Override: set a ranked vote for an assignment
+export async function overrideRankedVote(
+  hackathonId: string,
+  assignmentId: string,
+  rank: number,
+): Promise<{ success: boolean; error?: string }> {
+  await requireAdmin();
+
+  try {
+    const assignment = await prisma.roundJudgeAssignment.findUnique({
+      where: { id: assignmentId },
+      include: { round: { include: { plan: { include: { track: true } } } } },
+    });
+
+    if (!assignment || assignment.round.plan.track.hackathonId !== hackathonId) {
+      return { success: false, error: "Assignment not found" };
+    }
+
+    await prisma.rankedVote.upsert({
+      where: { assignmentId },
+      create: { assignmentId, rank },
+      update: { rank },
+    });
+
+    await prisma.roundJudgeAssignment.update({
+      where: { id: assignmentId },
+      data: { completed: true },
+    });
+
+    revalidatePath(`/hackathons/${hackathonId}/tracking`);
+    return { success: true };
+  } catch {
+    return { success: false, error: "Failed to override rank" };
+  }
+}
+
+// Override: set rubric scores for an assignment (distributes total across criteria)
+export async function overrideRubricScore(
+  hackathonId: string,
+  assignmentId: string,
+  total: number,
+): Promise<{ success: boolean; error?: string }> {
+  await requireAdmin();
+
+  try {
+    const assignment = await prisma.roundJudgeAssignment.findUnique({
+      where: { id: assignmentId },
+      include: {
+        round: {
+          include: {
+            plan: { include: { track: true } },
+            rubric: { include: { criteria: { select: { id: true } } } },
+          },
+        },
+      },
+    });
+
+    if (!assignment || assignment.round.plan.track.hackathonId !== hackathonId) {
+      return { success: false, error: "Assignment not found" };
+    }
+
+    const criteria = assignment.round.rubric?.criteria || [];
+    if (criteria.length === 0) {
+      return { success: false, error: "No rubric criteria found for this round" };
+    }
+
+    // Distribute total evenly across criteria
+    const perCriteria = Math.round(total / criteria.length);
+
+    // Delete existing scores
+    await prisma.score.deleteMany({ where: { assignmentId } });
+
+    // Create new scores
+    await prisma.score.createMany({
+      data: criteria.map((c) => ({
+        assignmentId,
+        criteriaId: c.id,
+        value: perCriteria,
+      })),
+    });
+
+    await prisma.roundJudgeAssignment.update({
+      where: { id: assignmentId },
+      data: { completed: true },
+    });
+
+    revalidatePath(`/hackathons/${hackathonId}/tracking`);
+    return { success: true };
+  } catch {
+    return { success: false, error: "Failed to override rubric score" };
+  }
+}
+
+// Get available judges for a track (for the assign modal)
+export async function getAvailableJudges(
+  hackathonId: string,
+  trackId: string,
+) {
+  await requireAdmin();
+
+  return prisma.judge.findMany({
+    where: {
+      hackathonId,
+      trackAssignments: { some: { trackId } },
+    },
+    select: { id: true, name: true, email: true },
+    orderBy: { name: "asc" },
+  });
 }

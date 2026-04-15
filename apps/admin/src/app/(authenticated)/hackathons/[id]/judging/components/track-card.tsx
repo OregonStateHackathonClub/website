@@ -2,14 +2,11 @@
 
 import { Button } from "@repo/ui/components/button";
 import {
-  CheckCircle2,
   ChevronDown,
   ChevronRight,
-  Play,
   Plus,
   Scale,
   Settings,
-  Shuffle,
   Star,
   Trophy,
   X,
@@ -17,10 +14,7 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 import {
-  activateRound,
   assignJudgeToTrack,
-  autoAssignJudges,
-  completeRound,
   removeJudgeFromTrack,
 } from "@/app/actions/judging";
 import type { Judge, Track } from "./config";
@@ -97,37 +91,6 @@ export function TrackCard({
       toast.success("Judge removed from track");
     } else {
       toast.error(result.error || "Failed to remove judge");
-    }
-  }
-
-  async function handleAutoAssign(roundId: string) {
-    const result = await autoAssignJudges(hackathonId, track.id, roundId);
-    if (result.success) {
-      toast.success(`Assigned ${result.assigned} judge-submission pairs`);
-    } else {
-      toast.error(result.error || "Failed to auto-assign");
-    }
-  }
-
-  async function handleActivateRound(roundId: string) {
-    const result = await activateRound(hackathonId, roundId);
-    if (result.success) {
-      toast.success("Round activated");
-    } else {
-      toast.error(result.error || "Failed to activate round");
-    }
-  }
-
-  async function handleCompleteRound(roundId: string) {
-    if (!confirm("Complete this round and calculate advancements?")) return;
-
-    const result = await completeRound(hackathonId, roundId);
-    if (result.success) {
-      toast.success(
-        `Round completed. ${result.advanced} submissions advanced.`,
-      );
-    } else {
-      toast.error(result.error || "Failed to complete round");
     }
   }
 
@@ -296,40 +259,6 @@ export function TrackCard({
                                 ` • Rank top ${round.rankedSlots}`}
                             </p>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {!round.isComplete && (
-                            <>
-                              <Button
-                                variant="outline"
-                                onClick={() => handleAutoAssign(round.id)}
-                                className="h-7 px-2 text-xs border-neutral-700 text-neutral-400 hover:text-white hover:border-neutral-600 rounded-none flex items-center gap-1"
-                                title="Auto-assign judges"
-                              >
-                                <Shuffle className="h-3 w-3" />
-                                Assign
-                              </Button>
-                              {!round.isActive ? (
-                                <Button
-                                  variant="outline"
-                                  onClick={() => handleActivateRound(round.id)}
-                                  className="h-7 px-2 text-xs border-neutral-700 text-neutral-400 hover:text-white hover:border-neutral-600 rounded-none flex items-center gap-1"
-                                >
-                                  <Play className="h-3 w-3" />
-                                  Start
-                                </Button>
-                              ) : (
-                                <Button
-                                  variant="outline"
-                                  onClick={() => handleCompleteRound(round.id)}
-                                  className="h-7 px-2 text-xs border-neutral-700 text-neutral-400 hover:text-white hover:border-neutral-600 rounded-none flex items-center gap-1"
-                                >
-                                  <CheckCircle2 className="h-3 w-3" />
-                                  Complete
-                                </Button>
-                              )}
-                            </>
-                          )}
                         </div>
                       </div>
                     </div>
