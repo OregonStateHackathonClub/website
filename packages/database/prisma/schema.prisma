@@ -128,11 +128,14 @@ model Application {
 // ============================================================================
 
 model Hackathon {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                 String    @id @default(cuid())
+  name               String    @unique
+  description        String?
+  startsAt           DateTime?
+  endsAt             DateTime?
+  winnersReleasedAt  DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   // Relations
   applications Application[]
@@ -274,6 +277,7 @@ model Track {
   hackathonId String
   prize       String?
   sponsorId   String?
+  isDefault   Boolean  @default(false)
   createdAt   DateTime @default(now())
 
   // Relations

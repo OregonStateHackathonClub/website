@@ -34,6 +34,7 @@ export function EditTrackModal({
   const [trackName, setTrackName] = useState(track.name);
   const [trackDescription, setTrackDescription] = useState(track.description);
   const [trackPrize, setTrackPrize] = useState(track.prize || "");
+  const [isDefault, setIsDefault] = useState(track.isDefault);
   const [rubricName, setRubricName] = useState(track.rubric?.name || "");
   const [criteria, setCriteria] = useState<CriterionWithId[]>(
     track.rubric?.criteria.map((c) => ({
@@ -103,6 +104,7 @@ export function EditTrackModal({
       name: trackName.trim(),
       description: trackDescription.trim(),
       prize: trackPrize.trim() || null,
+      isDefault,
       rubric: {
         name: rubricName.trim(),
         criteria: validCriteria.map((c) => ({
@@ -180,6 +182,22 @@ export function EditTrackModal({
                 className="bg-transparent dark:bg-transparent border-neutral-800 text-white placeholder:text-neutral-600 focus:border-neutral-600 rounded-none focus-visible:ring-0"
               />
             </div>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isDefault}
+                onChange={(e) => setIsDefault(e.target.checked)}
+                className="mt-0.5 h-4 w-4 accent-white"
+              />
+              <span className="text-sm text-neutral-300">
+                Default track (Best Overall)
+                <span className="block text-xs text-neutral-500 mt-0.5">
+                  Every submission is automatically entered in this track.
+                  Teams may also choose one other track. Replaces any existing
+                  default.
+                </span>
+              </span>
+            </label>
           </div>
 
           {/* Rubric */}

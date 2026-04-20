@@ -36,6 +36,7 @@ export function AddTrackModal({
   const [trackName, setTrackName] = useState("");
   const [trackDescription, setTrackDescription] = useState("");
   const [trackPrize, setTrackPrize] = useState("");
+  const [isDefault, setIsDefault] = useState(false);
   const [rubricName, setRubricName] = useState("");
   const [criteria, setCriteria] = useState<CriterionInput[]>([
     { name: "", weight: 25, maxScore: 10 },
@@ -45,6 +46,7 @@ export function AddTrackModal({
     setTrackName("");
     setTrackDescription("");
     setTrackPrize("");
+    setIsDefault(false);
     setRubricName("");
     setCriteria([{ name: "", weight: 25, maxScore: 10 }]);
   }
@@ -113,6 +115,7 @@ export function AddTrackModal({
       name: trackName.trim(),
       description: trackDescription.trim(),
       prize: trackPrize.trim() || undefined,
+      isDefault,
       rubric: {
         name: rubricName.trim(),
         criteria: validCriteria,
@@ -185,6 +188,22 @@ export function AddTrackModal({
                 className="bg-transparent dark:bg-transparent border-neutral-800 text-white placeholder:text-neutral-600 focus:border-neutral-600 rounded-none focus-visible:ring-0"
               />
             </div>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isDefault}
+                onChange={(e) => setIsDefault(e.target.checked)}
+                className="mt-0.5 h-4 w-4 accent-white"
+              />
+              <span className="text-sm text-neutral-300">
+                Default track (Best Overall)
+                <span className="block text-xs text-neutral-500 mt-0.5">
+                  Every submission is automatically entered in this track.
+                  Teams may also choose one other track. Replaces any existing
+                  default.
+                </span>
+              </span>
+            </label>
           </div>
 
           {/* Rubric */}

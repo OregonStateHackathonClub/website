@@ -4,6 +4,9 @@ import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { CreateTeamModal } from "@/app/(participant)/[hackathonId]/components/create-team-modal";
+import { FindTeamModal } from "@/app/(participant)/[hackathonId]/components/find-team-modal";
 import { AuthButton } from "./auth-button";
 
 interface NavbarProps {
@@ -20,6 +23,8 @@ export const Navbar = ({
   const pathname = usePathname();
   const hackathonId = pathname.split("/")[1] || currentHackathonId;
   const isOnHackathonPage = pathname !== "/";
+  const [createTeamOpen, setCreateTeamOpen] = useState(false);
+  const [findTeamOpen, setFindTeamOpen] = useState(false);
 
   return (
     <nav className="fixed top-0 z-50 w-full border-b border-neutral-800 bg-neutral-950/80 backdrop-blur-sm">
@@ -71,9 +76,42 @@ export const Navbar = ({
             </>
           )}
 
+          {isOnHackathonPage && !userTeamId && (
+            <>
+              <Button
+                onClick={() => setCreateTeamOpen(true)}
+                className="hidden sm:flex bg-white text-black hover:bg-neutral-200 rounded-none"
+              >
+                Create a Team
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setFindTeamOpen(true)}
+                className="hidden sm:flex rounded-none border-neutral-800 text-white hover:bg-neutral-900"
+              >
+                Find a Team
+              </Button>
+            </>
+          )}
+
           <AuthButton />
         </div>
       </div>
+
+      {isOnHackathonPage && !userTeamId && (
+        <>
+          <CreateTeamModal
+            hackathonId={hackathonId}
+            open={createTeamOpen}
+            onOpenChange={setCreateTeamOpen}
+          />
+          <FindTeamModal
+            hackathonId={hackathonId}
+            open={findTeamOpen}
+            onOpenChange={setFindTeamOpen}
+          />
+        </>
+      )}
     </nav>
   );
 };

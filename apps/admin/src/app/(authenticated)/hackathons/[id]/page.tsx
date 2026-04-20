@@ -71,6 +71,9 @@ export default async function HackathonDetailPage({
             id: hackathon.id,
             name: hackathon.name,
             description: hackathon.description,
+            startsAt: hackathon.startsAt,
+            endsAt: hackathon.endsAt,
+            winnersReleasedAt: hackathon.winnersReleasedAt,
           }}
           hasData={
             hackathon._count.participants > 0 ||

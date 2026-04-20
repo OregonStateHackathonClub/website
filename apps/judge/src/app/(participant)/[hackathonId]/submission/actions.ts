@@ -36,6 +36,24 @@ async function getSubmissionContext(hackathonId: string) {
   } as const;
 }
 
+async function checkSubmissionWindow(hackathonId: string) {
+  const hackathon = await prisma.hackathon.findUnique({
+    where: { id: hackathonId },
+    select: { startsAt: true, endsAt: true },
+  });
+  if (!hackathon) {
+    return { success: false, error: "Hackathon not found" } as const;
+  }
+  const now = Date.now();
+  if (hackathon.startsAt && now < hackathon.startsAt.getTime()) {
+    return { success: false, error: "Submissions have not opened yet" } as const;
+  }
+  if (hackathon.endsAt && now >= hackathon.endsAt.getTime()) {
+    return { success: false, error: "Submissions are closed" } as const;
+  }
+  return { success: true } as const;
+}
+
 export async function saveDraft(
   hackathonId: string,
   data: DraftInput
@@ -43,6 +61,11 @@ export async function saveDraft(
   const context = await getSubmissionContext(hackathonId);
   if (!context.success) {
     return { success: false, error: context.error };
+  }
+
+  const window = await checkSubmissionWindow(hackathonId);
+  if (!window.success) {
+    return { success: false, error: window.error };
   }
 
   const validated = draftSchema.safeParse(data);
@@ -104,6 +127,11 @@ export async function submitProject(
     return { success: false, error: context.error };
   }
 
+  const window = await checkSubmissionWindow(hackathonId);
+  if (!window.success) {
+    return { success: false, error: window.error };
+  }
+
   const { teamId, participantId } = context;
 
   try {
@@ -136,6 +164,25 @@ export async function submitProject(
         success: false,
         error: `Incomplete submission: ${errorMessages}`,
       };
+    }
+
+    const defaultTrack = await prisma.track.findFirst({
+      where: { hackathonId, isDefault: true },
+      select: { id: true },
+    });
+    if (defaultTrack && !validated.data.trackIds.includes(defaultTrack.id)) {
+      validated.data.trackIds = [defaultTrack.id, ...validated.data.trackIds];
+    }
+    if (defaultTrack) {
+      const extras = validated.data.trackIds.filter(
+        (id) => id !== defaultTrack.id,
+      );
+      if (extras.length > 1) {
+        return {
+          success: false,
+          error: "You may only enter one additional track besides Best Overall",
+        };
+      }
     }
 
     const submissionWhereClause = teamId ? { teamId } : { participantId };

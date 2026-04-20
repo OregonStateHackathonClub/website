@@ -9,14 +9,22 @@ import { sendBulkStatusEmails, sendStatusEmail } from "./status-emails";
 export async function createHackathon(data: {
   name: string;
   description?: string;
+  startsAt?: Date | null;
+  endsAt?: Date | null;
 }): Promise<{ success: boolean; id?: string; error?: string }> {
   await requireAdmin();
+
+  if (data.startsAt && data.endsAt && data.endsAt <= data.startsAt) {
+    return { success: false, error: "End time must be after start time" };
+  }
 
   try {
     const hackathon = await prisma.hackathon.create({
       data: {
         name: data.name,
         description: data.description || null,
+        startsAt: data.startsAt ?? null,
+        endsAt: data.endsAt ?? null,
       },
     });
 
@@ -29,9 +37,18 @@ export async function createHackathon(data: {
 
 export async function updateHackathon(
   id: string,
-  data: { name?: string; description?: string },
+  data: {
+    name?: string;
+    description?: string;
+    startsAt?: Date | null;
+    endsAt?: Date | null;
+  },
 ): Promise<{ success: boolean; error?: string }> {
   await requireAdmin();
+
+  if (data.startsAt && data.endsAt && data.endsAt <= data.startsAt) {
+    return { success: false, error: "End time must be after start time" };
+  }
 
   try {
     await prisma.hackathon.update({
@@ -39,6 +56,8 @@ export async function updateHackathon(
       data: {
         name: data.name,
         description: data.description,
+        startsAt: data.startsAt,
+        endsAt: data.endsAt,
       },
     });
 
@@ -47,6 +66,26 @@ export async function updateHackathon(
     return { success: true };
   } catch {
     return { success: false, error: "Failed to update hackathon" };
+  }
+}
+
+export async function setWinnersReleased(
+  id: string,
+  released: boolean,
+): Promise<{ success: boolean; error?: string }> {
+  await requireAdmin();
+
+  try {
+    await prisma.hackathon.update({
+      where: { id },
+      data: { winnersReleasedAt: released ? new Date() : null },
+    });
+
+    revalidatePath(`/hackathons/${id}`);
+    revalidatePath(`/hackathons`);
+    return { success: true };
+  } catch {
+    return { success: false, error: "Failed to update winner release" };
   }
 }
 
@@ -315,6 +354,7 @@ export async function createTrack(
     name: string;
     description: string;
     prize?: string;
+    isDefault?: boolean;
     rubric: {
       name: string;
       criteria: {
@@ -328,25 +368,35 @@ export async function createTrack(
   await requireAdmin();
 
   try {
-    await prisma.track.create({
-      data: {
-        name: data.name,
-        description: data.description,
-        prize: data.prize || null,
-        hackathonId,
-        rubric: {
-          create: {
-            name: data.rubric.name,
-            criteria: {
-              create: data.rubric.criteria.map((c) => ({
-                name: c.name,
-                weight: c.weight,
-                maxScore: c.maxScore,
-              })),
+    await prisma.$transaction(async (tx) => {
+      if (data.isDefault) {
+        // Only one default per hackathon — clear any existing default first.
+        await tx.track.updateMany({
+          where: { hackathonId, isDefault: true },
+          data: { isDefault: false },
+        });
+      }
+      await tx.track.create({
+        data: {
+          name: data.name,
+          description: data.description,
+          prize: data.prize || null,
+          isDefault: data.isDefault ?? false,
+          hackathonId,
+          rubric: {
+            create: {
+              name: data.rubric.name,
+              criteria: {
+                create: data.rubric.criteria.map((c) => ({
+                  name: c.name,
+                  weight: c.weight,
+                  maxScore: c.maxScore,
+                })),
+              },
             },
           },
         },
-      },
+      });
     });
 
     revalidatePath(`/hackathons/${hackathonId}/tracks`);
@@ -365,6 +415,7 @@ export async function updateTrack(
     name?: string;
     description?: string;
     prize?: string | null;
+    isDefault?: boolean;
     rubric?: {
       name: string;
       criteria: {
@@ -388,6 +439,14 @@ export async function updateTrack(
       return { success: false, error: "Track not found" };
     }
 
+    // If promoting this track to default, demote any existing default first.
+    if (data.isDefault === true) {
+      await prisma.track.updateMany({
+        where: { hackathonId, isDefault: true, id: { not: trackId } },
+        data: { isDefault: false },
+      });
+    }
+
     // Update track basic info
     await prisma.track.update({
       where: { id: trackId },
@@ -395,6 +454,7 @@ export async function updateTrack(
         name: data.name,
         description: data.description,
         prize: data.prize,
+        isDefault: data.isDefault,
       },
     });
 

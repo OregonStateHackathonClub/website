@@ -4,6 +4,16 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@repo/database";
 import { requireAdmin } from "./auth";
 
+// Reset the public winner release flag. Call after any mutation that could
+// change which submissions win a track; admin must re-run completeRound and
+// re-release winners before participants see the updated results.
+async function invalidateWinnerRelease(hackathonId: string) {
+  await prisma.hackathon.updateMany({
+    where: { id: hackathonId, winnersReleasedAt: { not: null } },
+    data: { winnersReleasedAt: null },
+  });
+}
+
 export type JudgeAssignmentStatus = "scored" | "in_progress" | "skipped" | "not_started";
 
 export type TrackingJudgeAssignment = {
@@ -48,11 +58,18 @@ export type TrackingStats = {
   notStarted: number;
 };
 
+export type TrackingJudge = {
+  id: string;
+  name: string;
+  email: string;
+};
+
 export type TrackingData = {
   rounds: TrackingRound[];
   projects: TrackingProject[];
   stats: TrackingStats;
   tracks: { id: string; name: string }[];
+  judgesByTrack: Record<string, TrackingJudge[]>;
 };
 
 function deriveStatus(assignment: {
@@ -73,15 +90,51 @@ export async function getTrackingData(
 ): Promise<TrackingData> {
   await requireAdmin();
 
-  // Fetch all rounds for this hackathon (for the round selector)
+  // Tracks drive the selector; one is always picked.
+  const tracks = await prisma.track.findMany({
+    where: { hackathonId },
+    select: {
+      id: true,
+      name: true,
+      judgeAssignments: {
+        select: {
+          judge: { select: { id: true, name: true, email: true } },
+        },
+        orderBy: { judge: { name: "asc" } },
+      },
+    },
+    orderBy: { createdAt: "asc" },
+  });
+
+  const judgesByTrack: Record<string, TrackingJudge[]> = {};
+  for (const t of tracks) {
+    judgesByTrack[t.id] = t.judgeAssignments.map((a) => a.judge);
+  }
+  const tracksLite = tracks.map((t) => ({ id: t.id, name: t.name }));
+
+  const selectedTrackId =
+    (trackId && tracks.some((t) => t.id === trackId) ? trackId : undefined) ??
+    tracks[0]?.id;
+
+  if (!selectedTrackId) {
+    return {
+      rounds: [],
+      projects: [],
+      stats: { total: 0, complete: 0, inProgress: 0, issues: 0, notStarted: 0 },
+      tracks: tracksLite,
+      judgesByTrack,
+    };
+  }
+
+  // Rounds for the selected track only
   const allRounds = await prisma.judgingRound.findMany({
     where: {
-      plan: { track: { hackathonId } },
+      plan: { trackId: selectedTrackId },
     },
     include: {
       plan: { include: { track: { select: { id: true, name: true } } } },
     },
-    orderBy: [{ plan: { track: { name: "asc" } } }, { roundNumber: "asc" }],
+    orderBy: { roundNumber: "asc" },
   });
 
   const rounds: TrackingRound[] = allRounds.map((r) => ({
@@ -95,20 +148,19 @@ export async function getTrackingData(
     planId: r.planId,
   }));
 
-  // Determine which round to show
+  // Round selection: honor `roundId` only if it belongs to this track
   const selectedRoundId =
-    roundId || rounds.find((r) => r.isActive)?.id || rounds[0]?.id;
+    (roundId && rounds.some((r) => r.id === roundId) ? roundId : undefined) ??
+    rounds.find((r) => r.isActive)?.id ??
+    rounds[0]?.id;
 
   if (!selectedRoundId) {
-    const tracks = await prisma.track.findMany({
-      where: { hackathonId },
-      select: { id: true, name: true },
-    });
     return {
-      rounds: [],
+      rounds,
       projects: [],
       stats: { total: 0, complete: 0, inProgress: 0, issues: 0, notStarted: 0 },
-      tracks,
+      tracks: tracksLite,
+      judgesByTrack,
     };
   }
 
@@ -116,7 +168,6 @@ export async function getTrackingData(
   const assignments = await prisma.roundJudgeAssignment.findMany({
     where: {
       roundId: selectedRoundId,
-      ...(trackId ? { submission: { tracks: { some: { id: trackId } } } } : {}),
     },
     select: {
       id: true,
@@ -208,18 +259,15 @@ export async function getTrackingData(
       (a) => a.status === "scored" || a.status === "in_progress",
     );
 
-    if (hasSkip) stats.issues++;
-    else if (allDone) stats.complete++;
+    // "Complete" means every assignment has resolved (scored or skipped).
+    // Skips only surface as "issues" when work is still pending.
+    if (allDone) stats.complete++;
+    else if (hasSkip) stats.issues++;
     else if (anyStarted) stats.inProgress++;
     else stats.notStarted++;
   }
 
-  const tracks = await prisma.track.findMany({
-    where: { hackathonId },
-    select: { id: true, name: true },
-  });
-
-  return { rounds, projects, stats, tracks };
+  return { rounds, projects, stats, tracks: tracksLite, judgesByTrack };
 }
 
 // Override: assign an additional judge to a project for a round
@@ -260,6 +308,7 @@ export async function assignJudgeToRound(
         data: { isComplete: false },
       });
     }
+    await invalidateWinnerRelease(hackathonId);
 
     revalidatePath(`/hackathons/${hackathonId}/tracking`);
     return { success: true };
@@ -292,39 +341,18 @@ export async function skipJudgeAssignment(
       data: { completed: true, skippedReason: reason, skippedNote: note || null },
     });
 
+    if (assignment.round.isComplete) {
+      await prisma.judgingRound.update({
+        where: { id: assignment.round.id },
+        data: { isComplete: false },
+      });
+    }
+    await invalidateWinnerRelease(hackathonId);
+
     revalidatePath(`/hackathons/${hackathonId}/tracking`);
     return { success: true };
   } catch {
     return { success: false, error: "Failed to skip assignment" };
-  }
-}
-
-// Override: mark assignment complete
-export async function markAssignmentComplete(
-  hackathonId: string,
-  assignmentId: string,
-): Promise<{ success: boolean; error?: string }> {
-  await requireAdmin();
-
-  try {
-    const assignment = await prisma.roundJudgeAssignment.findUnique({
-      where: { id: assignmentId },
-      include: { round: { include: { plan: { include: { track: true } } } } },
-    });
-
-    if (!assignment || assignment.round.plan.track.hackathonId !== hackathonId) {
-      return { success: false, error: "Assignment not found" };
-    }
-
-    await prisma.roundJudgeAssignment.update({
-      where: { id: assignmentId },
-      data: { completed: true },
-    });
-
-    revalidatePath(`/hackathons/${hackathonId}/tracking`);
-    return { success: true };
-  } catch {
-    return { success: false, error: "Failed to mark complete" };
   }
 }
 
@@ -357,6 +385,14 @@ export async function overrideTriageScore(
       data: { completed: true },
     });
 
+    if (assignment.round.isComplete) {
+      await prisma.judgingRound.update({
+        where: { id: assignment.round.id },
+        data: { isComplete: false },
+      });
+    }
+    await invalidateWinnerRelease(hackathonId);
+
     revalidatePath(`/hackathons/${hackathonId}/tracking`);
     return { success: true };
   } catch {
@@ -386,6 +422,14 @@ export async function deleteJudgeAssignment(
       where: { id: assignmentId },
     });
 
+    if (assignment.round.isComplete) {
+      await prisma.judgingRound.update({
+        where: { id: assignment.round.id },
+        data: { isComplete: false },
+      });
+    }
+    await invalidateWinnerRelease(hackathonId);
+
     revalidatePath(`/hackathons/${hackathonId}/tracking`);
     return { success: true };
   } catch {
@@ -411,6 +455,14 @@ export async function overrideRankedVote(
       return { success: false, error: "Assignment not found" };
     }
 
+    const maxRank = assignment.round.rankedSlots ?? 3;
+    if (!Number.isInteger(rank) || rank < 1 || rank > maxRank) {
+      return {
+        success: false,
+        error: `Rank must be between 1 and ${maxRank}`,
+      };
+    }
+
     await prisma.rankedVote.upsert({
       where: { assignmentId },
       create: { assignmentId, rank },
@@ -421,6 +473,14 @@ export async function overrideRankedVote(
       where: { id: assignmentId },
       data: { completed: true },
     });
+
+    if (assignment.round.isComplete) {
+      await prisma.judgingRound.update({
+        where: { id: assignment.round.id },
+        data: { isComplete: false },
+      });
+    }
+    await invalidateWinnerRelease(hackathonId);
 
     revalidatePath(`/hackathons/${hackathonId}/tracking`);
     return { success: true };
@@ -459,18 +519,20 @@ export async function overrideRubricScore(
       return { success: false, error: "No rubric criteria found for this round" };
     }
 
-    // Distribute total evenly across criteria
-    const perCriteria = Math.round(total / criteria.length);
+    // Distribute total across criteria with the remainder spread to the first
+    // `remainder` items so per-criteria scores sum to `total` exactly.
+    const base = Math.floor(total / criteria.length);
+    const remainder = total - base * criteria.length;
 
     // Delete existing scores
     await prisma.score.deleteMany({ where: { assignmentId } });
 
     // Create new scores
     await prisma.score.createMany({
-      data: criteria.map((c) => ({
+      data: criteria.map((c, i) => ({
         assignmentId,
         criteriaId: c.id,
-        value: perCriteria,
+        value: base + (i < remainder ? 1 : 0),
       })),
     });
 
@@ -479,6 +541,14 @@ export async function overrideRubricScore(
       data: { completed: true },
     });
 
+    if (assignment.round.isComplete) {
+      await prisma.judgingRound.update({
+        where: { id: assignment.round.id },
+        data: { isComplete: false },
+      });
+    }
+    await invalidateWinnerRelease(hackathonId);
+
     revalidatePath(`/hackathons/${hackathonId}/tracking`);
     return { success: true };
   } catch {
@@ -486,19 +556,3 @@ export async function overrideRubricScore(
   }
 }
 
-// Get available judges for a track (for the assign modal)
-export async function getAvailableJudges(
-  hackathonId: string,
-  trackId: string,
-) {
-  await requireAdmin();
-
-  return prisma.judge.findMany({
-    where: {
-      hackathonId,
-      trackAssignments: { some: { trackId } },
-    },
-    select: { id: true, name: true, email: true },
-    orderBy: { name: "asc" },
-  });
-}

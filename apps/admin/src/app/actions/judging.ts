@@ -6,6 +6,26 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { requireAdmin } from "./auth";
 
+// Slice the top N from a score-sorted list, randomizing within any tie that
+// spans the cutoff so ties at the boundary are broken by coin flip.
+function sliceWithRandomTiebreak<T extends { score: number }>(
+  sorted: T[],
+  advanceCount: number,
+): T[] {
+  if (sorted.length <= advanceCount) return [...sorted];
+  const cutoff = sorted[advanceCount - 1].score;
+  if (sorted[advanceCount].score !== cutoff) {
+    return sorted.slice(0, advanceCount);
+  }
+  const clear = sorted.filter((s) => s.score > cutoff);
+  const tied = sorted.filter((s) => s.score === cutoff);
+  for (let i = tied.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [tied[i], tied[j]] = [tied[j], tied[i]];
+  }
+  return [...clear, ...tied.slice(0, advanceCount - clear.length)];
+}
+
 // Get all data needed for judging configuration
 export async function getJudgingData(hackathonId: string) {
   await requireAdmin();
@@ -18,6 +38,9 @@ export async function getJudgingData(hackathonId: string) {
           include: {
             rounds: {
               orderBy: { roundNumber: "asc" },
+              include: {
+                _count: { select: { judgeAssignments: true } },
+              },
             },
           },
         },
@@ -142,7 +165,12 @@ export async function saveJudgingPlan(
     // Verify track belongs to this hackathon and get its rubric
     const track = await prisma.track.findUnique({
       where: { id: trackId },
-      include: { judgingPlan: true, rubric: true },
+      include: {
+        judgingPlan: {
+          include: { rounds: { orderBy: { roundNumber: "asc" } } },
+        },
+        rubric: true,
+      },
     });
 
     if (!track || track.hackathonId !== hackathonId) {
@@ -158,32 +186,94 @@ export async function saveJudgingPlan(
       };
     }
 
-    // Delete existing plan if exists
-    if (track.judgingPlan) {
-      await prisma.judgingPlan.delete({
-        where: { id: track.judgingPlan.id },
-      });
+    const judgeCount = await prisma.judgeTrackAssignment.count({
+      where: { trackId },
+    });
+
+    for (let i = 0; i < rounds.length; i++) {
+      const round = rounds[i];
+
+      // judgesPerProject can't exceed judges available on the track
+      if (judgeCount > 0 && round.judgesPerProject > judgeCount) {
+        return {
+          success: false,
+          error: `Round ${i + 1}: judgesPerProject (${round.judgesPerProject}) exceeds judges assigned to this track (${judgeCount}). Add more judges or reduce judgesPerProject.`,
+        };
+      }
+
+      if (round.type === "RANKED") {
+        const slots = round.rankedSlots ?? 3;
+        const winners = round.advanceCount ?? 3;
+        if (winners > slots) {
+          return {
+            success: false,
+            error: `Round ${i + 1}: winner count (${winners}) cannot exceed ranked slots (${slots})`,
+          };
+        }
+        // rankedSlots shouldn't exceed the previous round's advanceCount
+        // (i.e., the finalists actually entering this round)
+        const prev = rounds[i - 1];
+        if (prev && prev.advanceCount && slots > prev.advanceCount) {
+          return {
+            success: false,
+            error: `Round ${i + 1}: rankedSlots (${slots}) exceeds projects advancing from round ${i} (${prev.advanceCount})`,
+          };
+        }
+      }
     }
 
-    // Create new plan with rounds
-    // For RUBRIC rounds, automatically use the track's rubric
-    await prisma.judgingPlan.create({
-      data: {
-        trackId,
-        rounds: {
-          create: rounds.map((round, index) => ({
-            roundNumber: index + 1,
-            type: round.type as JudgingRoundType,
-            advanceCount: round.advanceCount,
-            advancePercent: round.advancePercent,
-            judgesPerProject: round.judgesPerProject,
-            minutesPerProject: round.minutesPerProject,
-            rubricId: round.type === "RUBRIC" ? track.rubric?.id : undefined,
-            rankedSlots: round.rankedSlots,
-          })),
+    const existingPlan = track.judgingPlan;
+    const existingRounds = existingPlan?.rounds ?? [];
+
+    // Detect structural change: round count differs or any type differs position-by-position
+    const isStructural =
+      !existingPlan ||
+      existingRounds.length !== rounds.length ||
+      existingRounds.some((r, i) => r.type !== rounds[i]?.type);
+
+    if (isStructural) {
+      // Delete + recreate (destroys all scores via cascade)
+      if (existingPlan) {
+        await prisma.judgingPlan.delete({ where: { id: existingPlan.id } });
+      }
+
+      await prisma.judgingPlan.create({
+        data: {
+          trackId,
+          rounds: {
+            create: rounds.map((round, index) => ({
+              roundNumber: index + 1,
+              type: round.type as JudgingRoundType,
+              advanceCount: round.advanceCount,
+              advancePercent: round.advancePercent,
+              judgesPerProject: round.judgesPerProject,
+              minutesPerProject: round.minutesPerProject,
+              rubricId: round.type === "RUBRIC" ? track.rubric?.id : undefined,
+              rankedSlots: round.rankedSlots,
+            })),
+          },
         },
-      },
-    });
+      });
+    } else {
+      // Metadata-only: update each round in place, preserving scores
+      await prisma.$transaction(
+        existingRounds.map((existing, i) => {
+          const incoming = rounds[i];
+          return prisma.judgingRound.update({
+            where: { id: existing.id },
+            data: {
+              advanceCount: incoming.advanceCount ?? null,
+              advancePercent: incoming.advancePercent ?? null,
+              judgesPerProject: incoming.judgesPerProject,
+              minutesPerProject: incoming.minutesPerProject,
+              rubricId:
+                incoming.type === "RUBRIC" ? (track.rubric?.id ?? null) : null,
+              rankedSlots: incoming.rankedSlots ?? null,
+            },
+          });
+        }),
+      );
+    }
 
     revalidatePath(`/hackathons/${hackathonId}/judging`);
     return { success: true };
@@ -262,6 +352,13 @@ export async function autoAssignJudges(
 
     if (trackJudges.length === 0) {
       return { success: false, error: "No judges assigned to this track" };
+    }
+
+    if (round.type !== "RANKED" && round.judgesPerProject > trackJudges.length) {
+      return {
+        success: false,
+        error: `judgesPerProject (${round.judgesPerProject}) exceeds available judges (${trackJudges.length}). Add more judges or reduce judgesPerProject.`,
+      };
     }
 
     // Get submissions to judge
@@ -400,6 +497,45 @@ export async function activateRound(
       };
     }
 
+    // Count submissions entering this round for cap validations.
+    let submissionsEntering: number;
+    if (round.roundNumber === 1) {
+      submissionsEntering = await prisma.submission.count({
+        where: {
+          hackathonId: round.plan.track.hackathonId,
+          tracks: { some: { id: round.plan.trackId } },
+        },
+      });
+    } else {
+      const previous = round.plan.rounds.find(
+        (r) => r.roundNumber === round.roundNumber - 1,
+      );
+      if (!previous) {
+        return { success: false, error: "Previous round not found" };
+      }
+      submissionsEntering = await prisma.roundAdvancement.count({
+        where: { roundId: previous.id },
+      });
+    }
+
+    if (round.advanceCount && round.advanceCount > submissionsEntering) {
+      return {
+        success: false,
+        error: `advanceCount (${round.advanceCount}) exceeds submissions entering this round (${submissionsEntering})`,
+      };
+    }
+
+    if (
+      round.type === "RANKED" &&
+      round.rankedSlots &&
+      round.rankedSlots > submissionsEntering
+    ) {
+      return {
+        success: false,
+        error: `rankedSlots (${round.rankedSlots}) exceeds submissions entering this round (${submissionsEntering})`,
+      };
+    }
+
     // Deactivate other rounds in this plan
     await prisma.judgingRound.updateMany({
       where: { planId: round.planId },
@@ -436,11 +572,23 @@ export async function completeRound(
           },
         },
         judgeAssignments: true,
+        rubric: {
+          include: {
+            criteria: { select: { id: true, weight: true } },
+          },
+        },
       },
     });
 
     if (!round || round.plan.track.hackathonId !== hackathonId) {
       return { success: false, error: "Round not found" };
+    }
+
+    if (round.judgeAssignments.length === 0) {
+      return {
+        success: false,
+        error: "No judge assignments exist for this round",
+      };
     }
 
     // Check all assignments are completed
@@ -485,39 +633,63 @@ export async function completeRound(
         round.advanceCount ||
         Math.ceil(sorted.length * (round.advancePercent || 0.3));
 
-      advancingSubmissions = sorted.slice(0, advanceCount).map((s, i) => ({
-        submissionId: s.submissionId,
-        rank: i + 1,
-      }));
+      advancingSubmissions = sliceWithRandomTiebreak(sorted, advanceCount).map(
+        (s, i) => ({
+          submissionId: s.submissionId,
+          rank: i + 1,
+        }),
+      );
     } else if (round.type === "RUBRIC") {
-      // Sum up all criteria scores per submission
       const assignments = await prisma.roundJudgeAssignment.findMany({
         where: { roundId },
         include: { rubricScores: true },
       });
 
-      // Group by submission and sum scores
-      const submissionScores = new Map<string, number>();
+      const weightById = new Map(
+        (round.rubric?.criteria ?? []).map((c) => [c.id, c.weight]),
+      );
+
+      // Weighted sum per judge, then average across non-skipped judges.
+      // Summing would penalize submissions whose judges were skipped.
+      const submissionScores = new Map<
+        string,
+        { total: number; count: number }
+      >();
       for (const a of assignments) {
-        const total = a.rubricScores.reduce((sum, s) => sum + s.value, 0);
-        submissionScores.set(
-          a.submissionId,
-          (submissionScores.get(a.submissionId) || 0) + total,
+        if (a.skippedReason !== null) continue;
+        const perJudgeTotal = a.rubricScores.reduce(
+          (sum, s) => sum + s.value * (weightById.get(s.criteriaId) ?? 1),
+          0,
         );
+        const existing = submissionScores.get(a.submissionId);
+        if (existing) {
+          existing.total += perJudgeTotal;
+          existing.count += 1;
+        } else {
+          submissionScores.set(a.submissionId, {
+            total: perJudgeTotal,
+            count: 1,
+          });
+        }
       }
 
       const sorted = [...submissionScores.entries()]
-        .map(([submissionId, score]) => ({ submissionId, score }))
+        .map(([submissionId, { total, count }]) => ({
+          submissionId,
+          score: total / count,
+        }))
         .sort((a, b) => b.score - a.score);
 
       const advanceCount =
         round.advanceCount ||
         Math.ceil(sorted.length * (round.advancePercent || 0.3));
 
-      advancingSubmissions = sorted.slice(0, advanceCount).map((s, i) => ({
-        submissionId: s.submissionId,
-        rank: i + 1,
-      }));
+      advancingSubmissions = sliceWithRandomTiebreak(sorted, advanceCount).map(
+        (s, i) => ({
+          submissionId: s.submissionId,
+          rank: i + 1,
+        }),
+      );
     } else if (round.type === "RANKED") {
       // Borda count from ranked votes
       const assignments = await prisma.roundJudgeAssignment.findMany({
@@ -531,7 +703,8 @@ export async function completeRound(
       for (const a of assignments) {
         if (a.rankedVote) {
           // Points: 1st gets rankedSlots points, 2nd gets rankedSlots-1, etc.
-          const points = rankedSlots - a.rankedVote.rank + 1;
+          // Clamp to 0 so any out-of-bounds rank can't subtract points.
+          const points = Math.max(0, rankedSlots - a.rankedVote.rank + 1);
           pointsMap.set(
             a.submissionId,
             (pointsMap.get(a.submissionId) || 0) + points,
@@ -546,41 +719,60 @@ export async function completeRound(
       // For finals, advance count is the number of winners
       const advanceCount = round.advanceCount || 3;
 
-      advancingSubmissions = sorted.slice(0, advanceCount).map((s, i) => ({
-        submissionId: s.submissionId,
-        rank: i + 1,
-      }));
+      advancingSubmissions = sliceWithRandomTiebreak(sorted, advanceCount).map(
+        (s, i) => ({
+          submissionId: s.submissionId,
+          rank: i + 1,
+        }),
+      );
     }
 
-    // Clear existing advancements (in case of re-completing)
-    await prisma.roundAdvancement.deleteMany({ where: { roundId } });
+    await prisma.$transaction(async (tx) => {
+      // Clear existing advancements (in case of re-completing)
+      await tx.roundAdvancement.deleteMany({ where: { roundId } });
 
-    // Save advancements
-    await prisma.roundAdvancement.createMany({
-      data: advancingSubmissions.map((a) => ({
-        roundId,
-        submissionId: a.submissionId,
-        rank: a.rank,
-      })),
-    });
+      // For RANKED re-completion, clear prior track winners so we don't orphan
+      // entries when the top picks shift between runs.
+      if (round.type === "RANKED") {
+        await tx.trackWinner.deleteMany({
+          where: { trackId: round.plan.trackId },
+        });
+      }
 
-    // Mark round as complete and inactive
-    await prisma.judgingRound.update({
-      where: { id: roundId },
-      data: { isComplete: true, isActive: false },
-    });
-
-    // If this is the last round (RANKED), create TrackWinners
-    if (round.type === "RANKED") {
-      await prisma.trackWinner.createMany({
+      // Save advancements
+      await tx.roundAdvancement.createMany({
         data: advancingSubmissions.map((a) => ({
-          trackId: round.plan.trackId,
+          roundId,
           submissionId: a.submissionId,
-          place: a.rank,
+          rank: a.rank,
         })),
-        skipDuplicates: true,
       });
-    }
+
+      // Mark round as complete and inactive
+      await tx.judgingRound.update({
+        where: { id: roundId },
+        data: { isComplete: true, isActive: false },
+      });
+
+      // If this is the last round (RANKED), create TrackWinners and force
+      // admin to re-release — new winners are private until greenlit.
+      if (round.type === "RANKED") {
+        await tx.trackWinner.createMany({
+          data: advancingSubmissions.map((a) => ({
+            trackId: round.plan.trackId,
+            submissionId: a.submissionId,
+            place: a.rank,
+          })),
+        });
+        await tx.hackathon.updateMany({
+          where: {
+            id: round.plan.track.hackathonId,
+            winnersReleasedAt: { not: null },
+          },
+          data: { winnersReleasedAt: null },
+        });
+      }
+    });
 
     revalidatePath(`/hackathons/${hackathonId}/judging`);
     return { success: true, advanced: advancingSubmissions.length };

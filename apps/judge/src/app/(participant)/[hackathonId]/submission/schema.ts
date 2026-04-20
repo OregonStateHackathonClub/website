@@ -33,7 +33,10 @@ export const submissionSchema = z.object({
     .optional()
     .or(z.literal("")),
   otherLinks: z.array(z.string().url("Must be a valid URL")),
-  trackIds: z.array(z.string()).min(1, "Select at least one track"),
+  trackIds: z
+    .array(z.string())
+    .min(1, "Select at least one track")
+    .max(2, "You can only enter one additional track besides Best Overall"),
 });
 
 export const draftSchema = z.object({

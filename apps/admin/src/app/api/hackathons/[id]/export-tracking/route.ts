@@ -28,6 +28,14 @@ export async function GET(
   // Build where clause
   const where: Record<string, unknown> = {};
   if (roundId) {
+    // Verify the round belongs to this hackathon before trusting the ID.
+    const round = await prisma.judgingRound.findUnique({
+      where: { id: roundId },
+      select: { plan: { select: { track: { select: { hackathonId: true } } } } },
+    });
+    if (!round || round.plan.track.hackathonId !== hackathonId) {
+      return NextResponse.json({ error: "Round not found" }, { status: 404 });
+    }
     where.roundId = roundId;
   } else {
     where.round = { plan: { track: { hackathonId } } };

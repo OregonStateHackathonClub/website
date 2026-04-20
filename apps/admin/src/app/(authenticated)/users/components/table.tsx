@@ -16,7 +16,7 @@ import {
   getFilteredRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useMemo, useState, useTransition } from "react";
+import { useCallback, useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 import {
   deleteUser,
@@ -59,47 +59,51 @@ export function UsersTable({ initialUsers }: UsersTableProps) {
     setIsLoadingUser(false);
   };
 
-  const handleRoleChange = async (userId: string, newRole: UserRole) => {
-    setOpenDropdown(null);
-    const result = await setUserRole(userId, newRole);
-    if (result.success) {
-      setUsers((prev) =>
-        prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u)),
-      );
-      if (selectedUser?.id === userId) {
-        setSelectedUser({ ...selectedUser, role: newRole });
+  const handleRoleChange = useCallback(
+    async (userId: string, newRole: UserRole) => {
+      setOpenDropdown(null);
+      const result = await setUserRole(userId, newRole);
+      if (result.success) {
+        setUsers((prev) =>
+          prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u)),
+        );
+        setSelectedUser((prev) =>
+          prev && prev.id === userId ? { ...prev, role: newRole } : prev,
+        );
+        toast.success(
+          newRole === UserRole.ADMIN
+            ? "User promoted to admin"
+            : "Admin role removed",
+        );
+      } else {
+        toast.error(result.error || "Failed to update role");
       }
-      toast.success(
-        newRole === UserRole.ADMIN
-          ? "User promoted to admin"
-          : "Admin role removed",
-      );
-    } else {
-      toast.error(result.error || "Failed to update role");
-    }
-  };
+    },
+    [],
+  );
 
-  const handleDelete = async (userId: string, userName: string) => {
-    setOpenDropdown(null);
-    if (
-      !confirm(
-        `Are you sure you want to delete ${userName}? This cannot be undone.`,
-      )
-    ) {
-      return;
-    }
-
-    const result = await deleteUser(userId);
-    if (result.success) {
-      setUsers((prev) => prev.filter((u) => u.id !== userId));
-      if (selectedUser?.id === userId) {
-        setSelectedUser(null);
+  const handleDelete = useCallback(
+    async (userId: string, userName: string) => {
+      setOpenDropdown(null);
+      if (
+        !confirm(
+          `Are you sure you want to delete ${userName}? This cannot be undone.`,
+        )
+      ) {
+        return;
       }
-      toast.success("User deleted");
-    } else {
-      toast.error(result.error || "Failed to delete user");
-    }
-  };
+
+      const result = await deleteUser(userId);
+      if (result.success) {
+        setUsers((prev) => prev.filter((u) => u.id !== userId));
+        setSelectedUser((prev) => (prev && prev.id === userId ? null : prev));
+        toast.success("User deleted");
+      } else {
+        toast.error(result.error || "Failed to delete user");
+      }
+    },
+    [],
+  );
 
   const refreshUsers = async () => {
     const { users: refreshedUsers } = await getUsers({ search, limit: 50 });

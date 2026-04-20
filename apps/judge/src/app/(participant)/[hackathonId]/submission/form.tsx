@@ -60,8 +60,34 @@ const ERROR_STEP_MAP: Record<string, number> = {
 interface SubmissionFormProps {
   hackathonId: string;
   initialData: InitialData;
-  tracks: { id: string; name: string }[];
+  tracks: { id: string; name: string; isDefault: boolean }[];
   hasSubmission: boolean;
+  endsAt: Date | null;
+}
+
+function formatDeadline(endsAt: Date, now: number): {
+  text: string;
+  urgent: boolean;
+} {
+  const ms = endsAt.getTime() - now;
+  if (ms <= 0) return { text: "Closed", urgent: true };
+  const minutes = Math.floor(ms / 60_000);
+  const hours = Math.floor(minutes / 60);
+  if (hours >= 24) {
+    return {
+      text: `Closes ${endsAt.toLocaleString(undefined, {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      })}`,
+      urgent: false,
+    };
+  }
+  if (hours >= 1) {
+    return { text: `Closes in ${hours}h ${minutes % 60}m`, urgent: hours < 2 };
+  }
+  return { text: `Closes in ${minutes}m`, urgent: true };
 }
 
 export function SubmissionForm({
@@ -69,6 +95,7 @@ export function SubmissionForm({
   initialData,
   tracks,
   hasSubmission,
+  endsAt,
 }: SubmissionFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -216,12 +243,32 @@ export function SubmissionForm({
     }
   };
 
+  const defaultTrackId = tracks.find((t) => t.isDefault)?.id ?? null;
+
+  // Ensure the default track is always included in the selection.
+  useEffect(() => {
+    if (!defaultTrackId) return;
+    const current = form.getValues("trackIds");
+    if (!current.includes(defaultTrackId)) {
+      form.setValue("trackIds", [defaultTrackId, ...current]);
+    }
+  }, [defaultTrackId, form]);
+
   const toggleTrack = (trackId: string) => {
+    if (trackId === defaultTrackId) return; // default is locked on
     const current = form.getValues("trackIds");
     if (current.includes(trackId)) {
       form.setValue(
         "trackIds",
         current.filter((id) => id !== trackId),
+      );
+    } else if (defaultTrackId) {
+      // Only one additional track allowed beyond the default — replace any
+      // existing non-default pick with the new one.
+      const defaultIncluded = current.includes(defaultTrackId);
+      form.setValue(
+        "trackIds",
+        defaultIncluded ? [defaultTrackId, trackId] : [trackId],
       );
     } else {
       form.setValue("trackIds", [...current, trackId]);
@@ -236,6 +283,14 @@ export function SubmissionForm({
   const videoUrl = form.watch("videoUrl");
   const youtubeId = getYouTubeId(videoUrl ?? "");
 
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!endsAt) return;
+    const id = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(id);
+  }, [endsAt]);
+  const deadline = endsAt ? formatDeadline(endsAt, now) : null;
+
   return (
     <div className="min-h-screen bg-neutral-950 p-6">
       <div className="mx-auto max-w-4xl">
@@ -245,7 +300,18 @@ export function SubmissionForm({
               {hasSubmission ? "Edit Submission" : "Submit Project"}
             </h1>
           </div>
-          <SaveIndicator status={saveStatus} />
+          <div className="flex items-center gap-4">
+            {deadline && (
+              <span
+                className={`text-xs font-medium ${
+                  deadline.urgent ? "text-amber-400" : "text-neutral-400"
+                }`}
+              >
+                {deadline.text}
+              </span>
+            )}
+            <SaveIndicator status={saveStatus} />
+          </div>
         </div>
 
         <StepIndicator currentStep={step} onStepClick={setStep} />
@@ -306,6 +372,7 @@ export function SubmissionForm({
                   tracks={tracks}
                   selectedIds={selectedTrackIds}
                   onToggle={toggleTrack}
+                  defaultTrackId={defaultTrackId}
                   error={form.formState.errors.trackIds?.message}
                 />
 

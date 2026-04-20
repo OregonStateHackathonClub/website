@@ -15,7 +15,7 @@ import {
   getFilteredRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
   bulkUpdateApplicationStatus,
@@ -88,20 +88,24 @@ export function ApplicationsTable({
     return applications.filter((app) => app.status === statusFilter);
   }, [applications, statusFilter]);
 
-  async function handleStatusChange(
-    appId: string,
-    newStatus: ApplicationStatus,
-  ) {
-    setIsProcessing(true);
-    const result = await updateApplicationStatus(hackathonId, appId, newStatus);
-    setIsProcessing(false);
+  const handleStatusChange = useCallback(
+    async (appId: string, newStatus: ApplicationStatus) => {
+      setIsProcessing(true);
+      const result = await updateApplicationStatus(
+        hackathonId,
+        appId,
+        newStatus,
+      );
+      setIsProcessing(false);
 
-    if (result.success) {
-      toast.success(`Status updated to ${STATUS_LABELS[newStatus]}`);
-    } else {
-      toast.error(result.error || "Failed to update status");
-    }
-  }
+      if (result.success) {
+        toast.success(`Status updated to ${STATUS_LABELS[newStatus]}`);
+      } else {
+        toast.error(result.error || "Failed to update status");
+      }
+    },
+    [hackathonId],
+  );
 
   async function handleBulkAction(status: ApplicationStatus) {
     const selectedRows = table.getFilteredSelectedRowModel().rows;
@@ -133,7 +137,7 @@ export function ApplicationsTable({
         onStatusChange: handleStatusChange,
         isProcessing,
       }),
-    [isProcessing],
+    [handleStatusChange, isProcessing],
   );
 
   const table = useReactTable({

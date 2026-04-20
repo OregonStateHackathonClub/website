@@ -1,17 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import type { TrackingProject } from "@/app/actions/tracking";
+import type { TrackingJudge, TrackingProject } from "@/app/actions/tracking";
 import {
   skipJudgeAssignment,
-  markAssignmentComplete,
   overrideTriageScore,
   overrideRankedVote,
   overrideRubricScore,
   assignJudgeToRound,
-  getAvailableJudges,
   deleteJudgeAssignment,
 } from "@/app/actions/tracking";
 
@@ -20,6 +18,7 @@ interface ProjectModalProps {
   project: TrackingProject;
   roundId: string;
   roundType: string;
+  trackJudges: TrackingJudge[];
   onClose: () => void;
 }
 
@@ -49,6 +48,7 @@ export function ProjectModal({
   project,
   roundId,
   roundType,
+  trackJudges,
   onClose,
 }: ProjectModalProps) {
   const router = useRouter();
@@ -58,17 +58,11 @@ export function ProjectModal({
   const [scoreAssignmentId, setScoreAssignmentId] = useState<string | null>(null);
   const [scoreValue, setScoreValue] = useState(3);
   const [showAssign, setShowAssign] = useState(false);
-  const [availableJudges, setAvailableJudges] = useState<{ id: string; name: string; email: string }[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const unassignedJudges = availableJudges.filter(
+  const unassignedJudges = trackJudges.filter(
     (j) => !project.assignments.some((a) => a.judgeId === j.id),
   );
-
-  // Fetch available judges on mount
-  useEffect(() => {
-    getAvailableJudges(hackathonId, project.trackId).then(setAvailableJudges);
-  }, [hackathonId, project.trackId]);
 
   function refreshData() {
     router.refresh();
@@ -88,18 +82,6 @@ export function ProjectModal({
       toast.success("Assignment skipped");
       setSkipAssignmentId(null);
       setSkipNote("");
-      refreshData();
-    } else {
-      toast.error(result.error);
-    }
-  }
-
-  async function handleMarkComplete(assignmentId: string) {
-    setLoading(true);
-    const result = await markAssignmentComplete(hackathonId, assignmentId);
-    setLoading(false);
-    if (result.success) {
-      toast.success("Marked complete");
       refreshData();
     } else {
       toast.error(result.error);
@@ -210,22 +192,13 @@ export function ProjectModal({
 
                 <div className="flex gap-1">
                   {a.status !== "scored" && a.status !== "skipped" && (
-                    <>
-                      <button
-                        onClick={() => handleMarkComplete(a.id)}
-                        disabled={loading}
-                        className="text-[10px] font-mono text-neutral-500 hover:text-white border border-neutral-800 px-2 py-0.5 hover:border-neutral-600 transition-colors"
-                      >
-                        Done
-                      </button>
-                      <button
-                        onClick={() => setSkipAssignmentId(a.id)}
-                        disabled={loading}
-                        className="text-[10px] font-mono text-neutral-500 hover:text-white border border-neutral-800 px-2 py-0.5 hover:border-neutral-600 transition-colors"
-                      >
-                        Skip
-                      </button>
-                    </>
+                    <button
+                      onClick={() => setSkipAssignmentId(a.id)}
+                      disabled={loading}
+                      className="text-[10px] font-mono text-neutral-500 hover:text-white border border-neutral-800 px-2 py-0.5 hover:border-neutral-600 transition-colors"
+                    >
+                      Skip
+                    </button>
                   )}
                   <button
                     onClick={() => setScoreAssignmentId(a.id)}

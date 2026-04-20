@@ -1,13 +1,10 @@
 "use client";
 
 import type { Prisma } from "@repo/database";
-import { Button } from "@repo/ui/components/button";
 import { Filter, Heart, Trophy } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { toggleLike } from "@/app/actions/participant";
-import { CreateTeamModal } from "./create-team-modal";
-import { FindTeamModal } from "./find-team-modal";
 import { TrackFilter } from "./track-filter";
 import { SubmissionCard } from "./submission-card";
 
@@ -30,7 +27,6 @@ interface ProjectsGalleryProps {
   hackathon: Hackathon;
   tracks: Track[];
   hackathonId: string;
-  userTeamId?: string | null;
   likedSubmissionIds?: string[];
   canLike?: boolean;
 }
@@ -39,7 +35,6 @@ export function ProjectsGallery({
   hackathon,
   tracks,
   hackathonId,
-  userTeamId = null,
   likedSubmissionIds = [],
   canLike = false,
 }: ProjectsGalleryProps) {
@@ -59,8 +54,6 @@ export function ProjectsGallery({
   const [filteredSubmissions, setFilteredSubmissions] = useState(
     hackathon.submissions,
   );
-  const [createTeamOpen, setCreateTeamOpen] = useState(false);
-  const [findTeamOpen, setFindTeamOpen] = useState(false);
   const [, startTransition] = useTransition();
   const router = useRouter();
 
@@ -193,25 +186,6 @@ export function ProjectsGallery({
             <Heart className="h-4 w-4" />
             Most Liked
           </button>
-
-          {/* Action Buttons */}
-          {!userTeamId && (
-            <div className="flex gap-3">
-              <Button
-                onClick={() => setCreateTeamOpen(true)}
-                className="bg-white text-black hover:bg-neutral-200 rounded-none"
-              >
-                Create a Team
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setFindTeamOpen(true)}
-                className="rounded-none border-neutral-800 text-white hover:bg-neutral-900"
-              >
-                Find a Team
-              </Button>
-            </div>
-          )}
         </div>
 
         {/* Submissions grid */}
@@ -236,21 +210,6 @@ export function ProjectsGallery({
           </div>
         )}
       </div>
-
-      {!userTeamId && (
-        <>
-          <CreateTeamModal
-            hackathonId={hackathonId}
-            open={createTeamOpen}
-            onOpenChange={setCreateTeamOpen}
-          />
-          <FindTeamModal
-            hackathonId={hackathonId}
-            open={findTeamOpen}
-            onOpenChange={setFindTeamOpen}
-          />
-        </>
-      )}
     </div>
   );
 }

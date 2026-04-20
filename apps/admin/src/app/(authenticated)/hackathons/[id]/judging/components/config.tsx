@@ -11,7 +11,13 @@ import { TrackCard } from "./track-card";
 
 export type Track = Prisma.TrackGetPayload<{
   include: {
-    judgingPlan: { include: { rounds: true } };
+    judgingPlan: {
+      include: {
+        rounds: {
+          include: { _count: { select: { judgeAssignments: true } } };
+        };
+      };
+    };
     judgeAssignments: { include: { judge: true } };
     _count: { select: { submissions: true } };
   };

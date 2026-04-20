@@ -13,6 +13,8 @@ export default function CreateHackathonPage() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [startsAt, setStartsAt] = useState("");
+  const [endsAt, setEndsAt] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,6 +29,8 @@ export default function CreateHackathonPage() {
     const result = await createHackathon({
       name: name.trim(),
       description: description.trim() || undefined,
+      startsAt: startsAt ? new Date(startsAt) : null,
+      endsAt: endsAt ? new Date(endsAt) : null,
     });
     setLoading(false);
 
@@ -84,6 +88,31 @@ export default function CreateHackathonPage() {
               rows={4}
               className="w-full px-4 py-3 border-neutral-800 text-white placeholder:text-neutral-600 focus:border-neutral-600 rounded-none resize-none focus-visible:ring-0 bg-transparent dark:bg-transparent"
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-neutral-400 mb-1.5">
+                Submissions Open
+              </label>
+              <Input
+                type="datetime-local"
+                value={startsAt}
+                onChange={(e) => setStartsAt(e.target.value)}
+                className="w-full h-10 px-4 border-neutral-800 text-white placeholder:text-neutral-600 focus:border-neutral-600 rounded-none focus-visible:ring-0 bg-transparent dark:bg-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-neutral-400 mb-1.5">
+                Submissions Close
+              </label>
+              <Input
+                type="datetime-local"
+                value={endsAt}
+                onChange={(e) => setEndsAt(e.target.value)}
+                className="w-full h-10 px-4 border-neutral-800 text-white placeholder:text-neutral-600 focus:border-neutral-600 rounded-none focus-visible:ring-0 bg-transparent dark:bg-transparent"
+              />
+            </div>
           </div>
         </div>
 

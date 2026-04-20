@@ -83,6 +83,10 @@ export function ConfigurePlanModal({
   const maxJudges = track.judgeAssignments.length;
   const totalSubmissions = track._count.submissions;
 
+  const hasInvalidRankedRound = rounds.some(
+    (r) => r.type === "RANKED" && (r.advanceCount ?? 3) > (r.rankedSlots ?? 3),
+  );
+
   // Calculate how many submissions will be in a given round
   function calculateSubmissionsForRound(roundIndex: number): number {
     let subs = totalSubmissions;
@@ -165,6 +169,24 @@ export function ConfigurePlanModal({
     if (rounds.length === 0) {
       toast.error("Add at least one round");
       return;
+    }
+
+    const existingRounds = track.judgingPlan?.rounds ?? [];
+    const isStructural =
+      existingRounds.length !== rounds.length ||
+      existingRounds.some((r, i) => r.type !== rounds[i]?.type);
+    const hasScoring = existingRounds.some(
+      (r) => r._count.judgeAssignments > 0,
+    );
+
+    if (isStructural && hasScoring) {
+      if (
+        !confirm(
+          "Changing round structure will clear all assignments and scores for this plan. Continue?",
+        )
+      ) {
+        return;
+      }
     }
 
     setIsSaving(true);
@@ -436,6 +458,7 @@ export function ConfigurePlanModal({
                           <Input
                             type="number"
                             min={1}
+                            max={round.rankedSlots || 3}
                             value={round.advanceCount || 3}
                             onChange={(e) =>
                               updateRound(index, {
@@ -448,6 +471,13 @@ export function ConfigurePlanModal({
                       </>
                     )}
                   </div>
+                  {round.type === "RANKED" &&
+                    (round.advanceCount ?? 3) > (round.rankedSlots ?? 3) && (
+                      <p className="text-xs text-red-400 mt-1">
+                        Winner count can&apos;t exceed ranked slots — judges
+                        only rank the top {round.rankedSlots ?? 3}.
+                      </p>
+                    )}
                 </div>
               </div>
             );
@@ -508,7 +538,9 @@ export function ConfigurePlanModal({
             </Button>
             <Button
               onClick={handleSave}
-              disabled={isSaving || rounds.length === 0}
+              disabled={
+                isSaving || rounds.length === 0 || hasInvalidRankedRound
+              }
               className="bg-white text-black hover:bg-neutral-200 rounded-none"
             >
               {isSaving ? "Saving..." : "Save Plan"}

@@ -43,6 +43,32 @@ export default async function SubmissionPage({
   const teamId = participant.teamMember?.teamId ?? null;
   const whereClause = teamId ? { teamId } : { participantId: participant.id };
 
+  const hackathon = await prisma.hackathon.findUnique({
+    where: { id: hackathonId },
+    select: { startsAt: true, endsAt: true },
+  });
+  const now = Date.now();
+  const notYetOpen =
+    hackathon?.startsAt && now < hackathon.startsAt.getTime();
+  const closed = hackathon?.endsAt && now >= hackathon.endsAt.getTime();
+
+  if (notYetOpen || closed) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+        <h1 className="text-xl font-medium text-white">
+          {closed ? "Submissions are closed" : "Submissions are not yet open"}
+        </h1>
+        <p className="mt-2 text-sm text-neutral-500">
+          {closed
+            ? "The submission window has ended. You can view all submitted projects in the gallery."
+            : hackathon?.startsAt
+              ? `Submissions open ${hackathon.startsAt.toLocaleString()}.`
+              : ""}
+        </p>
+      </div>
+    );
+  }
+
   const [draft, submission, tracks, hasSubmission] = await Promise.all([
     prisma.draft.findFirst({
       where: whereClause,
@@ -74,8 +100,8 @@ export default async function SubmissionPage({
     }),
     prisma.track.findMany({
       where: { hackathonId },
-      select: { id: true, name: true },
-      orderBy: { name: "asc" },
+      select: { id: true, name: true, isDefault: true },
+      orderBy: [{ isDefault: "desc" }, { name: "asc" }],
     }),
     prisma.submission.findFirst({
       where: whereClause,
@@ -104,6 +130,7 @@ export default async function SubmissionPage({
       initialData={initialData}
       tracks={tracks}
       hasSubmission={!!hasSubmission}
+      endsAt={hackathon?.endsAt ?? null}
     />
   );
 }

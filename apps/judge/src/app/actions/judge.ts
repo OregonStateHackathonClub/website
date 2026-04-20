@@ -172,10 +172,41 @@ export async function getRoundTimeline(hackathonId: string, roundId: string) {
       orderBy: [{ completed: "asc" }, { submission: { tableNumber: "asc" } }],
     });
 
+    const submissionIds = assignments.map((a) => a.submissionId);
+    const otherAssignments =
+      submissionIds.length > 0
+        ? await prisma.roundJudgeAssignment.findMany({
+            where: {
+              judgeId: judge.id,
+              submissionId: { in: submissionIds },
+              roundId: { not: roundId },
+              completed: false,
+              round: { isActive: true },
+            },
+            select: {
+              submissionId: true,
+              round: {
+                select: {
+                  plan: { select: { track: { select: { name: true } } } },
+                },
+              },
+            },
+          })
+        : [];
+
+    const otherTracksBySubmission: Record<string, string[]> = {};
+    for (const oa of otherAssignments) {
+      const name = oa.round.plan.track.name;
+      const list = otherTracksBySubmission[oa.submissionId] ?? [];
+      if (!list.includes(name)) list.push(name);
+      otherTracksBySubmission[oa.submissionId] = list;
+    }
+
     return {
       success: true,
       round,
       assignments,
+      otherTracksBySubmission,
     };
   } catch (error) {
     console.error("Failed to get round timeline:", error);

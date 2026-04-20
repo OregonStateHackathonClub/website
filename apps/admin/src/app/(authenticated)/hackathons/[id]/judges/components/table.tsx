@@ -18,7 +18,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Plus, User } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { addJudgeByEmail, removeJudge } from "@/app/actions/hackathons";
 import { sendJudgeMagicLink } from "@/app/actions/judging";
@@ -76,28 +76,34 @@ export function JudgesTable({ hackathonId, judges }: JudgesTableProps) {
     }
   }
 
-  async function handleRemoveJudge(judgeId: string, judgeName: string) {
-    if (!confirm(`Remove ${judgeName} as a judge?`)) return;
+  const handleRemoveJudge = useCallback(
+    async (judgeId: string, judgeName: string) => {
+      if (!confirm(`Remove ${judgeName} as a judge?`)) return;
 
-    const result = await removeJudge(hackathonId, judgeId);
-    if (result.success) {
-      toast.success("Judge removed");
-    } else {
-      toast.error(result.error || "Failed to remove judge");
-    }
-  }
+      const result = await removeJudge(hackathonId, judgeId);
+      if (result.success) {
+        toast.success("Judge removed");
+      } else {
+        toast.error(result.error || "Failed to remove judge");
+      }
+    },
+    [hackathonId],
+  );
 
-  async function handleSendMagicLink(judgeEmail: string) {
-    setSendingLinkTo(judgeEmail);
-    const result = await sendJudgeMagicLink(hackathonId, judgeEmail);
-    setSendingLinkTo(null);
+  const handleSendMagicLink = useCallback(
+    async (judgeEmail: string) => {
+      setSendingLinkTo(judgeEmail);
+      const result = await sendJudgeMagicLink(hackathonId, judgeEmail);
+      setSendingLinkTo(null);
 
-    if (result.success) {
-      toast.success(`Magic link sent to ${judgeEmail}`);
-    } else {
-      toast.error(result.error || "Failed to send magic link");
-    }
-  }
+      if (result.success) {
+        toast.success(`Magic link sent to ${judgeEmail}`);
+      } else {
+        toast.error(result.error || "Failed to send magic link");
+      }
+    },
+    [hackathonId],
+  );
 
   async function handleBulkSendMagicLinks() {
     const selectedRows = table.getFilteredSelectedRowModel().rows;
@@ -176,7 +182,7 @@ export function JudgesTable({ hackathonId, judges }: JudgesTableProps) {
         onRemove: handleRemoveJudge,
         sendingLinkTo,
       }),
-    [sendingLinkTo],
+    [handleSendMagicLink, handleRemoveJudge, sendingLinkTo],
   );
 
   const table = useReactTable({

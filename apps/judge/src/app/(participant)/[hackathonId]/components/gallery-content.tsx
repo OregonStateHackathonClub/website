@@ -20,26 +20,6 @@ export async function GalleryContent({
     session = null;
   }
 
-  let userTeamId: string | null = null;
-  if (session?.user) {
-    const teamMembership = await prisma.team.findFirst({
-      where: {
-        hackathonId,
-        members: {
-          some: {
-            participant: {
-              userId: session.user.id,
-            },
-          },
-        },
-      },
-      select: { id: true },
-    });
-    if (teamMembership) {
-      userTeamId = teamMembership.id;
-    }
-  }
-
   const hackathon = await prisma.hackathon.findFirst({
     where: { id: hackathonId },
     include: {
@@ -99,12 +79,22 @@ export async function GalleryContent({
     );
   }
 
+  const released = hackathon.winnersReleasedAt !== null;
+  const processedHackathon = released
+    ? hackathon
+    : {
+        ...hackathon,
+        submissions: hackathon.submissions.map((s) => ({
+          ...s,
+          trackWins: [],
+        })),
+      };
+
   return (
     <ProjectsGallery
-      hackathon={hackathon}
+      hackathon={processedHackathon}
       tracks={hackathon.tracks}
       hackathonId={hackathonId}
-      userTeamId={userTeamId}
       likedSubmissionIds={likedSubmissionIds}
       canLike={canLike}
     />

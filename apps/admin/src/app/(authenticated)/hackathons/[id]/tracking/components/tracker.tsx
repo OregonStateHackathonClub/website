@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import type { TrackingData, TrackingProject } from "@/app/actions/tracking";
+import type { TrackingData } from "@/app/actions/tracking";
 import { autoAssignJudges, activateRound, completeRound } from "@/app/actions/judging";
 import {
   Select,
@@ -29,8 +29,18 @@ export function Tracker({ hackathonId, data }: TrackerProps) {
     ? data.projects.find((p) => p.submissionId === selectedSubmissionId) ?? null
     : null;
 
-  const currentRoundId = searchParams.get("round") || data.rounds.find((r) => r.isActive)?.id || data.rounds[0]?.id;
-  const currentTrackId = searchParams.get("track") || "";
+  const paramTrackId = searchParams.get("track");
+  const currentTrackId =
+    paramTrackId && data.tracks.some((t) => t.id === paramTrackId)
+      ? paramTrackId
+      : data.tracks[0]?.id || "";
+  const paramRoundId = searchParams.get("round");
+  const currentRoundId =
+    (paramRoundId && data.rounds.some((r) => r.id === paramRoundId)
+      ? paramRoundId
+      : undefined) ||
+    data.rounds.find((r) => r.isActive)?.id ||
+    data.rounds[0]?.id;
   const currentRound = data.rounds.find((r) => r.id === currentRoundId);
 
   // Poll every 15 seconds
@@ -49,11 +59,9 @@ export function Tracker({ hackathonId, data }: TrackerProps) {
 
   function setTrack(trackId: string) {
     const params = new URLSearchParams(searchParams.toString());
-    if (trackId) {
-      params.set("track", trackId);
-    } else {
-      params.delete("track");
-    }
+    params.set("track", trackId);
+    // Clear round so the server picks the first round of the new track.
+    params.delete("round");
     router.push(`/hackathons/${hackathonId}/tracking?${params.toString()}`);
   }
 
@@ -72,18 +80,18 @@ export function Tracker({ hackathonId, data }: TrackerProps) {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Track filter */}
-          <Select
-            value={currentTrackId || "all"}
-            onValueChange={(value) => setTrack(value === "all" ? "" : value)}
-          >
+          {/* Track selector */}
+          <Select value={currentTrackId} onValueChange={setTrack}>
             <SelectTrigger className="w-[160px] bg-transparent border-neutral-800 text-neutral-400 text-xs font-mono rounded-none ring-0 focus:ring-0 focus-visible:ring-0 focus-visible:border-neutral-600">
-              <SelectValue placeholder="All Tracks" />
+              <SelectValue placeholder="Select track" />
             </SelectTrigger>
             <SelectContent className="rounded-none border-neutral-800 bg-neutral-900">
-              <SelectItem value="all" className="rounded-none text-neutral-300 text-xs">All Tracks</SelectItem>
               {data.tracks.map((t) => (
-                <SelectItem key={t.id} value={t.id} className="rounded-none text-neutral-300 text-xs">
+                <SelectItem
+                  key={t.id}
+                  value={t.id}
+                  className="rounded-none text-neutral-300 text-xs"
+                >
                   {t.name}
                 </SelectItem>
               ))}
@@ -117,6 +125,7 @@ export function Tracker({ hackathonId, data }: TrackerProps) {
             <div className="flex gap-2">
               <button
                 onClick={async () => {
+                  if (!confirm("Re-run auto-assignment? This will clear all existing assignments and scores for this round.")) return;
                   const result = await autoAssignJudges(hackathonId, currentRound.trackId, currentRound.id);
                   if (result.success) {
                     toast.success(`Assigned ${result.assigned} judge slots`);
@@ -221,6 +230,7 @@ export function Tracker({ hackathonId, data }: TrackerProps) {
           project={selectedProject}
           roundId={currentRoundId || ""}
           roundType={currentRound?.type || "TRIAGE"}
+          trackJudges={data.judgesByTrack[selectedProject.trackId] || []}
           onClose={() => setSelectedSubmissionId(null)}
         />
       )}
