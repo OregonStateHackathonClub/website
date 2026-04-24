@@ -226,7 +226,6 @@ export async function joinTeam(
       },
     });
 
-    revalidatePath("/");
     return { success: true, teamId: team.id };
   } catch (error) {
     console.error("Join team error:", error);
