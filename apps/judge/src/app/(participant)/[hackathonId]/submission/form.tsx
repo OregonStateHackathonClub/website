@@ -177,7 +177,7 @@ export function SubmissionForm({
     try {
       const urls: string[] = [];
       for (const file of toUpload) {
-        const blob = await upload(file.name, file, {
+        const blob = await upload(`submissions/${file.name}`, file, {
           access: "public",
           handleUploadUrl: "/api/upload",
           onUploadProgress: ({ loaded }) => {

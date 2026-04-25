@@ -9,9 +9,13 @@ export async function POST(request: Request): Promise<NextResponse> {
   const jsonResponse = await handleUpload({
     body,
     request,
-    onBeforeGenerateToken: async () => {
+    onBeforeGenerateToken: async (pathname) => {
       const session = await auth.api.getSession({ headers: await headers() });
       if (!session?.user) throw new Error("Not authenticated");
+
+      if (!pathname.startsWith("submissions/")) {
+        throw new Error("Uploads must be under submissions/");
+      }
 
       return {
         allowedContentTypes: ["image/png", "image/jpeg", "image/webp"],

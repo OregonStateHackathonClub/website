@@ -53,7 +53,7 @@ export async function POST(request: Request): Promise<Response> {
   const formData = await request.formData();
   const name = formData.get("name") as string;
 
-  const path = await uploadFile(formData.get("resume") as File);
+  const path = await uploadFile(formData.get("resume") as File, "resumes");
 
   // Create application and hackathon participant in a transaction
   const application = await prisma.$transaction(async (tx) => {

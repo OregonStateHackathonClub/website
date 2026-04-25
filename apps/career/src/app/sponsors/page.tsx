@@ -462,7 +462,7 @@ export default function SponsorsPage() {
                       className="rounded-none bg-white text-black hover:bg-neutral-200"
                     >
                       <a
-                        href={`/api/resumes/${selectedUser.applications[0].resumePath}`}
+                        href={`/api/resumes/single?url=${encodeURIComponent(selectedUser.applications[0].resumePath)}`}
                         download
                         target="_blank"
                         rel="noopener noreferrer"
