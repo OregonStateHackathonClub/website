@@ -1,10 +1,10 @@
 export const sponsors = [
   { name: "NVIDIA", logo: "/nvidia-logo.png", url: "https://nvidia.com" },
-  // {
-  //   name: "Anthropic",
-  //   logo: "/anthropic-logo.png",
-  //   url: "https://anthropic.com",
-  // },
+  {
+    name: "Google",
+    logo: "/google-logo.png",
+    url: "https://developers.google.com/",
+  },
   {
     name: "Mark III Systems",
     logo: "/markiii-logo.png",
