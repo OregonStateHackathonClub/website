@@ -26,7 +26,7 @@ export function TrackSelector({
       <p className="mb-4 text-sm text-neutral-500">
         {defaultTrack
           ? `Every project is entered in ${defaultTrack.name}. You may pick one additional track.`
-          : "Select the tracks you're competing in."}
+          : "Select one track to compete in."}
       </p>
 
       <div className="flex flex-wrap gap-2">

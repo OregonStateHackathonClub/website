@@ -569,6 +569,7 @@ export async function completeRound(
         plan: {
           include: {
             track: true,
+            rounds: { select: { roundNumber: true } },
           },
         },
         judgeAssignments: true,
@@ -727,13 +728,18 @@ export async function completeRound(
       );
     }
 
+    const maxRoundNumber = Math.max(
+      ...round.plan.rounds.map((r) => r.roundNumber),
+    );
+    const isFinalRound = round.roundNumber === maxRoundNumber;
+
     await prisma.$transaction(async (tx) => {
       // Clear existing advancements (in case of re-completing)
       await tx.roundAdvancement.deleteMany({ where: { roundId } });
 
-      // For RANKED re-completion, clear prior track winners so we don't orphan
-      // entries when the top picks shift between runs.
-      if (round.type === "RANKED") {
+      // On a final-round re-completion, clear prior track winners so we don't
+      // orphan entries when the top picks shift between runs.
+      if (isFinalRound) {
         await tx.trackWinner.deleteMany({
           where: { trackId: round.plan.trackId },
         });
@@ -754,9 +760,9 @@ export async function completeRound(
         data: { isComplete: true, isActive: false },
       });
 
-      // If this is the last round (RANKED), create TrackWinners and force
-      // admin to re-release — new winners are private until greenlit.
-      if (round.type === "RANKED") {
+      // Final round (any type) creates TrackWinners. Re-releasing is required
+      // — new winners are private until admin greenlights.
+      if (isFinalRound) {
         await tx.trackWinner.createMany({
           data: advancingSubmissions.map((a) => ({
             trackId: round.plan.trackId,

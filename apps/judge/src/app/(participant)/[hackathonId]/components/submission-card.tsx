@@ -2,12 +2,12 @@
 
 import type { Prisma } from "@repo/database";
 import { Badge } from "@repo/ui/components/badge";
-import { Heart, Tag } from "lucide-react";
+import { Heart, Tag, Trophy } from "lucide-react";
 import Image from "next/image";
 import { ProjectLinks } from "../components/project-links";
 
 type Submission = Prisma.SubmissionGetPayload<{
-  include: { tracks: true };
+  include: { tracks: true; trackWins: true };
 }>;
 
 interface SubmissionCardProps {
@@ -17,6 +17,22 @@ interface SubmissionCardProps {
   likeCount?: number;
   isLiked?: boolean;
   onLike?: (submissionId: string) => void;
+}
+
+const PLACE_LABEL: Record<number, string> = {
+  1: "1st",
+  2: "2nd",
+  3: "3rd",
+};
+
+const PLACE_STYLE: Record<number, string> = {
+  1: "border-amber-500/40 bg-amber-500/15 text-amber-300",
+  2: "border-neutral-400/40 bg-neutral-400/15 text-neutral-200",
+  3: "border-orange-700/40 bg-orange-700/15 text-orange-300",
+};
+
+function placeLabel(place: number): string {
+  return PLACE_LABEL[place] ?? `${place}th`;
 }
 
 export function SubmissionCard({
@@ -53,15 +69,29 @@ export function SubmissionCard({
         </h3>
         {submission.tracks && submission.tracks.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-2">
-            {submission.tracks.map(({ id, name }) => (
-              <Badge
-                key={id}
-                className="rounded-none border border-neutral-800 bg-neutral-900 px-2 py-0.5 text-[10px] text-neutral-300 uppercase tracking-wide"
-              >
-                <Tag className="h-3 w-3 mr-1" />
-                {name}
-              </Badge>
-            ))}
+            {submission.tracks.map(({ id, name }) => {
+              const win = submission.trackWins.find((w) => w.trackId === id);
+              if (win) {
+                return (
+                  <Badge
+                    key={id}
+                    className={`rounded-none border px-2 py-0.5 text-[10px] uppercase tracking-wide ${PLACE_STYLE[win.place] ?? PLACE_STYLE[3]}`}
+                  >
+                    <Trophy className="h-3 w-3 mr-1" />
+                    {placeLabel(win.place)} in {name}
+                  </Badge>
+                );
+              }
+              return (
+                <Badge
+                  key={id}
+                  className="rounded-none border border-neutral-800 bg-neutral-900 px-2 py-0.5 text-[10px] text-neutral-300 uppercase tracking-wide"
+                >
+                  <Tag className="h-3 w-3 mr-1" />
+                  {name}
+                </Badge>
+              );
+            })}
           </div>
         )}
       </div>

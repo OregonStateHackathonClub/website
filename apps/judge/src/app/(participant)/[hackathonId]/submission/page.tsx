@@ -53,6 +53,17 @@ export default async function SubmissionPage({
   const closed = hackathon?.endsAt && now >= hackathon.endsAt.getTime();
 
   if (notYetOpen || closed) {
+    const formatted = hackathon?.startsAt
+      ? `${hackathon.startsAt.toLocaleString("en-US", {
+          timeZone: "America/Los_Angeles",
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+        })} PST`
+      : "";
+
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
         <h1 className="text-xl font-medium text-white">
@@ -61,8 +72,8 @@ export default async function SubmissionPage({
         <p className="mt-2 text-sm text-neutral-500">
           {closed
             ? "The submission window has ended. You can view all submitted projects in the gallery."
-            : hackathon?.startsAt
-              ? `Submissions open ${hackathon.startsAt.toLocaleString()}.`
+            : formatted
+              ? `Submissions open ${formatted}.`
               : ""}
         </p>
       </div>

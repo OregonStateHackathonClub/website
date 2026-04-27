@@ -168,21 +168,26 @@ export async function submitProject(
 
     const defaultTrack = await prisma.track.findFirst({
       where: { hackathonId, isDefault: true },
-      select: { id: true },
+      select: { id: true, name: true },
     });
-    if (defaultTrack && !validated.data.trackIds.includes(defaultTrack.id)) {
-      validated.data.trackIds = [defaultTrack.id, ...validated.data.trackIds];
-    }
     if (defaultTrack) {
+      if (!validated.data.trackIds.includes(defaultTrack.id)) {
+        validated.data.trackIds = [defaultTrack.id, ...validated.data.trackIds];
+      }
       const extras = validated.data.trackIds.filter(
         (id) => id !== defaultTrack.id,
       );
       if (extras.length > 1) {
         return {
           success: false,
-          error: "You may only enter one additional track besides Best Overall",
+          error: `You may only enter one additional track besides ${defaultTrack.name}`,
         };
       }
+    } else if (validated.data.trackIds.length > 1) {
+      return {
+        success: false,
+        error: "You may only enter one track",
+      };
     }
 
     const submissionWhereClause = teamId ? { teamId } : { participantId };

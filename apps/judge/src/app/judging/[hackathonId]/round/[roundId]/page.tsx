@@ -31,7 +31,6 @@ export default async function Page({
       hackathonId={hackathonId}
       round={result.round!}
       assignments={result.assignments || []}
-      otherTracksBySubmission={result.otherTracksBySubmission || {}}
     />
   );
 }

@@ -13,46 +13,54 @@ export default async function Layout({
 }) {
   const currentHackathonId = await getCurrentHackathonId();
 
-  // --- Fetch User Team Data (Copied logic) ---
   let userTeamId: string | null = null;
   let teamSubmissionId: string | null = null;
+  let soloSubmissionId: string | null = null;
+  let isParticipant = false;
 
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
     });
 
-    if (session?.user) {
-      const teamMembership = await prisma.team.findFirst({
+    if (session?.user && currentHackathonId) {
+      const participant = await prisma.hackathonParticipant.findUnique({
         where: {
-          hackathonId: currentHackathonId,
-          members: {
-            some: {
-              participant: {
-                userId: session.user.id,
-              },
-            },
+          userId_hackathonId: {
+            userId: session.user.id,
+            hackathonId: currentHackathonId,
           },
         },
         select: {
           id: true,
-          submission: {
-            select: { id: true },
+          teamMember: {
+            select: {
+              team: {
+                select: {
+                  id: true,
+                  submission: { select: { id: true } },
+                },
+              },
+            },
           },
+          submission: { select: { id: true } },
         },
       });
 
-      if (teamMembership) {
-        userTeamId = teamMembership.id;
-        if (teamMembership.submission) {
-          teamSubmissionId = teamMembership.submission.id;
+      if (participant) {
+        isParticipant = true;
+        if (participant.teamMember) {
+          userTeamId = participant.teamMember.team.id;
+          teamSubmissionId =
+            participant.teamMember.team.submission?.id ?? null;
+        } else if (participant.submission) {
+          soloSubmissionId = participant.submission.id;
         }
       }
     }
   } catch (e) {
     console.error("Layout session check failed", e);
   }
-  // -------------------------------------------
 
   return (
     <main className="flex min-h-dvh flex-col text-neutral-200 pt-14">
@@ -60,6 +68,8 @@ export default async function Layout({
         currentHackathonId={currentHackathonId || ""}
         userTeamId={userTeamId}
         teamSubmissionId={teamSubmissionId}
+        soloSubmissionId={soloSubmissionId}
+        isParticipant={isParticipant}
       />
 
       <div className="flex grow flex-col">{children}</div>

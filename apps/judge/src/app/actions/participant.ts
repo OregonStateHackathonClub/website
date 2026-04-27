@@ -133,6 +133,13 @@ export async function createTeam(
           teamId: newTeam.id,
         },
       });
+
+      // If creator had a solo submission, migrate it to the new team so their
+      // existing work isn't lost.
+      await prisma.submission.updateMany({
+        where: { participantId: participant.id, teamId: null },
+        data: { participantId: null, teamId: newTeam.id },
+      });
     }
 
     revalidatePath("/");
@@ -219,6 +226,12 @@ export async function joinTeam(
       });
     }
 
+    // Joining a team wipes any existing solo submission. Cascade is handled
+    // automatically — the Submission row is deleted before TeamMember creation.
+    await prisma.submission.deleteMany({
+      where: { participantId: participant.id, teamId: null },
+    });
+
     await prisma.teamMember.create({
       data: {
         participantId: participant.id,
@@ -233,6 +246,24 @@ export async function joinTeam(
   }
 }
 
+export async function getSoloSubmissionForCurrentUser(
+  hackathonId: string,
+): Promise<{ id: string; title: string } | null> {
+  const session = await getSession();
+  if (!session) return null;
+
+  const submission = await prisma.submission.findFirst({
+    where: {
+      hackathonId,
+      teamId: null,
+      participant: { userId: session.user.id },
+    },
+    select: { id: true, title: true },
+  });
+
+  return submission;
+}
+
 export async function getTeamsLookingForMembers(hackathonId: string) {
   return prisma.team.findMany({
     where: { hackathonId, lookingForTeammates: true },
@@ -240,8 +271,17 @@ export async function getTeamsLookingForMembers(hackathonId: string) {
       id: true,
       name: true,
       description: true,
+      contact: true,
       _count: { select: { members: true } },
+      members: {
+        select: {
+          participant: {
+            select: { user: { select: { name: true } } },
+          },
+        },
+      },
     },
+    orderBy: { createdAt: "desc" },
   });
 }
 

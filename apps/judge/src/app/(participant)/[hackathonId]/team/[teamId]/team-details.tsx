@@ -43,12 +43,22 @@ import {
   updateTeam,
 } from "@/app/actions/participant";
 
-const formSchema = z.object({
-  name: z.string().min(4),
-  lookingForTeammates: z.boolean().optional(),
-  contact: z.string().optional(),
-  description: z.string().optional(),
-});
+const formSchema = z
+  .object({
+    name: z.string().min(4),
+    lookingForTeammates: z.boolean().optional(),
+    contact: z.string().optional(),
+    description: z.string().optional(),
+  })
+  .refine(
+    (data) =>
+      !data.lookingForTeammates ||
+      (data.contact?.trim().length ?? 0) > 0,
+    {
+      message: "Contact info is required when looking for teammates.",
+      path: ["contact"],
+    },
+  );
 
 type TeamInfo = Prisma.TeamGetPayload<{
   select: {
@@ -130,13 +140,11 @@ export function TeamDetails({
     fetchInvite();
   }, [teamId, form]);
 
-  const getLink = useCallback(
-    () =>
-      inviteCode === ""
-        ? "Generating..."
-        : `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/${hackathonId}/invite/${inviteCode}`,
-    [hackathonId, inviteCode],
-  );
+  const getLink = useCallback(() => {
+    if (inviteCode === "") return "Generating...";
+    if (typeof window === "undefined") return "";
+    return `${window.location.origin}/${hackathonId}/invite/${inviteCode}`;
+  }, [hackathonId, inviteCode]);
 
   const copyLink = async () => {
     await navigator.clipboard.writeText(getLink());
@@ -262,14 +270,18 @@ export function TeamDetails({
                 name="contact"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-neutral-400">Contact</FormLabel>
+                    <FormLabel className="text-neutral-400">
+                      Contact{" "}
+                      {form.watch("lookingForTeammates") ? "*" : "(optional)"}
+                    </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        placeholder="Email"
+                        placeholder="Discord username, email, or phone"
                         className="rounded-none border-neutral-800 bg-transparent"
                       />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -469,7 +481,8 @@ export function TeamDetails({
                 <Button
                   size="sm"
                   onClick={copyLink}
-                  className="rounded-none bg-white text-black hover:bg-neutral-200"
+                  disabled={inviteCode === ""}
+                  className="rounded-none bg-white text-black hover:bg-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {copied ? "Copied!" : "Copy"}
                 </Button>

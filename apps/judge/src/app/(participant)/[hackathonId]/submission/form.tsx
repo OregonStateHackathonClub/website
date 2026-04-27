@@ -74,15 +74,14 @@ function formatDeadline(endsAt: Date, now: number): {
   const minutes = Math.floor(ms / 60_000);
   const hours = Math.floor(minutes / 60);
   if (hours >= 24) {
-    return {
-      text: `Closes ${endsAt.toLocaleString(undefined, {
-        month: "short",
-        day: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-      })}`,
-      urgent: false,
-    };
+    const formatted = endsAt.toLocaleString("en-US", {
+      timeZone: "America/Los_Angeles",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+    return { text: `Closes ${formatted} PST`, urgent: false };
   }
   if (hours >= 1) {
     return { text: `Closes in ${hours}h ${minutes % 60}m`, urgent: hours < 2 };
@@ -263,15 +262,15 @@ export function SubmissionForm({
         current.filter((id) => id !== trackId),
       );
     } else if (defaultTrackId) {
-      // Only one additional track allowed beyond the default — replace any
-      // existing non-default pick with the new one.
+      // Default + one additional — replace any existing non-default pick.
       const defaultIncluded = current.includes(defaultTrackId);
       form.setValue(
         "trackIds",
         defaultIncluded ? [defaultTrackId, trackId] : [trackId],
       );
     } else {
-      form.setValue("trackIds", [...current, trackId]);
+      // No default track — exactly one track allowed; replace prior pick.
+      form.setValue("trackIds", [trackId]);
     }
     autosave();
   };

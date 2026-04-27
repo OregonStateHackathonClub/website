@@ -37,6 +37,9 @@ export type TrackingProject = {
   assignments: TrackingJudgeAssignment[];
   completedCount: number;
   totalCount: number;
+  score: number | null;
+  advanced: boolean;
+  place: number | null;
 };
 
 export type TrackingRound = {
@@ -164,6 +167,24 @@ export async function getTrackingData(
     };
   }
 
+  const selectedRoundData = await prisma.judgingRound.findUnique({
+    where: { id: selectedRoundId },
+    select: {
+      type: true,
+      rankedSlots: true,
+      rubric: {
+        select: {
+          criteria: {
+            select: { id: true, weight: true, maxScore: true },
+          },
+        },
+      },
+    },
+  });
+  const roundType = selectedRoundData?.type;
+  const rankedSlots = selectedRoundData?.rankedSlots ?? 0;
+  const rubricCriteria = selectedRoundData?.rubric?.criteria ?? [];
+
   // Fetch assignments for the selected round with scores
   const assignments = await prisma.roundJudgeAssignment.findMany({
     where: {
@@ -187,9 +208,9 @@ export async function getTrackingData(
           tracks: { select: { id: true, name: true } },
         },
       },
-      triageScore: { select: { id: true } },
-      rubricScores: { select: { id: true } },
-      rankedVote: { select: { id: true } },
+      triageScore: { select: { stars: true } },
+      rubricScores: { select: { criteriaId: true, value: true } },
+      rankedVote: { select: { rank: true } },
     },
   });
 
@@ -235,11 +256,106 @@ export async function getTrackingData(
         assignments: [judgeAssignment],
         completedCount: status === "scored" ? 1 : 0,
         totalCount: 1,
+        score: null,
+        advanced: false,
+        place: null,
       });
     }
   }
 
-  const projects = [...projectMap.values()];
+  // Compute aggregate scores per submission based on round type. Mirrors
+  // completeRound's math but read-only and tolerates partial data so admins
+  // can see the leaderboard form during the round.
+  const weightById = new Map(
+    rubricCriteria.map((c) => [c.id, c.weight] as const),
+  );
+  const rubricMaxPerJudge = rubricCriteria.reduce(
+    (acc, c) => acc + c.maxScore * c.weight,
+    0,
+  );
+
+  for (const project of projectMap.values()) {
+    const projectAssignments = assignments.filter(
+      (a) => a.submissionId === project.submissionId,
+    );
+
+    if (roundType === "TRIAGE") {
+      const stars = projectAssignments
+        .filter((a) => a.skippedReason === null && a.triageScore !== null)
+        .map((a) => a.triageScore!.stars);
+      project.score = stars.length
+        ? stars.reduce((a, b) => a + b, 0) / stars.length
+        : null;
+    } else if (roundType === "RUBRIC") {
+      const judgeTotals: number[] = [];
+      for (const a of projectAssignments) {
+        if (a.skippedReason !== null) continue;
+        if (a.rubricScores.length === 0) continue;
+        const weighted = a.rubricScores.reduce(
+          (sum, s) => sum + s.value * (weightById.get(s.criteriaId) ?? 1),
+          0,
+        );
+        judgeTotals.push(weighted);
+      }
+      if (judgeTotals.length && rubricMaxPerJudge > 0) {
+        const avg =
+          judgeTotals.reduce((a, b) => a + b, 0) / judgeTotals.length;
+        // Normalize per-judge weighted total to a 0–10 display scale.
+        project.score = (avg / rubricMaxPerJudge) * 10;
+      } else {
+        project.score = null;
+      }
+    } else if (roundType === "RANKED") {
+      let bordaPoints = 0;
+      let voted = false;
+      for (const a of projectAssignments) {
+        if (a.rankedVote === null) continue;
+        voted = true;
+        bordaPoints += Math.max(0, rankedSlots - a.rankedVote.rank + 1);
+      }
+      project.score = voted ? bordaPoints : null;
+    }
+  }
+
+  // Mark advancement + winner placements (only meaningful after the round
+  // completes, but the queries are cheap so always run them).
+  const advancements = await prisma.roundAdvancement.findMany({
+    where: { roundId: selectedRoundId },
+    select: { submissionId: true },
+  });
+  const advancedSet = new Set(advancements.map((a) => a.submissionId));
+
+  // Place banners only on the final round of the plan, regardless of type.
+  // Earlier rounds just show the "Advanced" banner.
+  const maxRoundNumber = allRounds.length
+    ? Math.max(...allRounds.map((r) => r.roundNumber))
+    : 0;
+  const selectedRoundNumber = allRounds.find(
+    (r) => r.id === selectedRoundId,
+  )?.roundNumber;
+  const isFinalRound =
+    selectedRoundNumber !== undefined && selectedRoundNumber === maxRoundNumber;
+
+  const winners = isFinalRound
+    ? await prisma.trackWinner.findMany({
+        where: { trackId: selectedTrackId },
+        select: { submissionId: true, place: true },
+      })
+    : [];
+  const winnerByName = new Map(winners.map((w) => [w.submissionId, w.place]));
+
+  for (const project of projectMap.values()) {
+    project.advanced = advancedSet.has(project.submissionId);
+    project.place = winnerByName.get(project.submissionId) ?? null;
+  }
+
+  const projects = [...projectMap.values()].sort((a, b) => {
+    // Sort by score descending; nulls (no scores yet) go last.
+    if (a.score === null && b.score === null) return 0;
+    if (a.score === null) return 1;
+    if (b.score === null) return -1;
+    return b.score - a.score;
+  });
 
   // Compute stats
   const stats: TrackingStats = {

@@ -29,14 +29,19 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { createTeam } from "@/app/actions/participant";
 
-const formSchema = z.object({
-  name: z
-    .string()
-    .min(4, { message: "Team name must be at least 4 characters." }),
-  lft: z.boolean().optional(),
-  contact: z.string().optional(),
-  description: z.string().optional(),
-});
+const formSchema = z
+  .object({
+    name: z
+      .string()
+      .min(4, { message: "Team name must be at least 4 characters." }),
+    lft: z.boolean().optional(),
+    contact: z.string().optional(),
+    description: z.string().optional(),
+  })
+  .refine((data) => !data.lft || (data.contact?.trim().length ?? 0) > 0, {
+    message: "Contact info is required when looking for teammates.",
+    path: ["contact"],
+  });
 
 interface CreateTeamModalProps {
   hackathonId: string;
@@ -151,16 +156,17 @@ export function CreateTeamModal({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-neutral-400">
-                        Contact Info
+                        Contact Info *
                       </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Email: benny@beaverhacks.com"
+                          placeholder="Discord username, email, or phone"
                           {...field}
                           value={field.value || ""}
                           className="rounded-none border-neutral-800 bg-transparent"
                         />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />

@@ -60,14 +60,12 @@ interface RoundProps {
   hackathonId: string;
   round: JudgingRound;
   assignments: Assignment[];
-  otherTracksBySubmission: Record<string, string[]>;
 }
 
 export function Round({
   hackathonId,
   round,
   assignments: initialAssignments,
-  otherTracksBySubmission,
 }: RoundProps) {
   const state = useJudgingState({
     initialAssignments,
@@ -233,11 +231,6 @@ export function Round({
                 totalCount={totalCount}
                 selectedImage={state.selectedImage}
                 onSelectImage={state.setSelectedImage}
-                otherTracks={
-                  otherTracksBySubmission[
-                    state.selectedAssignment.submissionId
-                  ]
-                }
               />
             </div>
           </div>

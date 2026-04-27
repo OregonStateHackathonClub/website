@@ -199,6 +199,7 @@ export function Tracker({ hackathonId, data }: TrackerProps) {
             <ProjectCard
               key={project.submissionId}
               project={project}
+              roundType={currentRound?.type || "TRIAGE"}
               onClick={() => setSelectedSubmissionId(project.submissionId)}
             />
           ))}

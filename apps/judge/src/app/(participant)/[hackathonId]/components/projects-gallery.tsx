@@ -59,20 +59,26 @@ export function ProjectsGallery({
 
   useEffect(() => {
     let filtered = hackathon.submissions;
+    const hasTrackFilter =
+      selectedTracks.length > 0 && !selectedTracks.includes("all");
 
-    if (selectedTracks.length > 0 && !selectedTracks.includes("all")) {
+    if (winnersOnly) {
+      // Winners filter: when a track is selected, only include submissions
+      // that won THAT track (not just submissions entered in it).
+      filtered = filtered.filter((submission) => {
+        if (submission.trackWins.length === 0) return false;
+        if (!hasTrackFilter) return true;
+        return submission.trackWins.some((win) =>
+          selectedTracks.includes(win.trackId),
+        );
+      });
+    } else if (hasTrackFilter) {
       filtered = filtered.filter((submission) =>
         selectedTracks.some((selected) =>
           submission.tracks?.some(
             (link) => String(link.id) === String(selected),
           ),
         ),
-      );
-    }
-
-    if (winnersOnly) {
-      filtered = filtered.filter(
-        (submission) => submission.trackWins.length > 0,
       );
     }
 
