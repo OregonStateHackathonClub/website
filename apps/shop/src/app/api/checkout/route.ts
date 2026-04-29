@@ -2,8 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth, getSessionCookie } from "@repo/auth";
 import { stripe } from "@/lib/stripe";
 import type { CartItem } from "@/lib/cart";
+import { SOLD_OUT } from "@/lib/constants";
 
 export async function POST(request: NextRequest) {
+  if (SOLD_OUT) {
+    return NextResponse.json(
+      { error: "We're no longer accepting orders" },
+      { status: 400 },
+    );
+  }
+
   const sessionCookie = getSessionCookie(request);
   if (!sessionCookie) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Check } from "lucide-react";
 import { Button } from "@repo/ui/components/button";
 import { useCart } from "@/lib/cart";
-import { MAX_CART_ITEMS } from "@/lib/constants";
+import { MAX_CART_ITEMS, SOLD_OUT } from "@/lib/constants";
 import type { Product } from "@/lib/products";
 
 interface AddToCartButtonProps {
@@ -50,6 +50,19 @@ export function AddToCartButton({
   };
 
   const canAddToCart = (!hasVariants || selectedVariantId) && !cartFull;
+
+  if (SOLD_OUT) {
+    return (
+      <div className="space-y-4">
+        <Button disabled size="lg" className="w-full">
+          Sold Out
+        </Button>
+        <p className="text-sm text-muted-foreground">
+          We&apos;re no longer accepting orders. Thanks for your interest!
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

@@ -8,7 +8,7 @@ import { useSession, redirectToLogin } from "@repo/auth/client";
 import { Card } from "@repo/ui/components/card";
 import { Button } from "@repo/ui/components/button";
 import { useCart } from "@/lib/cart";
-import { MAX_CART_ITEMS } from "@/lib/constants";
+import { MAX_CART_ITEMS, SOLD_OUT } from "@/lib/constants";
 
 export default function CartPage() {
   const { items, updateQuantity, removeFromCart, totalPrice, totalItems } =
@@ -215,23 +215,31 @@ export default function CartPage() {
 
               <Button
                 onClick={handleCheckout}
-                disabled={isCheckingOut || isSessionLoading}
+                disabled={SOLD_OUT || isCheckingOut || isSessionLoading}
                 className="w-full"
               >
-                {isCheckingOut
-                  ? "Processing..."
-                  : session?.user
-                    ? "Checkout"
-                    : "Sign in to Checkout"}
+                {SOLD_OUT
+                  ? "Sold Out"
+                  : isCheckingOut
+                    ? "Processing..."
+                    : session?.user
+                      ? "Checkout"
+                      : "Sign in to Checkout"}
               </Button>
 
-              {!session?.user && !isSessionLoading && (
+              {SOLD_OUT && (
+                <p className="text-xs text-muted-foreground text-center mt-3">
+                  We&apos;re no longer accepting orders.
+                </p>
+              )}
+
+              {!SOLD_OUT && !session?.user && !isSessionLoading && (
                 <p className="text-xs text-muted-foreground text-center mt-3">
                   Sign-in with your BeaverHacks account
                 </p>
               )}
 
-              {session?.user && (
+              {!SOLD_OUT && session?.user && (
                 <p className="text-xs text-muted-foreground text-center mt-3">
                   {session.user.email}
                 </p>

@@ -6,6 +6,7 @@ import { Card } from "@repo/ui/components/card";
 import { Badge } from "@repo/ui/components/badge";
 import { product } from "@/lib/products";
 import { AddToCartButton } from "@/components/add-to-cart-button";
+import { SOLD_OUT } from "@/lib/constants";
 import { MapPin } from "lucide-react";
 
 export default function HomePage() {
@@ -68,7 +69,9 @@ export default function HomePage() {
             <div className="space-y-4">
               {/* Badge */}
               <div className="flex items-center gap-2">
-                <Badge variant="secondary">Preorder</Badge>
+                <Badge variant={SOLD_OUT ? "destructive" : "secondary"}>
+                  {SOLD_OUT ? "Sold Out" : "Preorder"}
+                </Badge>
               </div>
 
               {/* Product Name */}
