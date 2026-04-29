@@ -82,7 +82,38 @@ export function ProjectsGallery({
       );
     }
 
-    if (sortByLikes) {
+    if (winnersOnly) {
+      // Sort by track name (alphabetical), then by place within track. Pick
+      // the relevant trackWin per submission based on the active filter.
+      const trackNameById = new Map(tracks.map((t) => [t.id, t.name]));
+      const relevantWin = (submission: typeof hackathon.submissions[number]) => {
+        const wins = hasTrackFilter
+          ? submission.trackWins.filter((w) =>
+              selectedTracks.includes(w.trackId),
+            )
+          : submission.trackWins;
+        if (wins.length === 0) return null;
+        // If multiple, prefer the lowest place (best); tie-break by track name.
+        return [...wins].sort((a, b) => {
+          if (a.place !== b.place) return a.place - b.place;
+          return (trackNameById.get(a.trackId) ?? "").localeCompare(
+            trackNameById.get(b.trackId) ?? "",
+          );
+        })[0];
+      };
+
+      filtered = [...filtered].sort((a, b) => {
+        const wa = relevantWin(a);
+        const wb = relevantWin(b);
+        if (!wa) return 1;
+        if (!wb) return -1;
+        const trackCmp = (trackNameById.get(wa.trackId) ?? "").localeCompare(
+          trackNameById.get(wb.trackId) ?? "",
+        );
+        if (trackCmp !== 0) return trackCmp;
+        return wa.place - wb.place;
+      });
+    } else if (sortByLikes) {
       filtered = [...filtered].sort(
         (a, b) => (likeCounts[b.id] ?? 0) - (likeCounts[a.id] ?? 0),
       );
@@ -95,6 +126,7 @@ export function ProjectsGallery({
     sortByLikes,
     likeCounts,
     hackathon.submissions,
+    tracks,
   ]);
 
   const handleLike = (submissionId: string) => {

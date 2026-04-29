@@ -479,7 +479,6 @@ export function TeamDetails({
                   className="flex-1 rounded-none border-neutral-800 bg-transparent"
                 />
                 <Button
-                  size="sm"
                   onClick={copyLink}
                   disabled={inviteCode === ""}
                   className="rounded-none bg-white text-black hover:bg-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed"
