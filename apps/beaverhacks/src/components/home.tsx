@@ -250,7 +250,7 @@ const teams = [
   {
     name: "DEVELOPERS",
     members: [
-      ["Lukas Sueffert", "Adam Bobich"],
+      ["Lukas Seufert", "Adam Bobich"],
       ["Aadarsh Rajput", "Brandon Gill"],
       ["Stanley Eng", "Pedro Blanco Jaramillo"],
       ["Faith Nambasa", "Kishore Kumar A"],
