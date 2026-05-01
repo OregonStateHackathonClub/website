@@ -71,6 +71,7 @@ export function Round({
     initialAssignments,
     roundType: round.type,
     minutesPerProject: round.minutesPerProject,
+    rubricCriteria: round.rubric?.criteria,
   });
 
   const timeSlots = calculateTimeSlots(
@@ -209,8 +210,31 @@ export function Round({
         roundStarted={!!round.startedAt}
       />
 
+      {/* Mobile-only nav: replaces the schedule sidebar on small screens. */}
+      <div className="md:hidden flex items-center justify-between gap-2 px-4 py-2 border-b border-neutral-800 bg-neutral-950 sticky top-12 z-10">
+        <button
+          type="button"
+          onClick={() => state.setSelectedIndex(state.selectedIndex - 1)}
+          disabled={state.selectedIndex === 0}
+          className="px-3 py-1.5 text-xs font-mono uppercase tracking-wider border border-neutral-800 text-neutral-400 hover:text-white hover:border-neutral-600 disabled:opacity-40 disabled:hover:text-neutral-400 disabled:hover:border-neutral-800 transition-colors"
+        >
+          ← Prev
+        </button>
+        <span className="text-xs font-mono text-neutral-500">
+          {totalCount > 0 ? state.selectedIndex + 1 : 0} / {totalCount}
+        </span>
+        <button
+          type="button"
+          onClick={() => state.setSelectedIndex(state.selectedIndex + 1)}
+          disabled={state.selectedIndex >= totalCount - 1}
+          className="px-3 py-1.5 text-xs font-mono uppercase tracking-wider border border-neutral-800 text-neutral-400 hover:text-white hover:border-neutral-600 disabled:opacity-40 disabled:hover:text-neutral-400 disabled:hover:border-neutral-800 transition-colors"
+        >
+          Next →
+        </button>
+      </div>
+
       {state.selectedAssignment && state.selectedAssignment.completed && (
-        <div className="ml-56 bg-neutral-950 pt-12">
+        <div className="md:ml-56 bg-neutral-950 pt-12 md:pt-12">
           <CompletedState
             skippedReason={state.selectedAssignment.skippedReason}
             selectedIndex={state.selectedIndex}
@@ -223,8 +247,8 @@ export function Round({
 
       {state.selectedAssignment && !state.selectedAssignment.completed && (
         <>
-          <div className="ml-56 mr-80 bg-neutral-950 pt-12">
-            <div className="min-h-[calc(100vh-48px)]">
+          <div className="md:ml-56 md:mr-80 bg-neutral-950 pt-12">
+            <div className="md:min-h-[calc(100vh-48px)]">
               <ProjectInfo
                 submission={state.selectedAssignment.submission}
                 currentIndex={state.selectedIndex}

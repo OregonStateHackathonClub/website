@@ -1,7 +1,7 @@
 "use client";
 
 import type { RubricCriteria } from "@repo/database";
-import { Slider } from "@repo/ui/components/slider";
+import { Minus, Plus } from "lucide-react";
 
 interface RubricScoringProps {
   criteria: RubricCriteria[];
@@ -16,10 +16,10 @@ export function RubricScoring({
   onChange,
   disabled,
 }: RubricScoringProps) {
-  const handleScoreChange = (criteriaId: string, value: number) => {
-    if (!disabled) {
-      onChange({ ...scores, [criteriaId]: value });
-    }
+  const setScore = (criteriaId: string, value: number, max: number) => {
+    if (disabled) return;
+    const clamped = Math.min(max, Math.max(1, Math.round(value)));
+    onChange({ ...scores, [criteriaId]: clamped });
   };
 
   const isComplete = criteria.every((c) => scores[c.id] !== undefined);
@@ -42,41 +42,66 @@ export function RubricScoring({
           );
           const currentValue = scores[criterion.id];
           const defaultValue = Math.ceil(criterion.maxScore / 2);
+          const value = currentValue ?? defaultValue;
 
           return (
             <div key={criterion.id} className="space-y-2">
-              <div className="flex items-center justify-between gap-2">
-                <div className="min-w-0">
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-sm font-medium text-white truncate">
-                      {criterion.name}
-                    </span>
-                    <span className="text-xs text-neutral-500 shrink-0">
-                      ({weightPercent}%, max {criterion.maxScore})
-                    </span>
-                  </div>
-                  {criterion.description && (
-                    <p className="text-xs text-neutral-500 mt-0.5 truncate">
-                      {criterion.description}
-                    </p>
-                  )}
+              <div className="min-w-0">
+                <div className="flex items-baseline gap-1.5 flex-wrap">
+                  <span className="text-sm font-medium text-white">
+                    {criterion.name}
+                  </span>
+                  <span className="text-xs text-neutral-500">
+                    ({weightPercent}%, max {criterion.maxScore})
+                  </span>
                 </div>
-                <span className="text-lg font-semibold text-white tabular-nums w-6 text-right shrink-0">
-                  {currentValue ?? "–"}
-                </span>
+                {criterion.description && (
+                  <p className="text-xs text-neutral-500 mt-0.5">
+                    {criterion.description}
+                  </p>
+                )}
               </div>
 
-              <Slider
-                min={1}
-                max={criterion.maxScore}
-                step={1}
-                value={[currentValue ?? defaultValue]}
-                onValueChange={(values) =>
-                  handleScoreChange(criterion.id, values[0])
-                }
-                disabled={disabled}
-                className="`**:data-[slot=slider-track]:bg-neutral-800 **:data-[slot=slider-track]:h-2 **:data-[slot=slider-track]:rounded-none **:data-[slot=slider-range]:bg-white **:data-[slot=slider-thumb]:border-white **:data-[slot=slider-thumb]:bg-white **:data-[slot=slider-thumb]:rounded-none"
-              />
+              <div className="flex items-stretch gap-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setScore(criterion.id, value - 1, criterion.maxScore)
+                  }
+                  disabled={disabled || value <= 1}
+                  className="w-10 h-10 border border-neutral-800 text-neutral-400 hover:text-white hover:border-neutral-600 disabled:opacity-40 disabled:hover:text-neutral-400 disabled:hover:border-neutral-800 flex items-center justify-center transition-colors"
+                  aria-label="Decrease score"
+                >
+                  <Minus className="h-4 w-4" />
+                </button>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  max={criterion.maxScore}
+                  step={1}
+                  value={value}
+                  onChange={(e) => {
+                    const parsed = Number(e.target.value);
+                    if (!Number.isNaN(parsed)) {
+                      setScore(criterion.id, parsed, criterion.maxScore);
+                    }
+                  }}
+                  disabled={disabled}
+                  className="flex-1 h-10 bg-neutral-900 border border-neutral-800 text-white text-lg font-semibold tabular-nums text-center focus:outline-none focus:border-neutral-600 disabled:opacity-50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    setScore(criterion.id, value + 1, criterion.maxScore)
+                  }
+                  disabled={disabled || value >= criterion.maxScore}
+                  className="w-10 h-10 border border-neutral-800 text-neutral-400 hover:text-white hover:border-neutral-600 disabled:opacity-40 disabled:hover:text-neutral-400 disabled:hover:border-neutral-800 flex items-center justify-center transition-colors"
+                  aria-label="Increase score"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
             </div>
           );
         })}

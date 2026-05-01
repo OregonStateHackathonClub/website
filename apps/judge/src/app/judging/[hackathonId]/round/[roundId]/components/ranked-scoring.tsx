@@ -54,32 +54,16 @@ export function RankedScoring({
         Your Rankings
       </h3>
       <p className="text-xs text-neutral-600 mb-3">
-        Drag or use arrows to reorder
+        Use arrows to reorder — top = best
       </p>
       <div className="space-y-2">
         {orderedSubmissions.map((submission, index) => (
           <div
             key={submission.id}
-            className="flex items-center gap-2 border border-neutral-800 bg-neutral-900/50 p-3"
+            className="flex items-center gap-3 border border-neutral-800 bg-neutral-900/50 p-3"
           >
-            <div className="flex flex-col items-center gap-0.5 mr-1">
-              <button
-                onClick={() => moveUp(index)}
-                disabled={index === 0 || disabled}
-                className="text-neutral-500 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed"
-              >
-                <ChevronUp className="h-3.5 w-3.5" />
-              </button>
-              <button
-                onClick={() => moveDown(index)}
-                disabled={index === orderedSubmissions.length - 1 || disabled}
-                className="text-neutral-500 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed"
-              >
-                <ChevronDown className="h-3.5 w-3.5" />
-              </button>
-            </div>
             <div
-              className={`flex items-center justify-center w-7 h-7 text-xs font-bold shrink-0 ${
+              className={`flex items-center justify-center w-9 h-9 text-xs font-bold shrink-0 ${
                 index === 0
                   ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
                   : index === 1
@@ -100,6 +84,26 @@ export function RankedScoring({
                   {submission.teamName}
                 </p>
               )}
+            </div>
+            <div className="flex flex-col gap-1 shrink-0">
+              <button
+                type="button"
+                onClick={() => moveUp(index)}
+                disabled={index === 0 || disabled}
+                aria-label="Move up"
+                className="w-9 h-9 border border-neutral-800 text-neutral-400 hover:text-white hover:border-neutral-600 disabled:opacity-30 disabled:hover:text-neutral-400 disabled:hover:border-neutral-800 flex items-center justify-center transition-colors"
+              >
+                <ChevronUp className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => moveDown(index)}
+                disabled={index === orderedSubmissions.length - 1 || disabled}
+                aria-label="Move down"
+                className="w-9 h-9 border border-neutral-800 text-neutral-400 hover:text-white hover:border-neutral-600 disabled:opacity-30 disabled:hover:text-neutral-400 disabled:hover:border-neutral-800 flex items-center justify-center transition-colors"
+              >
+                <ChevronDown className="h-4 w-4" />
+              </button>
             </div>
           </div>
         ))}

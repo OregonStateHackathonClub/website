@@ -55,7 +55,7 @@ export function ScheduleSidebar({
 }: ScheduleSidebarProps) {
   return (
     <div
-      className="fixed left-0 w-56 bg-neutral-950 border-r border-neutral-800 z-20 overflow-y-auto"
+      className="hidden md:block fixed left-0 w-56 bg-neutral-950 border-r border-neutral-800 z-20 overflow-y-auto"
       style={{ top: 48, bottom: 0 }}
     >
       {!roundStarted && (

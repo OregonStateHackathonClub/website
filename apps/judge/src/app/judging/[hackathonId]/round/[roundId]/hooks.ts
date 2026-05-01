@@ -68,12 +68,14 @@ interface UseJudgingStateOptions {
   initialAssignments: Assignment[];
   roundType: "TRIAGE" | "RUBRIC" | "RANKED";
   minutesPerProject: number;
+  rubricCriteria?: { id: string; maxScore: number }[];
 }
 
 export function useJudgingState({
   initialAssignments,
   roundType,
   minutesPerProject,
+  rubricCriteria,
 }: UseJudgingStateOptions) {
   const [assignments, setAssignments] = useState(initialAssignments);
   const [selectedIndex, setSelectedIndex] = useState(() => {
@@ -111,16 +113,28 @@ export function useJudgingState({
       if (roundType === "TRIAGE") {
         setTriageScore(selectedAssignment.triageScore?.stars ?? null);
       } else if (roundType === "RUBRIC") {
-        setRubricScores(
-          selectedAssignment.rubricScores.length > 0
-            ? Object.fromEntries(
-                selectedAssignment.rubricScores.map((s) => [s.criteriaId, s.value]),
-              )
-            : {},
-        );
+        if (selectedAssignment.rubricScores.length > 0) {
+          setRubricScores(
+            Object.fromEntries(
+              selectedAssignment.rubricScores.map((s) => [
+                s.criteriaId,
+                s.value,
+              ]),
+            ),
+          );
+        } else if (rubricCriteria && rubricCriteria.length > 0) {
+          // Default to mid-value so judges only adjust as needed
+          setRubricScores(
+            Object.fromEntries(
+              rubricCriteria.map((c) => [c.id, Math.ceil(c.maxScore / 2)]),
+            ),
+          );
+        } else {
+          setRubricScores({});
+        }
       }
     }
-  }, [selectedIndex, selectedAssignment, roundType, totalSeconds]);
+  }, [selectedIndex, selectedAssignment, roundType, totalSeconds, rubricCriteria]);
 
   // Timer countdown
   useEffect(() => {

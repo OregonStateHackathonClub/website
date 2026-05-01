@@ -44,6 +44,12 @@ export function Dashboard({
     {} as Record<string, { trackName: string; rounds: DashboardRound[] }>,
   );
 
+  // Hide tracks where the judge has no assignments in any round.
+  const visibleTrackEntries = Object.entries(trackRounds).filter(
+    ([, { rounds: trackRoundList }]) =>
+      trackRoundList.some((r) => r.totalAssignments > 0),
+  );
+
   const totalAssignments = rounds.reduce(
     (sum, r) => sum + r.totalAssignments,
     0,
@@ -99,7 +105,7 @@ export function Dashboard({
       )}
 
       {/* Rounds by Track */}
-      {Object.entries(trackRounds).length === 0 ? (
+      {visibleTrackEntries.length === 0 ? (
         <div className="border border-neutral-800 bg-neutral-950/80 backdrop-blur-sm p-12 text-center">
           <div className="w-12 h-12 bg-neutral-900 border border-neutral-800 flex items-center justify-center mx-auto mb-4">
             <Scale className="h-6 w-6 text-neutral-600" />
@@ -111,7 +117,7 @@ export function Dashboard({
         </div>
       ) : (
         <div className="space-y-6">
-          {Object.entries(trackRounds).map(
+          {visibleTrackEntries.map(
             ([trackId, { trackName, rounds: trackRoundList }]) => (
               <div key={trackId}>
                 <h2 className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-3">

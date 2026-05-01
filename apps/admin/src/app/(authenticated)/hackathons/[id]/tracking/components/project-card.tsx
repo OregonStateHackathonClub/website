@@ -48,8 +48,15 @@ export function ProjectCard({ project, roundType, onClick }: ProjectCardProps) {
       </div>
 
       <div className="p-4">
-        <div className="text-sm font-semibold text-neutral-200 truncate">
-          {project.teamName || project.title}
+        <div className="flex items-center gap-2">
+          {project.tableNumber !== null && (
+            <span className="shrink-0 text-[10px] font-mono px-1.5 py-0.5 bg-neutral-800 text-neutral-400">
+              T{project.tableNumber}
+            </span>
+          )}
+          <span className="text-sm font-semibold text-neutral-200 truncate">
+            {project.teamName || project.title}
+          </span>
         </div>
         <div className="text-[10px] font-mono text-neutral-600 uppercase tracking-wider mt-0.5">
           {project.trackName}

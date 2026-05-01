@@ -57,10 +57,7 @@ export function JudgingPanel({
   onSkip,
 }: JudgingPanelProps) {
   return (
-    <div
-      className="fixed right-0 w-80 bg-neutral-950 border-l border-neutral-800 z-20 overflow-y-auto p-6 flex flex-col"
-      style={{ top: 48, bottom: 0 }}
-    >
+    <div className="bg-neutral-950 border-t border-neutral-800 p-6 flex flex-col md:fixed md:right-0 md:top-12 md:bottom-0 md:w-80 md:border-t-0 md:border-l md:z-20 md:overflow-y-auto">
       <JudgingTimer
         seconds={timerSeconds}
         isRunning={timerRunning}
