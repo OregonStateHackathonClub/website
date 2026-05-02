@@ -33,6 +33,20 @@ async function requireSession() {
   return { success: true as const, session };
 }
 
+async function requireCheckedIn(userId: string, hackathonId: string) {
+  const application = await prisma.application.findUnique({
+    where: { userId_hackathonId: { userId, hackathonId } },
+    select: { status: true },
+  });
+  if (!application || application.status !== "CHECKED_IN") {
+    return {
+      success: false as const,
+      error: "You must be checked in to do this",
+    };
+  }
+  return { success: true as const };
+}
+
 export async function isTeamMember(teamId: string): Promise<boolean> {
   const session = await getSession();
   if (!session) return false;
@@ -64,7 +78,11 @@ export async function isTeamMember(teamId: string): Promise<boolean> {
 // ============================================================================
 
 export async function createTeam(
-  teamData: Omit<Prisma.TeamCreateInput, "creatorId">,
+  hackathonId: string,
+  teamData: Pick<
+    Prisma.TeamUncheckedCreateInput,
+    "name" | "description" | "contact" | "lookingForTeammates"
+  >,
   addSelf: boolean = false,
 ): Promise<
   { success: true; teamId: string } | { success: false; error: string }
@@ -76,9 +94,13 @@ export async function createTeam(
   try {
     const userId = session.user.id;
 
+    const checkedIn = await requireCheckedIn(userId, hackathonId);
+    if (!checkedIn.success) return checkedIn;
+
     // Check if user already has a team in this hackathon
     const existingTeam = await prisma.team.findFirst({
       where: {
+        hackathonId,
         members: {
           some: {
             participant: {
@@ -101,6 +123,7 @@ export async function createTeam(
       data: {
         ...teamData,
         creatorId: userId,
+        hackathonId,
       },
       select: { id: true, hackathonId: true },
     });
@@ -203,6 +226,9 @@ export async function joinTeam(
   if (team.members.length >= 4) {
     return { success: false, error: "Team is full" };
   }
+
+  const checkedIn = await requireCheckedIn(session.user.id, team.hackathonId);
+  if (!checkedIn.success) return checkedIn;
 
   try {
     // Find or create HackathonParticipant

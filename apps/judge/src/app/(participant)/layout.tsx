@@ -24,31 +24,44 @@ export default async function Layout({
     });
 
     if (session?.user && currentHackathonId) {
-      const participant = await prisma.hackathonParticipant.findUnique({
-        where: {
-          userId_hackathonId: {
-            userId: session.user.id,
-            hackathonId: currentHackathonId,
+      const [participant, application] = await Promise.all([
+        prisma.hackathonParticipant.findUnique({
+          where: {
+            userId_hackathonId: {
+              userId: session.user.id,
+              hackathonId: currentHackathonId,
+            },
           },
-        },
-        select: {
-          id: true,
-          teamMember: {
-            select: {
-              team: {
-                select: {
-                  id: true,
-                  submission: { select: { id: true } },
+          select: {
+            id: true,
+            teamMember: {
+              select: {
+                team: {
+                  select: {
+                    id: true,
+                    submission: { select: { id: true } },
+                  },
                 },
               },
             },
+            submission: { select: { id: true } },
           },
-          submission: { select: { id: true } },
-        },
-      });
+        }),
+        prisma.application.findUnique({
+          where: {
+            userId_hackathonId: {
+              userId: session.user.id,
+              hackathonId: currentHackathonId,
+            },
+          },
+          select: { status: true },
+        }),
+      ]);
 
       if (participant) {
-        isParticipant = true;
+        // Only checked-in attendees can create/join teams or submit, so gate
+        // the navbar action buttons on that.
+        isParticipant = application?.status === "CHECKED_IN";
         if (participant.teamMember) {
           userTeamId = participant.teamMember.team.id;
           teamSubmissionId =

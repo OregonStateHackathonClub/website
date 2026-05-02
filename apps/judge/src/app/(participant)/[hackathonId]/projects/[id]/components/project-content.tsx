@@ -20,6 +20,7 @@ import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { ProjectLinks } from "../../../components/project-links";
+import { DeleteSubmissionButton } from "./delete-submission-button";
 import { ImageCarousel } from "./image-carousel";
 
 const submissionInclude = {
@@ -74,10 +75,18 @@ export async function ProjectContent({
   }
 
   const isTeamMember =
-    userId &&
-    submission.team?.members.some(
+    !!userId &&
+    !!submission.team?.members.some(
       (member) => member.participant.user.id === userId,
     );
+
+  const isSoloOwner = !!userId && !submission.team
+    && (await prisma.hackathonParticipant.findFirst({
+      where: { userId, hackathonId },
+      select: { id: true },
+    }))?.id === submission.participantId;
+
+  const canEdit = isTeamMember || isSoloOwner;
 
   return (
     <>
@@ -188,18 +197,21 @@ export async function ProjectContent({
               />
             </div>
 
-            {isTeamMember && (
-              <Link
-                href={`/${hackathonId}/submission`}
-                className="w-full"
-              >
-                <Button
-                  variant="outline"
-                  className="w-full hover:cursor-pointer rounded-none border-neutral-800 text-white hover:bg-neutral-900"
+            {canEdit && (
+              <div className="flex flex-col gap-2">
+                <Link
+                  href={`/${hackathonId}/submission`}
+                  className="w-full"
                 >
-                  Edit Submission
-                </Button>
-              </Link>
+                  <Button
+                    variant="outline"
+                    className="w-full hover:cursor-pointer rounded-none border-neutral-800 text-white hover:bg-neutral-900"
+                  >
+                    Edit Submission
+                  </Button>
+                </Link>
+                <DeleteSubmissionButton hackathonId={hackathonId} />
+              </div>
             )}
           </div>
 

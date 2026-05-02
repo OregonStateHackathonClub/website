@@ -73,9 +73,8 @@ export function CreateTeamModal({
         lookingForTeammates: values.lft,
         description: values.description,
         contact: values.contact,
-        hackathon: { connect: { id: hackathonId } },
       };
-      const result = await createTeam(teamData, true);
+      const result = await createTeam(hackathonId, teamData, true);
 
       if (!result.success) {
         toast.error(result.error || "Failed to create team");

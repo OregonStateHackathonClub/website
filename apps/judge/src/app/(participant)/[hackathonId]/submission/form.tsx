@@ -610,26 +610,6 @@ export function SubmissionForm({
           </form>
         </Form>
 
-        {hasSubmission && (
-          <div className="mt-12 border-t border-neutral-900 pt-6">
-            <h2 className="text-xs font-medium uppercase tracking-wider text-neutral-500">
-              Danger Zone
-            </h2>
-            <p className="mt-2 text-sm text-neutral-500">
-              Delete your submission. This can only be done while submissions
-              are still open.
-            </p>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleDelete}
-              disabled={isDeleting || isSubmitting}
-              className="mt-4 rounded-none border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 hover:border-red-500/50"
-            >
-              {isDeleting ? "Deleting..." : "Delete Submission"}
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   );
