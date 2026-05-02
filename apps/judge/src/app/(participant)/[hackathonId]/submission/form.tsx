@@ -16,7 +16,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { upload } from "@vercel/blob/client";
-import { deleteImage, saveDraft, submitProject } from "./actions";
+import {
+  deleteImage,
+  deleteSubmission,
+  saveDraft,
+  submitProject,
+} from "./actions";
 import { DescriptionEditor } from "./components/description-editor";
 import { ImageUploader } from "./components/image-uploader";
 import { OtherLinks } from "./components/other-links";
@@ -102,6 +107,7 @@ export function SubmissionForm({
   const [step, setStepState] = useState(Math.min(Math.max(initialStep, 1), 5));
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -252,6 +258,26 @@ export function SubmissionForm({
       form.setValue("trackIds", [defaultTrackId, ...current]);
     }
   }, [defaultTrackId, form]);
+
+  const handleDelete = async () => {
+    if (
+      !confirm(
+        "Delete your submission? This cannot be undone. You can submit a new project before the window closes.",
+      )
+    ) {
+      return;
+    }
+    setIsDeleting(true);
+    const result = await deleteSubmission(hackathonId);
+    setIsDeleting(false);
+    if (result.success) {
+      toast.success("Submission deleted");
+      router.push(`/${hackathonId}`);
+      router.refresh();
+    } else {
+      toast.error(result.error);
+    }
+  };
 
   const toggleTrack = (trackId: string) => {
     if (trackId === defaultTrackId) return; // default is locked on
@@ -583,6 +609,27 @@ export function SubmissionForm({
             )}
           </form>
         </Form>
+
+        {hasSubmission && (
+          <div className="mt-12 border-t border-neutral-900 pt-6">
+            <h2 className="text-xs font-medium uppercase tracking-wider text-neutral-500">
+              Danger Zone
+            </h2>
+            <p className="mt-2 text-sm text-neutral-500">
+              Delete your submission. This can only be done while submissions
+              are still open.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleDelete}
+              disabled={isDeleting || isSubmitting}
+              className="mt-4 rounded-none border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 hover:border-red-500/50"
+            >
+              {isDeleting ? "Deleting..." : "Delete Submission"}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

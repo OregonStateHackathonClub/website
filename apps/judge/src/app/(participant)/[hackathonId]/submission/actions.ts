@@ -17,16 +17,32 @@ async function getSubmissionContext(hackathonId: string) {
     return { success: false, error: "Not authenticated" } as const;
   }
 
-  const participant = await prisma.hackathonParticipant.findFirst({
-    where: { userId: session.user.id, hackathonId },
-    select: {
-      id: true,
-      teamMember: { select: { teamId: true } },
-    },
-  });
+  const [participant, application] = await Promise.all([
+    prisma.hackathonParticipant.findFirst({
+      where: { userId: session.user.id, hackathonId },
+      select: {
+        id: true,
+        teamMember: { select: { teamId: true } },
+      },
+    }),
+    prisma.application.findUnique({
+      where: {
+        userId_hackathonId: { userId: session.user.id, hackathonId },
+      },
+      select: { status: true },
+    }),
+  ]);
 
   if (!participant) {
     return { success: false, error: "Not registered for this hackathon" } as const;
+  }
+
+  // Only checked-in attendees may submit a project.
+  if (!application || application.status !== "CHECKED_IN") {
+    return {
+      success: false,
+      error: "Only checked-in attendees can submit a project",
+    } as const;
   }
 
   return {
@@ -243,6 +259,42 @@ export async function submitProject(
   } catch (error) {
     console.error("Submit project error:", error);
     return { success: false, error: "Failed to submit project" };
+  }
+}
+
+export async function deleteSubmission(
+  hackathonId: string,
+): Promise<ActionResult> {
+  const context = await getSubmissionContext(hackathonId);
+  if (!context.success) {
+    return { success: false, error: context.error };
+  }
+
+  const window = await checkSubmissionWindow(hackathonId);
+  if (!window.success) {
+    return { success: false, error: window.error };
+  }
+
+  const { teamId, participantId } = context;
+  const whereClause = teamId ? { teamId } : { participantId };
+
+  try {
+    const submission = await prisma.submission.findFirst({
+      where: whereClause,
+      select: { id: true },
+    });
+    if (!submission) {
+      return { success: false, error: "No submission found" };
+    }
+
+    await prisma.submission.delete({ where: { id: submission.id } });
+
+    revalidatePath(`/${hackathonId}`);
+    revalidatePath(`/${hackathonId}/submission`);
+    return { success: true };
+  } catch (error) {
+    console.error("Delete submission error:", error);
+    return { success: false, error: "Failed to delete submission" };
   }
 }
 

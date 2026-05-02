@@ -28,16 +28,39 @@ export default async function SubmissionPage({
     redirect(`/login?callbackURL=/${hackathonId}/submission`);
   }
 
-  const participant = await prisma.hackathonParticipant.findFirst({
-    where: { userId: session.user.id, hackathonId },
-    select: {
-      id: true,
-      teamMember: { select: { teamId: true } },
-    },
-  });
+  const [participant, application] = await Promise.all([
+    prisma.hackathonParticipant.findFirst({
+      where: { userId: session.user.id, hackathonId },
+      select: {
+        id: true,
+        teamMember: { select: { teamId: true } },
+      },
+    }),
+    prisma.application.findUnique({
+      where: {
+        userId_hackathonId: { userId: session.user.id, hackathonId },
+      },
+      select: { status: true },
+    }),
+  ]);
 
   if (!participant) {
     redirect(`/${hackathonId}`);
+  }
+
+  // Only checked-in attendees may submit a project.
+  if (!application || application.status !== "CHECKED_IN") {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+        <h1 className="text-xl font-medium text-white">
+          Check in to submit a project
+        </h1>
+        <p className="mt-2 max-w-md text-sm text-neutral-500">
+          Project submissions are open to checked-in attendees only. Find a
+          BeaverHacks team member at the venue to check in.
+        </p>
+      </div>
+    );
   }
 
   const teamId = participant.teamMember?.teamId ?? null;
