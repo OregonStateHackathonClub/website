@@ -125,7 +125,7 @@ export function ProjectsGallery({
     winnersOnly,
     sortByLikes,
     likeCounts,
-    hackathon.submissions,
+    hackathon,
     tracks,
   ]);
 

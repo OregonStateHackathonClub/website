@@ -16,12 +16,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { upload } from "@vercel/blob/client";
-import {
-  deleteImage,
-  deleteSubmission,
-  saveDraft,
-  submitProject,
-} from "./actions";
+import { deleteImage, saveDraft, submitProject } from "./actions";
 import { DescriptionEditor } from "./components/description-editor";
 import { ImageUploader } from "./components/image-uploader";
 import { OtherLinks } from "./components/other-links";
@@ -107,7 +102,6 @@ export function SubmissionForm({
   const [step, setStepState] = useState(Math.min(Math.max(initialStep, 1), 5));
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -258,26 +252,6 @@ export function SubmissionForm({
       form.setValue("trackIds", [defaultTrackId, ...current]);
     }
   }, [defaultTrackId, form]);
-
-  const handleDelete = async () => {
-    if (
-      !confirm(
-        "Delete your submission? This cannot be undone. You can submit a new project before the window closes.",
-      )
-    ) {
-      return;
-    }
-    setIsDeleting(true);
-    const result = await deleteSubmission(hackathonId);
-    setIsDeleting(false);
-    if (result.success) {
-      toast.success("Submission deleted");
-      router.push(`/${hackathonId}`);
-      router.refresh();
-    } else {
-      toast.error(result.error);
-    }
-  };
 
   const toggleTrack = (trackId: string) => {
     if (trackId === defaultTrackId) return; // default is locked on
