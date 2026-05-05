@@ -70,8 +70,28 @@ export async function POST(request: Request): Promise<Response> {
   if (resume.size > MAX_RESUME_BYTES) {
     return new Response("Resume must be 10 MB or smaller", { status: 400 });
   }
-  if (resume.type !== "application/pdf") {
-    return new Response("Resume must be a PDF", { status: 400 });
+
+  // Verify the file body matches an allowed format. Browser-supplied
+  // Content-Type is attacker-controllable, so we check magic bytes.
+  const head = new Uint8Array(await resume.slice(0, 8).arrayBuffer());
+  const isPdf =
+    head[0] === 0x25 &&
+    head[1] === 0x50 &&
+    head[2] === 0x44 &&
+    head[3] === 0x46 &&
+    head[4] === 0x2d;
+  const isPng =
+    head[0] === 0x89 &&
+    head[1] === 0x50 &&
+    head[2] === 0x4e &&
+    head[3] === 0x47 &&
+    head[4] === 0x0d &&
+    head[5] === 0x0a &&
+    head[6] === 0x1a &&
+    head[7] === 0x0a;
+  const isJpeg = head[0] === 0xff && head[1] === 0xd8 && head[2] === 0xff;
+  if (!isPdf && !isPng && !isJpeg) {
+    return new Response("Resume must be a PDF, PNG, or JPEG", { status: 400 });
   }
 
   const path = await uploadFile(resume, "resumes");

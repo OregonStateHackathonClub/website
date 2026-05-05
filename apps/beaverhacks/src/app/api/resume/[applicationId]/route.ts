@@ -26,12 +26,18 @@ export async function GET(
   }
 
   try {
-    const { blob } = await downloadFile(application.resumePath);
+    const { blob, contentType } = await downloadFile(application.resumePath);
     const safe = application.name.replace(/[^\w.-]/g, "_") || "resume";
+    const ext =
+      contentType === "image/png"
+        ? "png"
+        : contentType === "image/jpeg"
+          ? "jpg"
+          : "pdf";
     return new Response(blob, {
       headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": `inline; filename="${safe}.pdf"`,
+        "Content-Type": contentType,
+        "Content-Disposition": `inline; filename="${safe}.${ext}"`,
         "Cache-Control": "private, no-store",
       },
     });

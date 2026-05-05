@@ -16,7 +16,7 @@ const ALLOWED_BLOB_HOST_SUFFIX = ".public.blob.vercel-storage.com";
 
 export async function downloadFile(
   url: string,
-): Promise<{ blob: Blob; filename: string }> {
+): Promise<{ blob: Blob; filename: string; contentType: string }> {
   let parsed: URL;
   try {
     parsed = new URL(url);
@@ -31,10 +31,15 @@ export async function downloadFile(
   }
 
   const response = await fetch(parsed.toString());
+  if (!response.ok) {
+    throw new Error(`Upstream blob fetch failed: ${response.status}`);
+  }
   const blob = await response.blob();
   const filename = parsed.pathname.split("/").pop() || "download";
+  const contentType =
+    response.headers.get("content-type") || "application/octet-stream";
 
-  return { blob, filename };
+  return { blob, filename, contentType };
 }
 
 export async function deleteFile(url: string): Promise<void> {
