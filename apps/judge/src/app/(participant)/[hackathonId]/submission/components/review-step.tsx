@@ -98,17 +98,15 @@ export function ReviewStep({
       </div>
 
       <div className="flex flex-col gap-4">
-        <div className="w-full border border-neutral-800 bg-neutral-900">
-          <ImageCarousel
-            altText={`${data.title} showcase`}
-            imageUrls={
-              data.images.length > 0
-                ? data.images
-                : ["/placeholder_project.png"]
-            }
-            videoUrl={data.videoUrl}
-          />
-        </div>
+        {(data.images.length > 0 || data.videoUrl) && (
+          <div className="w-full border border-neutral-800 bg-neutral-900">
+            <ImageCarousel
+              altText={`${data.title} showcase`}
+              imageUrls={data.images}
+              videoUrl={data.videoUrl}
+            />
+          </div>
+        )}
         <Card className="rounded-none border border-neutral-800 bg-neutral-950/80 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="text-lg text-white">

@@ -12,10 +12,12 @@ const csp = [
   "default-src 'self'",
   scriptSrc,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com https://avatars.githubusercontent.com https://beaverhacks.org",
+  "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com https://avatars.githubusercontent.com https://beaverhacks.org https://img.youtube.com",
   "font-src 'self' data:",
   // Client-side blob uploads (submission images) require the blob host here.
   "connect-src 'self' https://beaverhacks.org https://*.public.blob.vercel-storage.com",
+  // YouTube embeds for submission demo videos.
+  "frame-src https://www.youtube.com https://www.youtube-nocookie.com",
   "object-src 'none'",
   "base-uri 'self'",
   "frame-ancestors 'none'",
@@ -53,6 +55,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "*.public.blob.vercel-storage.com",
+      },
+      {
+        protocol: "https",
+        hostname: "img.youtube.com",
       },
     ],
   },

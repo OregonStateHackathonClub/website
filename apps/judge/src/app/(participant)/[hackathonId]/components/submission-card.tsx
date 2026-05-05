@@ -35,6 +35,20 @@ function placeLabel(place: number): string {
   return PLACE_LABEL[place] ?? `${place}th`;
 }
 
+function youtubeThumb(url: string | null | undefined): string | null {
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    const id =
+      u.hostname === "youtu.be"
+        ? u.pathname.slice(1)
+        : u.searchParams.get("v");
+    return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null;
+  } catch {
+    return null;
+  }
+}
+
 export function SubmissionCard({
   submission,
   onClick,
@@ -43,7 +57,7 @@ export function SubmissionCard({
   isLiked = false,
   onLike,
 }: SubmissionCardProps) {
-  const img = submission.images?.[0] || "/placeholder_project.png";
+  const img = submission.images?.[0] || youtubeThumb(submission.videoUrl);
 
   return (
     <div
@@ -51,16 +65,18 @@ export function SubmissionCard({
       onClick={onClick}
     >
       {/* Image */}
-      <div className="relative aspect-video w-full overflow-hidden bg-neutral-900">
-        <Image
-          src={img}
-          alt={`${submission.title} cover`}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-contain transition duration-500 group-hover:scale-[1.03]"
-          priority={index < 7}
-        />
-      </div>
+      {img && (
+        <div className="relative aspect-video w-full overflow-hidden bg-neutral-900">
+          <Image
+            src={img}
+            alt={`${submission.title} cover`}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-contain transition duration-500 group-hover:scale-[1.03]"
+            priority={index < 7}
+          />
+        </div>
+      )}
 
       {/* Title and Badges */}
       <div className="p-4 pb-2">

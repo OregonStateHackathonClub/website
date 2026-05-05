@@ -101,17 +101,15 @@ export async function ProjectContent({
 
       <div className="grid grid-cols-3 gap-6">
         <div className="col-span-2 flex flex-col gap-4">
-          <div className="w-full border border-neutral-800 bg-neutral-900">
-            <ImageCarousel
-              altText={`${submission.title} showcase`}
-              imageUrls={
-                submission.images?.length > 0
-                  ? submission.images
-                  : ["/placeholder_project.png"]
-              }
-              videoUrl={submission.videoUrl}
-            />
-          </div>
+          {(submission.images?.length > 0 || submission.videoUrl) && (
+            <div className="w-full border border-neutral-800 bg-neutral-900">
+              <ImageCarousel
+                altText={`${submission.title} showcase`}
+                imageUrls={submission.images ?? []}
+                videoUrl={submission.videoUrl}
+              />
+            </div>
+          )}
           <Card className="rounded-none border border-neutral-800 bg-neutral-950/80 backdrop-blur-sm">
             <CardHeader>
               <CardTitle className="text-lg text-white">
