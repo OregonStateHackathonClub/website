@@ -2,22 +2,25 @@
 
 import { useState, useEffect } from "react";
 
-const HACK_START = new Date("2026-05-02T12:00:00");
+const HACK_START = new Date("2026-05-02T13:00:00-07:00");
+const HACK_END = new Date("2026-05-03T13:00:00-07:00");
 
-const getTimeUntilHack = () => {
+type HackPhase = "before" | "live" | "ended";
+
+const getHackStatus = () => {
   const now = new Date();
-  const diff = HACK_START.getTime() - now.getTime();
-
-  if (diff <= 0) {
-    return { days: 0, hours: 0, minutes: 0, seconds: 0, hacking: true };
+  if (now.getTime() >= HACK_END.getTime()) {
+    return { days: 0, hours: 0, minutes: 0, seconds: 0, phase: "ended" as HackPhase };
   }
-
+  if (now.getTime() >= HACK_START.getTime()) {
+    return { days: 0, hours: 0, minutes: 0, seconds: 0, phase: "live" as HackPhase };
+  }
+  const diff = HACK_START.getTime() - now.getTime();
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-  return { days, hours, minutes, seconds, hacking: false };
+  return { days, hours, minutes, seconds, phase: "before" as HackPhase };
 };
 
 const formatTime = (date: Date) => {
@@ -30,21 +33,21 @@ const formatTime = (date: Date) => {
 };
 
 export const StatusBar = () => {
-  const [countdown, setCountdown] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-    hacking: false,
-  });
+  const [countdown, setCountdown] = useState<{
+    days: number;
+    hours: number;
+    minutes: number;
+    seconds: number;
+    phase: HackPhase;
+  }>({ days: 0, hours: 0, minutes: 0, seconds: 0, phase: "before" });
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
 
   useEffect(() => {
-    setCountdown(getTimeUntilHack());
+    setCountdown(getHackStatus());
     setCurrentTime(new Date());
 
     const timer = setInterval(() => {
-      setCountdown(getTimeUntilHack());
+      setCountdown(getHackStatus());
       setCurrentTime(new Date());
     }, 1000);
 
@@ -80,8 +83,8 @@ export const StatusBar = () => {
         </div>
 
         {/* Center - Countdown */}
-        <div className="flex items-center gap-2">
-          {countdown.hacking ? (
+        <div className="flex items-center gap-2 min-h-5 md:min-h-6">
+          {currentTime && countdown.phase === "live" && (
             <div className="flex items-center gap-2 text-green-500">
               <span className="animate-pulse"></span>
               <span className="font-primary tracking-wider text-glow-base text-sm">
@@ -89,7 +92,15 @@ export const StatusBar = () => {
               </span>
               <span className="animate-pulse"></span>
             </div>
-          ) : (
+          )}
+          {currentTime && countdown.phase === "ended" && (
+            <div className="flex items-center gap-2">
+              <span className="text-amber-bright text-glow-base font-primary tracking-wide text-sm md:text-base">
+                HACKING ENDED
+              </span>
+            </div>
+          )}
+          {currentTime && countdown.phase === "before" && (
             <div className="flex items-center gap-1">
               <span className="text-amber-dim hidden sm:inline"></span>
               <span className="text-amber-muted text-[10px]">

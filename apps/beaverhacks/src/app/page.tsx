@@ -201,15 +201,23 @@ export default function Page() {
                   established
                 </div>
                 <div>
-                  <span className="text-amber-dim">[INFO]</span> Loading
-                  assets...
+                  <span className="text-green-500">[OK]</span> Hackers checked in
                 </div>
                 <div>
-                  <span className="text-green-500">[OK]</span> Ready
+                  <span className="text-green-500">[OK]</span> Submissions closed
+                </div>
+                <div>
+                  <span className="text-green-500">[OK]</span> Judging complete
+                </div>
+                <div>
+                  <span className="text-green-500">[OK]</span> Winners announced
+                </div>
+                <div>
+                  <span className="text-amber-dim">[INFO]</span> Event archived
                 </div>
                 <div className="animate-pulse">
-                  <span className="text-amber-bright">[WAIT]</span> Awaiting
-                  hackers...
+                  <span className="text-amber-bright">[WAIT]</span> Awaiting next
+                  event...
                 </div>
               </div>
             </Panel>
