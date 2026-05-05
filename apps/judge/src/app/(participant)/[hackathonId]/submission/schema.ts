@@ -1,5 +1,27 @@
 import { z } from "zod";
 
+const isHttp = (raw: string): boolean => {
+  try {
+    const u = new URL(raw);
+    return u.protocol === "http:" || u.protocol === "https:";
+  } catch {
+    return false;
+  }
+};
+
+const isHostname = (raw: string, hostname: RegExp): boolean => {
+  try {
+    return hostname.test(new URL(raw).hostname);
+  } catch {
+    return false;
+  }
+};
+
+const httpUrl = z
+  .string()
+  .url("Must be a valid URL")
+  .refine(isHttp, "Must be an http(s) URL");
+
 export const submissionSchema = z.object({
   title: z
     .string()
@@ -17,22 +39,23 @@ export const submissionSchema = z.object({
     .string()
     .min(1, "Demo video is required")
     .url("Must be a valid URL")
+    .refine(isHttp, "Must be an http(s) URL")
     .refine(
-      (url) => /youtube\.com|youtu\.be/.test(url),
-      "Must be a YouTube link"
+      (url) => isHostname(url, /(^|\.)youtube\.com$|(^|\.)youtu\.be$/),
+      "Must be a YouTube link",
     ),
-  images: z.array(z.string().url()).max(10, "Maximum 10 images allowed"),
+  images: z.array(httpUrl).max(10, "Maximum 10 images allowed"),
   githubUrl: z
     .string()
     .min(1, "GitHub repository is required")
     .url("Must be a valid URL")
-    .refine((url) => url.includes("github.com"), "Must be a GitHub link"),
-  deploymentUrl: z
-    .string()
-    .url("Must be a valid URL")
-    .optional()
-    .or(z.literal("")),
-  otherLinks: z.array(z.string().url("Must be a valid URL")),
+    .refine(isHttp, "Must be an http(s) URL")
+    .refine(
+      (url) => isHostname(url, /(^|\.)github\.com$/),
+      "Must be a GitHub link",
+    ),
+  deploymentUrl: httpUrl.optional().or(z.literal("")),
+  otherLinks: z.array(httpUrl),
   trackIds: z
     .array(z.string())
     .min(1, "Select at least one track")

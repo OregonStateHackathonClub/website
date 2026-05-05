@@ -204,7 +204,10 @@ export function SubmissionForm({
     try {
       const urls: string[] = [];
       for (const file of toUpload) {
-        const blob = await upload(`submissions/${file.name}`, file, {
+        const ext = (file.name.split(".").pop() || "").replace(/[^a-zA-Z0-9]/g, "").slice(0, 8);
+        const safeExt = ext ? `.${ext.toLowerCase()}` : "";
+        const randomName = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}${safeExt}`;
+        const blob = await upload(`submissions/${randomName}`, file, {
           access: "public",
           handleUploadUrl: "/api/upload",
           onUploadProgress: ({ loaded }) => {

@@ -31,7 +31,7 @@ type HackathonParticipantWithDetails = HackathonParticipant & {
 };
 
 export type UserWithDetails = User & {
-  applications: Application[];
+  applications: Omit<Application, "resumePath">[];
   hackathonParticipants: HackathonParticipantWithDetails[];
 };
 
@@ -45,7 +45,22 @@ export async function getUsers(): Promise<UserWithDetails[]> {
       },
     },
     include: {
-      applications: true,
+      applications: {
+        select: {
+          id: true,
+          createdAt: true,
+          userId: true,
+          hackathonId: true,
+          name: true,
+          university: true,
+          phoneNumber: true,
+          levelOfStudy: true,
+          country: true,
+          linkedinUrl: true,
+          shirtSize: true,
+          status: true,
+        },
+      },
       hackathonParticipants: {
         include: {
           hackathon: true,

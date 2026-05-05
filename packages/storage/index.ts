@@ -1,7 +1,8 @@
 import { del, list, put } from "@vercel/blob";
 
 export async function uploadFile(file: File, folder?: string): Promise<string> {
-  const filename = `${Date.now()}-${file.name}`;
+  const ext = file.name.match(/\.[^./\\]+$/)?.[0]?.toLowerCase() ?? "";
+  const filename = `${crypto.randomUUID()}${ext}`;
   const path = folder ? `${folder}/${filename}` : filename;
 
   const blob = await put(path, file, {
@@ -11,12 +12,27 @@ export async function uploadFile(file: File, folder?: string): Promise<string> {
   return blob.url;
 }
 
+const ALLOWED_BLOB_HOST_SUFFIX = ".public.blob.vercel-storage.com";
+
 export async function downloadFile(
   url: string,
 ): Promise<{ blob: Blob; filename: string }> {
-  const response = await fetch(url);
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    throw new Error("Invalid URL");
+  }
+  if (
+    parsed.protocol !== "https:" ||
+    !parsed.hostname.endsWith(ALLOWED_BLOB_HOST_SUFFIX)
+  ) {
+    throw new Error("Untrusted URL");
+  }
+
+  const response = await fetch(parsed.toString());
   const blob = await response.blob();
-  const filename = url.split("/").pop() || "download";
+  const filename = parsed.pathname.split("/").pop() || "download";
 
   return { blob, filename };
 }

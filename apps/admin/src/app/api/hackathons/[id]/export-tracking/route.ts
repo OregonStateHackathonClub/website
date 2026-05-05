@@ -107,13 +107,15 @@ export async function GET(
       a.notes || "",
     ];
 
-    // Escape CSV fields
+    // Escape CSV fields. Prefix cells starting with =, +, -, @ with a single
+    // quote so spreadsheet apps don't evaluate them as formulas.
     return fields
       .map((f) => {
-        if (f.includes(",") || f.includes('"') || f.includes("\n")) {
-          return `"${f.replace(/"/g, '""')}"`;
+        const safe = /^[=+\-@]/.test(f) ? `'${f}` : f;
+        if (safe.includes(",") || safe.includes('"') || safe.includes("\n")) {
+          return `"${safe.replace(/"/g, '""')}"`;
         }
-        return f;
+        return safe;
       })
       .join(",");
   });

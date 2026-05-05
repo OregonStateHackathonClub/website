@@ -175,15 +175,51 @@ export async function createTeam(
 
 export async function updateTeam(
   teamId: string,
-  teamData: Prisma.TeamUpdateInput,
+  teamData: {
+    name?: string;
+    description?: string | null;
+    contact?: string | null;
+    lookingForTeammates?: boolean;
+  },
 ): Promise<{ success: true } | { success: false; error: string }> {
   if (!(await isTeamMember(teamId))) {
     return { success: false, error: "Not a team member" };
   }
 
+  const data: Prisma.TeamUpdateInput = {};
+  if (typeof teamData.name === "string") {
+    const name = teamData.name.trim();
+    if (name.length === 0 || name.length > 100) {
+      return { success: false, error: "Invalid team name" };
+    }
+    data.name = name;
+  }
+  if (teamData.description !== undefined) {
+    if (
+      teamData.description !== null &&
+      (typeof teamData.description !== "string" ||
+        teamData.description.length > 1000)
+    ) {
+      return { success: false, error: "Invalid description" };
+    }
+    data.description = teamData.description;
+  }
+  if (teamData.contact !== undefined) {
+    if (
+      teamData.contact !== null &&
+      (typeof teamData.contact !== "string" || teamData.contact.length > 200)
+    ) {
+      return { success: false, error: "Invalid contact" };
+    }
+    data.contact = teamData.contact;
+  }
+  if (typeof teamData.lookingForTeammates === "boolean") {
+    data.lookingForTeammates = teamData.lookingForTeammates;
+  }
+
   try {
     await prisma.team.update({
-      data: teamData,
+      data,
       where: { id: teamId },
     });
 
@@ -359,24 +395,19 @@ export async function removeUserFromTeam(
 
     const targetTeamMember = await prisma.teamMember.findUnique({
       where: { id: teamMemberId },
-      select: { id: true, participant: { select: { id: true } } },
-    });
-
-    const participant = await prisma.hackathonParticipant.findFirst({
-      where: {
-        userId: session.user.id,
-        hackathonId: team?.hackathonId,
+      select: {
+        id: true,
+        participant: { select: { id: true, userId: true } },
       },
-      select: { id: true },
     });
 
-    if (!team || !targetTeamMember || !participant) {
+    if (!team || !targetTeamMember) {
       return { success: false, error: "Team or member not found" };
     }
 
-    // Only team creator or the member themselves can remove
-    const isCreator = team.creatorId === participant.id;
-    const isSelf = targetTeamMember.participant.id === participant.id;
+    // creatorId stores the User.id (set in createTeam).
+    const isCreator = team.creatorId === session.user.id;
+    const isSelf = targetTeamMember.participant.userId === session.user.id;
 
     if (!isCreator && !isSelf) {
       return { success: false, error: "Not authorized to remove this member" };
@@ -393,7 +424,13 @@ export async function removeUserFromTeam(
 
     const updatedTeam = await prisma.team.findUnique({
       where: { id: teamId },
-      select: { members: { select: { id: true } } },
+      select: {
+        members: {
+          select: {
+            participant: { select: { userId: true } },
+          },
+        },
+      },
     });
 
     if (!updatedTeam) {
@@ -409,11 +446,11 @@ export async function removeUserFromTeam(
       await prisma.team.delete({
         where: { id: teamId },
       });
-    } else if (team.creatorId === targetTeamMember.id) {
-      // Replace leader if necessary
+    } else if (team.creatorId === targetTeamMember.participant.userId) {
+      // Reassign creator to the next remaining member.
       await prisma.team.update({
         data: {
-          creatorId: updatedTeam.members[0].id,
+          creatorId: updatedTeam.members[0].participant.userId,
         },
         where: { id: teamId },
       });

@@ -219,7 +219,7 @@ const Profile = async () => {
                 <div>
                   <p className="text-xs text-neutral-500">Resume</p>
                   <a
-                    href={application.resumePath}
+                    href={`/api/resume/${application.id}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm text-neutral-400 hover:text-white transition-colors"

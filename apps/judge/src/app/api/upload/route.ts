@@ -16,6 +16,13 @@ export async function POST(request: Request): Promise<NextResponse> {
       if (!pathname.startsWith("submissions/")) {
         throw new Error("Uploads must be under submissions/");
       }
+      if (
+        pathname.includes("..") ||
+        pathname.includes("\\") ||
+        pathname.includes("//")
+      ) {
+        throw new Error("Invalid pathname");
+      }
 
       return {
         allowedContentTypes: ["image/png", "image/jpeg", "image/webp"],

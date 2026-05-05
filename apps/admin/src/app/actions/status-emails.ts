@@ -1,10 +1,22 @@
 "use server";
 
 import { Resend } from "resend";
+import { requireAdmin } from "./auth";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-function acceptanceEmailHtml(name: string, hackathonName: string): string {
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function acceptanceEmailHtml(rawName: string, rawHackathonName: string): string {
+  const name = escapeHtml(rawName);
+  const hackathonName = escapeHtml(rawHackathonName);
   return `
 <!DOCTYPE html>
 <html>
@@ -71,9 +83,11 @@ function acceptanceEmailHtml(name: string, hackathonName: string): string {
 }
 
 function statusUpdateEmailHtml(
-  name: string,
-  hackathonName: string,
+  rawName: string,
+  rawHackathonName: string,
 ): string {
+  const name = escapeHtml(rawName);
+  const hackathonName = escapeHtml(rawHackathonName);
   return `
 <!DOCTYPE html>
 <html>
@@ -157,6 +171,7 @@ export async function sendStatusEmail(
   hackathonName: string,
   status: "ACCEPTED" | "REJECTED" | "WAITLISTED",
 ): Promise<void> {
+  await requireAdmin();
   const { subject, html } = buildEmail(name, hackathonName, status);
 
   try {
@@ -177,6 +192,7 @@ export async function sendBulkStatusEmails(
   hackathonName: string,
   status: "ACCEPTED" | "REJECTED" | "WAITLISTED",
 ): Promise<void> {
+  await requireAdmin();
   const batchSize = 4;
   for (let i = 0; i < recipients.length; i += batchSize) {
     const batch = recipients.slice(i, i + batchSize);

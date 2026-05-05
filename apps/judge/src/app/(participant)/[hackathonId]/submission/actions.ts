@@ -89,6 +89,16 @@ export async function saveDraft(
     return { success: false, error: validated.error.errors[0]?.message ?? "Invalid input" };
   }
 
+  if (validated.data.trackIds?.length) {
+    const tracks = await prisma.track.findMany({
+      where: { id: { in: validated.data.trackIds }, hackathonId },
+      select: { id: true },
+    });
+    if (tracks.length !== validated.data.trackIds.length) {
+      return { success: false, error: "Invalid track" };
+    }
+  }
+
   const { teamId, participantId } = context;
 
   try {
@@ -180,6 +190,16 @@ export async function submitProject(
         success: false,
         error: `Incomplete submission: ${errorMessages}`,
       };
+    }
+
+    if (validated.data.trackIds.length) {
+      const tracks = await prisma.track.findMany({
+        where: { id: { in: validated.data.trackIds }, hackathonId },
+        select: { id: true },
+      });
+      if (tracks.length !== validated.data.trackIds.length) {
+        return { success: false, error: "Invalid track" };
+      }
     }
 
     const defaultTrack = await prisma.track.findFirst({
@@ -304,8 +324,45 @@ export async function deleteImage(url: string): Promise<ActionResult> {
     return { success: false, error: "Not authenticated" };
   }
 
-  if (!url.includes("vercel-storage.com")) {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
     return { success: false, error: "Invalid URL" };
+  }
+  if (
+    parsed.protocol !== "https:" ||
+    !parsed.hostname.endsWith(".public.blob.vercel-storage.com")
+  ) {
+    return { success: false, error: "Invalid URL" };
+  }
+
+  // Verify the URL belongs to the caller's draft or submission.
+  const [draft, submission] = await Promise.all([
+    prisma.draft.findFirst({
+      where: {
+        OR: [
+          { participant: { userId: session.user.id } },
+          { team: { members: { some: { participant: { userId: session.user.id } } } } },
+        ],
+        images: { has: url },
+      },
+      select: { id: true },
+    }),
+    prisma.submission.findFirst({
+      where: {
+        OR: [
+          { participant: { userId: session.user.id } },
+          { team: { members: { some: { participant: { userId: session.user.id } } } } },
+        ],
+        images: { has: url },
+      },
+      select: { id: true },
+    }),
+  ]);
+
+  if (!draft && !submission) {
+    return { success: false, error: "Not authorized" };
   }
 
   try {

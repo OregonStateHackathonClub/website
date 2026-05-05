@@ -404,7 +404,7 @@ export function TeamDetails({
                     {u.participant?.user.name || "Unknown"}
                   </p>
                 </div>
-                {u.id === team.creatorId && (
+                {u.participant?.user.id === team.creatorId && (
                   <Image
                     src="/crown.png"
                     alt="Team leader"
@@ -413,7 +413,7 @@ export function TeamDetails({
                   />
                 )}
                 {session?.user.id === u.participant?.user.id &&
-                  u.id !== team.creatorId && (
+                  u.participant?.user.id !== team.creatorId && (
                     <button
                       type="button"
                       onClick={() => removeUser(u.id)}

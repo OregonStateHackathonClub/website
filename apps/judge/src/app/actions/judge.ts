@@ -120,8 +120,11 @@ export async function getRoundTimeline(hackathonId: string, roundId: string) {
   if (!judge) return { success: false, error: "Not a judge" };
 
   try {
-    const round = await prisma.judgingRound.findUnique({
-      where: { id: roundId },
+    const round = await prisma.judgingRound.findFirst({
+      where: {
+        id: roundId,
+        plan: { track: { hackathonId } },
+      },
       include: {
         plan: {
           include: {
@@ -271,10 +274,26 @@ export async function submitRubricScores(
       return { success: false, error: "Round has no rubric" };
     }
 
-    const criteriaIds = round.rubric.criteria.map((c) => c.id);
-    for (const criteriaId of criteriaIds) {
+    const criteriaById = new Map(
+      round.rubric.criteria.map((c) => [c.id, c]),
+    );
+    for (const criteriaId of criteriaById.keys()) {
       if (scores[criteriaId] === undefined) {
         return { success: false, error: "All criteria must be scored" };
+      }
+    }
+    for (const [criteriaId, value] of Object.entries(scores)) {
+      const criterion = criteriaById.get(criteriaId);
+      if (!criterion) {
+        return { success: false, error: "Unknown criterion" };
+      }
+      if (
+        typeof value !== "number" ||
+        !Number.isFinite(value) ||
+        value < 0 ||
+        value > criterion.maxScore
+      ) {
+        return { success: false, error: "Score out of range" };
       }
     }
 
@@ -335,9 +354,18 @@ export async function submitRankedVotes(
       },
     });
 
-    const assignmentBySubmission = Object.fromEntries(
+    const assignmentBySubmission = new Map(
       assignments.map((a) => [a.submissionId, a]),
     );
+
+    if (new Set(rankedSubmissionIds).size !== rankedSubmissionIds.length) {
+      return { success: false, error: "Duplicate submissions in ranking" };
+    }
+    for (const submissionId of rankedSubmissionIds) {
+      if (!assignmentBySubmission.has(submissionId)) {
+        return { success: false, error: "Not assigned to a ranked submission" };
+      }
+    }
 
     await prisma.rankedVote.deleteMany({
       where: {
@@ -347,7 +375,7 @@ export async function submitRankedVotes(
 
     await prisma.rankedVote.createMany({
       data: rankedSubmissionIds.map((submissionId, index) => ({
-        assignmentId: assignmentBySubmission[submissionId].id,
+        assignmentId: assignmentBySubmission.get(submissionId)!.id,
         rank: index + 1,
       })),
     });
@@ -376,8 +404,11 @@ export async function getRankedVotingSubmissions(
   if (!judge) return { success: false, error: "Not a judge" };
 
   try {
-    const round = await prisma.judgingRound.findUnique({
-      where: { id: roundId },
+    const round = await prisma.judgingRound.findFirst({
+      where: {
+        id: roundId,
+        plan: { track: { hackathonId } },
+      },
       include: {
         plan: {
           include: { track: true },

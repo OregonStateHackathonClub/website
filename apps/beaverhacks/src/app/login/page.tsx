@@ -5,9 +5,16 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { signIn, signUp, useSession, forgetPassword } from "@repo/auth/client";
 import { Mail, Lock, User, Github, Loader2 } from "lucide-react";
 
+function isSafeCallback(url: string | null): url is string {
+  if (!url) return false;
+  // Only allow same-origin relative paths.
+  return url.startsWith("/") && !url.startsWith("//") && !url.startsWith("/\\");
+}
+
 function LoginForm() {
   const searchParams = useSearchParams();
-  const callbackURL = searchParams.get("callbackURL") || "/";
+  const rawCallback = searchParams.get("callbackURL");
+  const callbackURL = isSafeCallback(rawCallback) ? rawCallback : "/";
   const router = useRouter();
   const { data: session, isPending } = useSession();
 

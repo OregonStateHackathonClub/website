@@ -6,6 +6,15 @@ import { auth } from "@repo/auth";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export async function POST(request: Request): Promise<Response> {
   const applicationsOpen = process.env.APPLICATIONS_OPEN === "true";
 
@@ -53,7 +62,19 @@ export async function POST(request: Request): Promise<Response> {
   const formData = await request.formData();
   const name = formData.get("name") as string;
 
-  const path = await uploadFile(formData.get("resume") as File, "resumes");
+  const resume = formData.get("resume");
+  if (!(resume instanceof File) || resume.size === 0) {
+    return new Response("Resume is required", { status: 400 });
+  }
+  const MAX_RESUME_BYTES = 10 * 1024 * 1024; // 10 MB
+  if (resume.size > MAX_RESUME_BYTES) {
+    return new Response("Resume must be 10 MB or smaller", { status: 400 });
+  }
+  if (resume.type !== "application/pdf") {
+    return new Response("Resume must be a PDF", { status: 400 });
+  }
+
+  const path = await uploadFile(resume, "resumes");
 
   // Create application and hackathon participant in a transaction
   const application = await prisma.$transaction(async (tx) => {
@@ -118,7 +139,7 @@ export async function POST(request: Request): Promise<Response> {
           <tr>
             <td style="padding: 40px;">
               <p style="margin: 0 0 20px; color: #18181b; font-size: 16px; line-height: 1.6;">
-                Hey ${name},
+                Hey ${escapeHtml(name)},
               </p>
               <p style="margin: 0 0 20px; color: #18181b; font-size: 16px; line-height: 1.6;">
                 Thanks for applying to BeaverHacks! Your application has been received and is currently under review.

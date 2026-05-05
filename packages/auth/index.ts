@@ -17,17 +17,23 @@ function escapeHtml(value: string): string {
 
 export const auth = betterAuth({
   baseURL: process.env.NEXT_PUBLIC_AUTH_URL || "http://localhost:3000",
-  trustedOrigins: [
-    "https://*.beaverhacks.org",
-    "https://beaverhacks.org",
-    "http://localhost:*",
-  ],
+  trustedOrigins:
+    process.env.NODE_ENV === "production"
+      ? ["https://*.beaverhacks.org", "https://beaverhacks.org"]
+      : [
+          "https://*.beaverhacks.org",
+          "https://beaverhacks.org",
+          "http://localhost:*",
+        ],
   advanced: {
     crossSubDomainCookies: {
       enabled: true,
       domain:
         process.env.NODE_ENV === "production" ? ".beaverhacks.org" : undefined,
     },
+  },
+  account: {
+    encryptOAuthTokens: true,
   },
   socialProviders: {
     github: {
