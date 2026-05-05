@@ -6,6 +6,15 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export const auth = betterAuth({
   baseURL: process.env.NEXT_PUBLIC_AUTH_URL || "http://localhost:3000",
   trustedOrigins: [
@@ -31,6 +40,7 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: true,
     sendResetPassword: async ({ user, url }) => {
       await resend.emails.send({
         from: "BeaverHacks <info@beaverhacks.org>",
@@ -59,7 +69,7 @@ export const auth = betterAuth({
           <tr>
             <td style="padding: 40px;">
               <p style="margin: 0 0 20px; color: #18181b; font-size: 16px; line-height: 1.6;">
-                Hey ${user.name || "there"},
+                Hey ${escapeHtml(user.name || "there")},
               </p>
               <p style="margin: 0 0 20px; color: #18181b; font-size: 16px; line-height: 1.6;">
                 We received a request to reset your password. Click the link below to set a new one:
@@ -89,6 +99,39 @@ export const auth = betterAuth({
 </body>
 </html>
         `,
+      });
+    },
+  },
+  emailVerification: {
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      await resend.emails.send({
+        from: "BeaverHacks <info@beaverhacks.org>",
+        to: user.email,
+        subject: "BeaverHacks — Verify your email",
+        html: `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8" /></head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: 'Inter', Arial, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f5; padding: 40px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden;">
+        <tr><td style="background-color: #18181b; padding: 48px 40px; text-align: center;">
+          <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">Verify your email</h1>
+        </td></tr>
+        <tr><td style="padding: 40px;">
+          <p style="margin: 0 0 20px; color: #18181b; font-size: 16px;">Hey ${escapeHtml(user.name || "there")},</p>
+          <p style="margin: 0 0 28px; color: #18181b; font-size: 16px;">Click the link below to verify your email and finish creating your BeaverHacks account:</p>
+          <p style="margin: 0 0 28px;"><a href="${url}" target="_blank" style="color: #F97316; text-decoration: underline;">Verify your email</a></p>
+          <p style="margin: 0; color: #71717a; font-size: 14px;">If you didn't request this, you can safely ignore this email.</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`,
       });
     },
   },
