@@ -14,9 +14,9 @@
     "@repo/ui": "workspace:*",
     "geist": "^1.5.1",
     "lucide-react": "^0.525.0",
-    "next": "15.5.9",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "next": "15.5.18",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
     "stripe": "^20.2.0"
   },
   "devDependencies": {
@@ -28,7 +28,7 @@
     "@types/react-dom": "^19",
     "dotenv-cli": "^7.4.2",
     "eslint": "^9",
-    "eslint-config-next": "15.3.4",
+    "eslint-config-next": "15.5.18",
     "tailwindcss": "^4",
     "typescript": "5.3.3"
   }
