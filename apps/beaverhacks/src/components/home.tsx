@@ -65,7 +65,7 @@ const MOTD = () => (
       </p>
       <p>
         <span className="text-amber-dim">Status:</span>{" "}
-        <span className="text-green-500">Registration Open</span>
+        <span className="text-amber-normal">Event Concluded</span>
       </p>
     </div>
   </div>
