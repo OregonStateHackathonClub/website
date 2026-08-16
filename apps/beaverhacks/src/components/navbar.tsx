@@ -59,7 +59,7 @@ export const Navbar = ({ active, onNavigate }: NavbarProps) => {
 
         {/* Register button - special tab */}
         <a
-          href="/apply"
+          href="https://beaverhacks.org"
           className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-bright/10 text-amber-bright hover:bg-amber-bright/20 transition-all border-l border-amber-muted/30"
         >
           <span className="text-[10px]"></span>

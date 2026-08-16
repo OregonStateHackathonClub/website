@@ -1,6 +1,4 @@
 import type { NextConfig } from "next";
-// @ts-expect-error - no types available
-import { PrismaPlugin } from "@prisma/nextjs-monorepo-workaround-plugin";
 
 // 'unsafe-inline' on script-src is required for Next.js App Router hydration
 // scripts. 'unsafe-eval' is only enabled in dev for the React Refresh runtime.
@@ -42,12 +40,6 @@ const nextConfig: NextConfig = {
         hostname: "avatars.githubusercontent.com",
       },
     ],
-  },
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      config.plugins = [...config.plugins, new PrismaPlugin()];
-    }
-    return config;
   },
   experimental: {
     reactCompiler: true,

@@ -353,7 +353,7 @@ export const Home = ({ onNavigateAction }: HomeProps) => {
         break;
       case "register":
         setHistory((prev) => [...prev, { command: cmd, timestamp }]);
-        window.location.href = "/apply";
+        window.location.href = "https://beaverhacks.org";
         break;
       case "clear":
         setHistory([]);

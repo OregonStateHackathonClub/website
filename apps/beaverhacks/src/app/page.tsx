@@ -158,7 +158,7 @@ export default function Page() {
             <Panel title="Quick Links" icon="">
               <div className="space-y-1 text-[10px] font-secondary">
                 <a
-                  href="/apply"
+                  href="https://beaverhacks.org"
                   className="block text-amber-normal hover:text-amber-bright hover:text-glow-base transition-all"
                 >
                   → Register Now

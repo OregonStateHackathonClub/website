@@ -21,6 +21,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "BeaverHacks",
   description: "BeaverHacks - Hackathon Club @ OSU",
+  robots: { index: false, follow: false },
 };
 
 export default function RootLayout({
