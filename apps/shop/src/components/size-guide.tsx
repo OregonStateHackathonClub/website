@@ -13,6 +13,7 @@ export function SizeGuide() {
         Size guide
       </summary>
       <div className="px-3 pb-3">
+        <p className="mb-2 font-medium">We recommend going a size up.</p>
         <p className="mb-2 text-xs text-muted-foreground">All measurements in inches.</p>
         <div className="overflow-x-auto rounded-md border border-border">
           <table className="w-full text-left text-xs sm:text-sm tabular-nums">
