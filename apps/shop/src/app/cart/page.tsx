@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { ArrowLeft, Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
-import { useSession, redirectToLogin } from "@repo/auth/client";
 import { Card } from "@repo/ui/components/card";
 import { Button } from "@repo/ui/components/button";
 import { useCart } from "@/lib/cart";
@@ -13,15 +12,9 @@ import { MAX_CART_ITEMS, SOLD_OUT } from "@/lib/constants";
 export default function CartPage() {
   const { items, updateQuantity, removeFromCart, totalPrice, totalItems } =
     useCart();
-  const { data: session, isPending: isSessionLoading } = useSession();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   const handleCheckout = async () => {
-    if (!session?.user) {
-      redirectToLogin();
-      return;
-    }
-
     setIsCheckingOut(true);
     try {
       const response = await fetch("/api/checkout", {
@@ -216,16 +209,14 @@ export default function CartPage() {
 
               <Button
                 onClick={handleCheckout}
-                disabled={SOLD_OUT || isCheckingOut || isSessionLoading}
+                disabled={SOLD_OUT || isCheckingOut}
                 className="w-full"
               >
                 {SOLD_OUT
                   ? "Sold Out"
                   : isCheckingOut
                     ? "Processing..."
-                    : session?.user
-                      ? "Checkout"
-                      : "Sign in to Checkout"}
+                    : "Checkout"}
               </Button>
 
               {SOLD_OUT && (
@@ -234,15 +225,9 @@ export default function CartPage() {
                 </p>
               )}
 
-              {!SOLD_OUT && !session?.user && !isSessionLoading && (
+              {!SOLD_OUT && (
                 <p className="text-xs text-muted-foreground text-center mt-3">
-                  Sign-in with your BeaverHacks account
-                </p>
-              )}
-
-              {!SOLD_OUT && session?.user && (
-                <p className="text-xs text-muted-foreground text-center mt-3">
-                  {session.user.email}
+                  No account needed. Enter your email at checkout.
                 </p>
               )}
             </Card>
