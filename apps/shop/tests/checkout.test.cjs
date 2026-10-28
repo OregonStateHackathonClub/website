@@ -25,9 +25,9 @@ function findCheckout(node) {
     if (found) return found;
   }
 }
-for (const size of ['XS', 'S', 'M', 'L', 'XL', '2XL']) {
+for (const size of ['S', 'M', 'L', 'XL', '2XL']) {
   test(`guest cart sends ${size} through server validation to the configured Stripe price`, async () => {
-    for (const s of ['XS', 'S', 'M', 'L', 'XL', '2XL']) {
+    for (const s of ['S', 'M', 'L', 'XL', '2XL']) {
       process.env[`NEXT_PUBLIC_STRIPE_PRICE_${s}`] = `price_test_${s}`;
     }
     const { product } = load('src/lib/products.ts', {});
@@ -74,6 +74,7 @@ for (const size of ['XS', 'S', 'M', 'L', 'XL', '2XL']) {
 
 for (const scenario of [
   { name: 'unknown product', items: [{ productId: 'other', variantId: 's', quantity: 1 }] },
+  { name: 'removed XS size', variantId: 'size-xs', quantity: 1 },
   { name: 'unknown size', variantId: 'invalid', quantity: 1 },
   { name: 'negative quantity', quantity: -1 },
   { name: 'fractional quantity', quantity: 1.5 },

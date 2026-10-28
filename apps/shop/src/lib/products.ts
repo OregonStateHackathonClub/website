@@ -23,11 +23,6 @@ export const product: Product = {
   images: ["/hoodie_front.png", "/hoodie_back.png"],
   variants: [
     {
-      id: "size-xs",
-      name: "XS",
-      stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_XS || "",
-    },
-    {
       id: "size-s",
       name: "S",
       stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_S || "",
