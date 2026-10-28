@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { SizeGuide } from "@/components/size-guide";
 import { Check } from "lucide-react";
 import { Button } from "@repo/ui/components/button";
 import { useCart } from "@/lib/cart";
@@ -87,6 +88,7 @@ export function AddToCartButton({
               );
             })}
           </div>
+          <SizeGuide />
         </div>
       )}
 
