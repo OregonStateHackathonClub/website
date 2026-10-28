@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth, getSessionCookie } from "@repo/auth";
 import { stripe } from "@/lib/stripe";
 import { product } from "@/lib/products";
 import { MAX_CART_ITEMS, SOLD_OUT } from "@/lib/constants";
@@ -16,19 +15,6 @@ export async function POST(request: NextRequest) {
       { error: "We're no longer accepting orders" },
       { status: 400 },
     );
-  }
-
-  const sessionCookie = getSessionCookie(request);
-  if (!sessionCookie) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
@@ -63,7 +49,6 @@ export async function POST(request: NextRequest) {
 
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: "payment",
-      customer_email: session.user.email || undefined,
       line_items: lineItems,
       shipping_address_collection: {
         allowed_countries: ["US"],

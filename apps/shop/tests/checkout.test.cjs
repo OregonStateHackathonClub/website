@@ -26,7 +26,7 @@ function findCheckout(node) {
   }
 }
 for (const size of ['XS', 'S', 'M', 'L', 'XL', '2XL']) {
-  test(`cart sends ${size} through server validation to the configured Stripe price`, async () => {
+  test(`guest cart sends ${size} through server validation to the configured Stripe price`, async () => {
     for (const s of ['XS', 'S', 'M', 'L', 'XL', '2XL']) {
       process.env[`NEXT_PUBLIC_STRIPE_PRICE_${s}`] = `price_test_${s}`;
     }
@@ -34,11 +34,11 @@ for (const size of ['XS', 'S', 'M', 'L', 'XL', '2XL']) {
     const variant = product.variants.find(v => v.name === size);
     assert.ok(variant, `${size} must be selectable`);
     let stripeInput;
-    const session = { user: { email: 'checkout-test@example.com' } };
+    const session = null;
     const constants = { MAX_CART_ITEMS: 3, SOLD_OUT: false };
     const { POST } = load('src/app/api/checkout/route.ts', {
       'next/server': { NextResponse: { json: (body, options) => ({ body, status: options?.status || 200 }) } },
-      '@repo/auth': { getSessionCookie: () => 'test-session', auth: { api: { getSession: async () => session } } },
+      '@repo/auth': { getSessionCookie: () => null, auth: { api: { getSession: async () => session } } },
       '@/lib/stripe': { stripe: { checkout: { sessions: { create: async input => {
         stripeInput = input;
         return { url: 'https://checkout.stripe.com/test-session' };
@@ -66,7 +66,33 @@ for (const size of ['XS', 'S', 'M', 'L', 'XL', '2XL']) {
     };
     await button.props.onClick();
     assert.equal(response.status, 200, JSON.stringify(response.body));
+    assert.equal(stripeInput.customer_email, undefined);
     assert.deepEqual(stripeInput.line_items, [{ price: `price_test_${size}`, quantity: 1 }]);
     assert.equal(window.location.href, 'https://checkout.stripe.com/test-session');
+  });
+}
+
+for (const scenario of [
+  { name: 'unknown product', items: [{ productId: 'other', variantId: 's', quantity: 1 }] },
+  { name: 'unknown size', variantId: 'invalid', quantity: 1 },
+  { name: 'negative quantity', quantity: -1 },
+  { name: 'fractional quantity', quantity: 1.5 },
+  { name: 'quantity above limit', quantity: 4 },
+  { name: 'combined quantity above limit', quantities: [2, 2] },
+]) {
+  test(`guest checkout rejects ${scenario.name} before contacting Stripe`, async () => {
+    const { product } = load('src/lib/products.ts', {});
+    let stripeCalled = false;
+    const { POST } = load('src/app/api/checkout/route.ts', {
+      'next/server': { NextResponse: { json: (body, options) => ({ body, status: options?.status || 200 }) } },
+      '@/lib/stripe': { stripe: { checkout: { sessions: { create: async () => { stripeCalled = true; } } } } },
+      '@/lib/products': { product }, '@/lib/constants': { MAX_CART_ITEMS: 3, SOLD_OUT: false },
+    });
+    const items = scenario.items || (scenario.quantities || [scenario.quantity]).map(quantity => ({
+      productId: product.id, variantId: scenario.variantId || product.variants[0].id, quantity,
+    }));
+    const response = await POST({ json: async () => ({ items }) });
+    assert.equal(response.status, 400);
+    assert.equal(stripeCalled, false);
   });
 }
