@@ -70,7 +70,7 @@ export default function HomePage() {
               {/* Badge */}
               <div className="flex items-center gap-2">
                 <Badge variant={SOLD_OUT ? "destructive" : "secondary"}>
-                  {SOLD_OUT ? "Sold Out" : "Preorder"}
+                  {SOLD_OUT ? "Sold Out" : "Preorders Available"}
                 </Badge>
               </div>
 
@@ -81,6 +81,10 @@ export default function HomePage() {
 
               {/* Price */}
               <div className="flex items-baseline gap-3">
+                <s className="text-xl text-muted-foreground">
+                  <span className="sr-only">Original price: </span>
+                  ${product.compareAtPrice.toFixed(2)}
+                </s>
                 <p className="text-xl sm:text-2xl font-medium">
                   ${product.price.toFixed(2)}
                 </p>

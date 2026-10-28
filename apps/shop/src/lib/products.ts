@@ -9,6 +9,7 @@ export interface Product {
   name: string;
   description: string;
   price: number;
+  compareAtPrice: number;
   images: string[];
   variants: ProductVariant[];
 }
@@ -17,9 +18,15 @@ export const product: Product = {
   id: "beaverhacks-hoodie",
   name: "BeaverHacks 2026 Hoodie",
   description: "Premium heavyweight hoodie",
-  price: 50.0,
+  price: 45.0,
+  compareAtPrice: 60.0,
   images: ["/hoodie_front.png", "/hoodie_back.png"],
   variants: [
+    {
+      id: "size-xs",
+      name: "XS",
+      stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_XS || "",
+    },
     {
       id: "size-s",
       name: "S",
@@ -39,6 +46,11 @@ export const product: Product = {
       id: "size-xl",
       name: "XL",
       stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_XL || "",
+    },
+    {
+      id: "size-2xl",
+      name: "2XL",
+      stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_2XL || "",
     },
   ],
 };

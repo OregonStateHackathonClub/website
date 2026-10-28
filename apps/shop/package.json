@@ -6,7 +6,8 @@
     "dev": "dotenv -e ../../.env.local -- next dev -p 3001",
     "build": "dotenv -e ../../.env.local -- next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "node --test tests/*.test.cjs"
   },
   "dependencies": {
     "@repo/auth": "workspace:*",
