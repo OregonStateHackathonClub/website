@@ -18,7 +18,7 @@ export const product: Product = {
   id: "beaverhacks-hoodie",
   name: "BeaverHacks 2026 Hoodie",
   description: "Premium heavyweight hoodie",
-  price: 45.0,
+  price: 35.0,
   compareAtPrice: 60.0,
   images: ["/hoodie_front.png", "/hoodie_back.png"],
   variants: [
