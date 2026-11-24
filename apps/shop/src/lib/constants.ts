@@ -1,5 +1,5 @@
 export const MAX_CART_ITEMS = 3;
-export const CART_STORAGE_KEY = "beaverhacks-shop-cart-preorder-2026-10";
+export const CART_STORAGE_KEY = "beaverhacks-shop-cart-preorder-2026-11";
 
 // Hard-stop flag: when true, blocks adding to cart and creating Stripe
 // checkouts. Flip to false when restocking.
